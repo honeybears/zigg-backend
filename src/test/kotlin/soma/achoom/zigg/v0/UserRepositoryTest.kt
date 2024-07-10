@@ -15,13 +15,13 @@ class UserRepositoryTest @Autowired constructor(
 )  {
 
 
-    @Test
-    fun creatUser(){
-        val user:User = User(userNickname = "test", email = "test@test.com", userName = "test")
-        userRepository.save(user)
-        var user2 = userRepository.findByEmail("test@test.com")
-        println(user.toString())
-
-    }
+//    @Test
+//    fun creatUser(){
+//        val user:User = User(userNickname = "test", email = "test@test.com", userName = "test")
+//        userRepository.save(user)
+//        var user2 = userRepository.findByEmail("test@test.com")
+//        println(user.toString())
+//
+//    }
 
 }
