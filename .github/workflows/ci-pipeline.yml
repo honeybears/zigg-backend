@@ -46,7 +46,7 @@ jobs:
         run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./zigg.zip s3:zigg-code-deploy-bucket///zigg.zip
 
   deploy:
-    needs: build
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials and Deploy
