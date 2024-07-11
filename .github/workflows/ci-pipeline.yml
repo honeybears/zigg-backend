@@ -26,6 +26,7 @@ jobs:
         run: |
           mkdir ./src/main/resources
           aws s3 cp ${{ secrets.S3_PROPERTIES_URL}} ./src/main/resources --recursive --include "*.properties"
+      
 
       - name: Set up JDK 21
         uses: actions/setup-java@v3
@@ -37,13 +38,15 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
+        env:
+          SPRING_PROFILES_ACTIVE: test
 
       - name: Make zip file
         run: zip -r ./zigg.zip .
         shell: bash
 
       - name: Upload to S3
-        run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./zigg.zip s3:zigg-code-deploy-bucket///zigg.zip
+        run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./zigg.zip s3:zigg-code-deploy-bucket/application/zigg.zip
 
   deploy:
     needs: build-and-push
@@ -61,5 +64,5 @@ jobs:
           --application-name zigg-spring-code-deploy \
           --deployment-group-name zigg-spring-deploy-group \
           --file-exists-behavior OVERWRITE \
-          --s3-location bucket=zigg-code-deploy-bucket,bundleType=zip,key=zigg.zip \
+          --s3-location bucket=zigg-code-deploy-bucket ,bundleType=zip,key=zigg.zip \
           --region ${{ secrets.AWS_REGION }}
