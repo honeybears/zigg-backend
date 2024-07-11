@@ -24,10 +24,8 @@ jobs:
 
       - name: Download properties files
         run: |
-          cd ./src/main
-          mkdir ./resources
-          cd ./resources
-          aws s3 cp ${{ secrets.S3_PROPERTIES_URL}} ./ --recursive --include "*.properties"
+          mkdir ./src/main/resources
+          aws s3 cp ${{ secrets.S3_PROPERTIES_URL}} ./src/main/resources --recursive --include "*.properties"
 
 
       - name : Login to Amazon ECR
