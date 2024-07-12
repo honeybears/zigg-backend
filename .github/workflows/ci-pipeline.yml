@@ -63,6 +63,6 @@ jobs:
           aws deploy create-deployment \
           --application-name zigg-spring-code-deploy \
           --deployment-group-name zigg-spring-deploy-group \
+          --deployment-config-name CodeDeployDefault.OneAtATime
           --file-exists-behavior OVERWRITE \
-          --s3-location bucket=zigg-code-deploy-bucket ,bundleType=zip,key=zigg.zip \
-          --region ${{ secrets.AWS_REGION }}
+          --s3-location bucket=zigg-code-deploy-bucket ,key=application/zigg.zip bundleType=zip \
