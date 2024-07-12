@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 PROJECT_ROOT="/home/ubuntu/zigg"
-JAR_FILE="$PROJECT_ROOT/build/libs/*.jar"
+JAR_FILE=$(ls -t $PROJECT_ROOT/build/libs/*.jar | head -n 1)
 
 
 TIME_NOW=$(date +%c)
