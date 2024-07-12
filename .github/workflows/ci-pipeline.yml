@@ -22,12 +22,6 @@ jobs:
           aws-secret-access-key : ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ap-northeast-2
 
-      - name: Download properties files
-        run: |
-          mkdir ./src/main/resources
-          aws s3 cp ${{ secrets.S3_PROPERTIES_URL}} ./src/main/resources --recursive --include "*.properties"
-      
-
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
