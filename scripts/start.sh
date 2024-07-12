@@ -1,21 +1,14 @@
 #!/usr/bin/env bash
 
-PROJECT_ROOT="/home/ubuntu/app/deploy"
+PROJECT_ROOT="/home/ubuntu/zigg"
 JAR_FILE="$PROJECT_ROOT/build/libs/*.jar"
 
-APP_LOG="$PROJECT_ROOT/application.log"
-ERROR_LOG="$PROJECT_ROOT/error.log"
-DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
+# 1. 압축 해제
+unzip zigg.zip -d /home/ubuntu
 
-TIME_NOW=$(date +%c)
+# 2. 빌드 (필요한 경우)
+chmod +x $PROJECT_ROOT/gradlew
 
-# build 파일 복사
-echo "$TIME_NOW > $JAR_FILE 파일 복사" >> $DEPLOY_LOG
-cp $PROJECT_ROOT/build/libs/*.jar $JAR_FILE
+$PROJECT_ROOT/gradlew build
 
-# jar 파일 실행
-echo "$TIME_NOW > $JAR_FILE 파일 실행" >> $DEPLOY_LOG
-nohup java -jar $JAR_FILE > $APP_LOG 2> $ERROR_LOG &
-
-CURRENT_PID=$(pgrep -f $JAR_FILE)
-echo "$TIME_NOW > 실행된 프로세스 아이디 $CURRENT_PID 입니다." >> $DEPLOY_LOG
+java -jar $JAR_FILE -Dspring.profiles.active=dev

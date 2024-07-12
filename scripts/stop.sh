@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-PROJECT_ROOT="/home/ec2-user/app/deploy"
+PROJECT_ROOT="/home/ubuntu/zigg"
 JAR_FILE="$PROJECT_ROOT/build/libs/*.jar"
 
-DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
 
 TIME_NOW=$(date +%c)
 
