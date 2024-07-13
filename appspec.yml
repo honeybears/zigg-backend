@@ -6,12 +6,15 @@ files:
     overwrite: yes
 
 hooks:
-  AfterInstall:
+  BeforeInstall:
+    - location: scripts/install.sh
+      timeout: 300
+      runas: root
     - location: scripts/stop.sh
-      timeout: 60
-      runas: ubuntu
+      timeout: 300
+      runas: root
 
   ApplicationStart:
     - location: scripts/start.sh
-      timeout: 100
-      runas: ubuntu
+      timeout: 300
+      runas: root
