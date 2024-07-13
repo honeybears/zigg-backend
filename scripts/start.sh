@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 PROJECT_ROOT="/home/ubuntu/zigg"
 JAR_FILE=$(ls -t "$PROJECT_ROOT"/build/libs/*.jar | head -n 1)
