@@ -26,6 +26,7 @@ if [ -n "$CURRENT_PID" ]; then
   if ps -p "$CURRENT_PID" > /dev/null; then
     kill -9 "$CURRENT_PID"
   fi
+
 fi
 
 # 3. 실행
