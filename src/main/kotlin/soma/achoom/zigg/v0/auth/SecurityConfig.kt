@@ -25,7 +25,7 @@ class SecurityConfig(
                 it.disable()
             }
              .authorizeHttpRequests {
-                 it.requestMatchers("/login","/login/oauth2/code/**","/oauth2/authorization/**").permitAll()
+                 it.requestMatchers("/login","/login/oauth2/code/**","/oauth2/authorization/**","/health").permitAll()
                      .anyRequest().authenticated()
              }
             .oauth2Login {
