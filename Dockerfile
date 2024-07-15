@@ -15,7 +15,7 @@
 FROM gradle:8.8.0-jdk21 AS build
 WORKDIR /app
 COPY . .
-RUN ./gradlew build --no-daemon
+RUN ./gradlew build --parallel --no-daemon
 
 # Stage 2: Run the application
 FROM openjdk:21-slim
