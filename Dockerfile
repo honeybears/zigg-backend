@@ -6,7 +6,7 @@ CMD ["chmod", "+x", "./gradlew"]
 CMD ["./gradlew" ,"build", "-Dspring.profiles.active=test"]
 
 EXPOSE 8080
-ARG JAR_FILE=build/libs/*.jar
+ARG JAR_FILE=app/build/libs/*.jar
 COPY ${JAR_FILE} app.jar
 
 # 실행 명령어
