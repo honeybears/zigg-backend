@@ -12,7 +12,7 @@ env:
   AWS_REGION: ap-northeast-2
   ECR_REGISTRY: 975050264794.dkr.e975050264794.dkr.ecr.ap-northeast-2.amazonaws.com
   ECR_REPOSITORY: zigg_application
-  ECS_SERVICE: zigg_spring_ecs_service
+  ECS_SERVICE: zigg_spring_ecs
   ECS_CLUSTER: zigg_spring_server_cluster
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: zigg-service
