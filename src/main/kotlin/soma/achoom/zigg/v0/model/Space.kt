@@ -9,7 +9,11 @@ data class Space(
     val spaceId:Long,
     val spaceName: String,
 
+    val comparisonVideo:Boolean,
+
+    @OneToMany(mappedBy = "space") // SpaceUser 엔티티와의 관계 설정
+    val spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
+
     @OneToMany
-    val user_in_space: MutableSet<User> = mutableSetOf(),
-    
-)
+    val history: MutableSet<History> = mutableSetOf(),
+):BaseEntity()

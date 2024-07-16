@@ -4,8 +4,10 @@ class ResponseMessage<T:BaseDto> {
     var message: String? = null
     var dto: T? = null
 
+
     constructor(message: String) {
         this.message = message
+
     }
     constructor(message: String ,dto: T) {
         this.message = message
