@@ -27,10 +27,13 @@ class UserService {
         return UserResponseDto.from(user)
     }
 
+
+
     private fun getAuthUser(oAuth2User: CustomOAuth2User):User{
         return userRepository.findByProviderIdAndProvider(
             oAuth2User.name,
             CustomOAuthProviderEnum.valueOf(oAuth2User.registrationId.uppercase(Locale.getDefault()))
         ).get()
     }
+
 }

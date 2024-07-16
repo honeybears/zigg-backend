@@ -22,4 +22,4 @@ FROM openjdk:21-slim
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar", "-Dspring.profiles.active=dev"]
+ENTRYPOINT ["java","-jar","-Dspring.profiles.active=dev","app.jar"]
