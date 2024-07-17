@@ -40,7 +40,10 @@ dependencies {
 	implementation ("org.json:json:20231013")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("com.mysql:mysql-connector-j")
+	//mariaDB connection
+	runtimeOnly ("org.mariadb.jdbc:mariadb-java-client")
+
+//	runtimeOnly("com.mysql:mysql-connector-j")
 	runtimeOnly ("com.h2database:h2")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
