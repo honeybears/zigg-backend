@@ -10,11 +10,11 @@ import kotlin.time.Duration
 data class FeedbackRequestDto(
     val id:Long?,
     @Enumerated(EnumType.STRING)
-    val type: FeedbackType,
-    val timeline: Duration,
+    val type: FeedbackType?,
+    val timeline: Duration?,
     @Nullable
     val creatorId: User?,
-    val recipientId:MutableSet<User> = mutableSetOf(),
+    val recipientId:MutableSet<User>?,
 ) {
 
 }
