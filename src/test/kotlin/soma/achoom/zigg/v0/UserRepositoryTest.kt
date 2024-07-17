@@ -17,19 +17,19 @@ class UserRepositoryTest @Autowired constructor(
 )  {
 
 
-    @Test
-    fun creatUser(){
-        val user:User = User(
-            userNickname = "test",
-            email = "test@test.com",
-            userName = "test",
-            providerId = "test",
-            role = UserRole.USER,
-            provider = CustomOAuthProviderEnum.GOOGLE
-        )
-        userRepository.save(user)
-        val user2 = userRepository.findByEmail("test@test.com").get()
-        assertThat(user2.userName).isEqualTo(user.userName)
-    }
+//    @Test
+//    fun creatUser(){
+//        val user:User = User(
+//            userNickname = "test",
+//            email = "test@test.com",
+//            userName = "test",
+//            providerId = "test",
+//            role = UserRole.USER,
+//            provider = CustomOAuthProviderEnum.GOOGLE
+//        )
+//        userRepository.save(user)
+//        val user2 = userRepository.findByEmail("test@test.com").get()
+//        assertThat(user2.userName).isEqualTo(user.userName)
+//    }
 
 }

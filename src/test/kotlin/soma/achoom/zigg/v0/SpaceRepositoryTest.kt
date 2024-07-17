@@ -8,8 +8,8 @@ import soma.achoom.zigg.v0.repository.SpaceRepository
 
 @SpringBootTest
 class SpaceRepositoryTest @Autowired constructor(private val spaceRepository: SpaceRepository) {
-    @Test
-    fun createSpace(){
-
-    }
+//    @Test
+//    fun createSpace(){
+//
+//    }
 }
