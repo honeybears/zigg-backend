@@ -7,13 +7,13 @@ data class UserResponseDto(
     val userName:String?,
     val userNickname:String?,
     val email:String?
-) :BaseDto(){
+) :BaseResponseDto(){
     companion object {
         fun from(user: User): UserResponseDto {
             return UserResponseDto(
+                userId = user.userId,
                 userNickname = user.userNickname,
                 userName = user.userName,
-                userId = user.userId,
                 email = user.email
             )
         }

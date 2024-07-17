@@ -24,10 +24,6 @@ data class User(
     @Enumerated(EnumType.STRING)
     var provider: CustomOAuthProviderEnum,
 
-    @OneToMany(mappedBy = "user") // SpaceUser 엔티티와의 관계 설정
-    val spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
-
-
     var providerId:String,
 
 ) : BaseEntity()

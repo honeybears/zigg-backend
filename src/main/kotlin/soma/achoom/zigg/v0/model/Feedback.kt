@@ -3,7 +3,6 @@ package soma.achoom.zigg.v0.model
 import jakarta.persistence.*
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
-import org.springframework.boot.context.properties.bind.DefaultValue
 import kotlin.time.Duration
 
 @Entity

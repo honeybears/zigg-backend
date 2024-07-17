@@ -1,6 +1,6 @@
 package soma.achoom.zigg.v0.dto
 
-class ResponseMessage<T:BaseDto> {
+class ResponseMessage<T:BaseResponseDto> {
     var message: String? = null
     var dto: T? = null
 
