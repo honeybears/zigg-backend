@@ -13,8 +13,8 @@ data class FeedbackRequestDto(
     val type: FeedbackType?,
     val timeline: Duration?,
     @Nullable
-    val creatorId: User?,
-    val recipientId:MutableSet<User>?,
+    val creatorId: UserRequestDto?,
+    val recipientId:MutableSet<UserRequestDto>?,
 ) {
 
 }
