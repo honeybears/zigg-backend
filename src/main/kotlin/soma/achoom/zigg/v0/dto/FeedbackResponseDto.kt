@@ -4,7 +4,6 @@ import jakarta.persistence.*
 import org.jetbrains.annotations.Nullable
 import soma.achoom.zigg.v0.model.Feedback
 import soma.achoom.zigg.v0.model.FeedbackType
-import soma.achoom.zigg.v0.model.User
 import kotlin.time.Duration
 
 data class FeedbackResponseDto(
@@ -13,17 +12,20 @@ data class FeedbackResponseDto(
     val type: FeedbackType?,
     val timeline: Duration?,
     @Nullable
-    val creatorId: User?,
-    val recipientId:MutableSet<User>?,
+    val creatorId: UserResponseDto?,
+    val recipientId:MutableSet<UserResponseDto>?,
     ) : BaseResponseDto(){
         companion object {
+
             fun from(feedback: Feedback): FeedbackResponseDto {
                 return FeedbackResponseDto(
                     id = feedback.id,
                     type = feedback.type,
                     timeline = feedback.timeline,
-                    creatorId = feedback.creatorId,
-                    recipientId = feedback.recipientId
+                    creatorId = UserResponseDto.from(feedback.creatorId),
+                    recipientId = feedback.recipientId.mapNotNull { recipientId ->
+                        UserResponseDto.from(recipientId) // UserResponseDto 변환
+                    }.toMutableSet()
                 )
             }
         }

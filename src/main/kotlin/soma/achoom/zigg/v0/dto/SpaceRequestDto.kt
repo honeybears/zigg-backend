@@ -12,6 +12,4 @@ data class SpaceRequestDto(
     val spaceUsers: MutableSet<SpaceUser>?,
 
     val history: MutableSet<History>?
-){
-
-}
+)

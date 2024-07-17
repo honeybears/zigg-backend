@@ -9,7 +9,8 @@ data class UserResponseDto(
     val email:String?
 ) :BaseResponseDto(){
     companion object {
-        fun from(user: User): UserResponseDto {
+        fun from(user: User?): UserResponseDto? {
+            if (user == null) return null
             return UserResponseDto(
                 userId = user.userId,
                 userNickname = user.userNickname,

@@ -4,6 +4,5 @@ import soma.achoom.zigg.v0.model.Feedback
 
 data class HistoryRequestDto(
     val id:Long?,
-
-    val feedbacks: MutableSet<Feedback>?,
+    val feedbacks: MutableSet<FeedbackRequestDto>?,
 )
