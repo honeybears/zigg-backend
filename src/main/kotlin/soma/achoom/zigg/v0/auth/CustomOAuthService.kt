@@ -28,15 +28,10 @@ class CustomOAuthService(
     override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
         val delegate = DefaultOAuth2UserService()
         val oauth2User = delegate.loadUser(userRequest)
-
         val registrationId = userRequest.clientRegistration.registrationId
-//        println(1)
-//        println(registrationId)
+
         val userNameAttributeName = userRequest.clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName
-//        println(2)
-//        println(userNameAttributeName)
-//        println(3)
-//        oauth2User.attributes.forEach { keyValue -> println(keyValue) }
+
 
         val attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oauth2User.attributes)
         attributes.registrationId = registrationId
