@@ -24,7 +24,7 @@ class UserService {
         val user = getAuthUser(auth)
         user.userNickname = userRequestDto.userNickname
         userRepository.save(user)
-        return UserResponseDto.from(user)
+        return UserResponseDto.from(user)!!
     }
 
 
