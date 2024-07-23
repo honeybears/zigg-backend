@@ -1,6 +1,6 @@
 package soma.achoom.zigg.v0.auth
 
-enum class CustomOAuthProviderEnum {
+enum class OAuthProviderEnum {
     GOOGLE,
     KAKAO,
     APPLE,

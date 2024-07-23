@@ -1,6 +1,4 @@
-package soma.achoom.zigg.v0.dto
-
-import soma.achoom.zigg.v0.model.User
+package soma.achoom.zigg.v0.dto.request
 
 data class UserRequestDto (
     val userId:Long?,

@@ -1,10 +1,9 @@
-package soma.achoom.zigg.v0.dto
+package soma.achoom.zigg.v0.dto.request
 
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import org.jetbrains.annotations.Nullable
 import soma.achoom.zigg.v0.model.FeedbackType
-import soma.achoom.zigg.v0.model.User
 import kotlin.time.Duration
 
 data class FeedbackRequestDto(

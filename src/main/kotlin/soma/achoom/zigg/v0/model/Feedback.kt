@@ -17,6 +17,8 @@ data class Feedback(
 
     val timeline:Duration,
 
+    val feedbackMessage: String,
+
     @OneToOne
     @Nullable
     val creatorId:User?,

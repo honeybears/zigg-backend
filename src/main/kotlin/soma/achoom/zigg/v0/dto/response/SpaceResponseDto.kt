@@ -1,9 +1,10 @@
-package soma.achoom.zigg.v0.dto
+package soma.achoom.zigg.v0.dto.response
 
+import soma.achoom.zigg.v0.dto.BaseResponseDto
 import soma.achoom.zigg.v0.model.History
 import soma.achoom.zigg.v0.model.SpaceUser
 
-data class SpaceRequestDto(
+data class SpaceResponseDto(
     val spaceId:Long?,
     val spaceName: String?,
 
@@ -11,5 +12,5 @@ data class SpaceRequestDto(
 
     val spaceUsers: MutableSet<SpaceUser>?,
 
-    val history: MutableSet<History>?
-)
+    val history: MutableSet<History>?,
+): BaseResponseDto()

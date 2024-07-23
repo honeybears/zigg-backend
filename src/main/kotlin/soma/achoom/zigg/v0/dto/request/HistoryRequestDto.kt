@@ -1,6 +1,4 @@
-package soma.achoom.zigg.v0.dto
-
-import soma.achoom.zigg.v0.model.Feedback
+package soma.achoom.zigg.v0.dto.request
 
 data class HistoryRequestDto(
     val id:Long?,
