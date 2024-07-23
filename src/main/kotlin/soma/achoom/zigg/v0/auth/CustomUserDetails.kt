@@ -12,6 +12,5 @@ class CustomUserDetails(private val username: String, private val password: Stri
     override fun isAccountNonLocked(): Boolean = true
     override fun isCredentialsNonExpired(): Boolean = true
     override fun isEnabled(): Boolean = true
-    // Additional method to expose the OAuth2 provider
     fun getOAuthProvider(): String = oauthProvider
 }
