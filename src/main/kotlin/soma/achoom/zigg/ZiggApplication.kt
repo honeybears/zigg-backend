@@ -8,11 +8,11 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @SpringBootApplication
 @EnableJpaAuditing
 class ZiggApplication{
-	companion object {
-		init {
-			System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true")
-		}
-	}
+//	companion object {
+//		init {
+//			System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true")
+//		}
+//	}
 }
 
 fun main(args: Array<String>) {
