@@ -3,7 +3,6 @@ package soma.achoom.zigg.v0.dto.response
 import jakarta.persistence.*
 import org.jetbrains.annotations.Nullable
 import soma.achoom.zigg.v0.dto.BaseResponseDto
-import soma.achoom.zigg.v0.model.Feedback
 import soma.achoom.zigg.v0.model.FeedbackType
 import kotlin.time.Duration
 

@@ -95,8 +95,8 @@ class AuthenticationService @Autowired constructor(
     private fun saveOrUpdate(oAuthTokenVerificationDto: OAuthTokenVerificationDto): User {
         val user =  userRepository.findUserByProviderAndProviderId(
             OAuthProviderEnum.valueOf(oAuthTokenVerificationDto.platform),
-            oAuthTokenVerificationDto.providerId!!
-        ).getOrElse { User(providerId = oAuthTokenVerificationDto.providerId!!, provider = OAuthProviderEnum.valueOf(oAuthTokenVerificationDto.platform)) }
+            oAuthTokenVerificationDto.providerId
+        ).getOrElse { User(providerId = oAuthTokenVerificationDto.providerId, provider = OAuthProviderEnum.valueOf(oAuthTokenVerificationDto.platform)) }
         return userRepository.save(user)
 
     }

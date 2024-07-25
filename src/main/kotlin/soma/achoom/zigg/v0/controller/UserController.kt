@@ -14,7 +14,7 @@ import soma.achoom.zigg.v0.repository.UserRepository
 import soma.achoom.zigg.v0.service.UserService
 
 @RestController
-@RequestMapping("/api/v0/user")
+@RequestMapping("/api/v0/users")
 class UserController {
     @Autowired
     private lateinit var userRepository: UserRepository

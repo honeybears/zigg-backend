@@ -9,11 +9,18 @@ data class Space(
     val spaceId:Long,
     val spaceName: String,
 
-    val comparisonVideo:Boolean,
+    val spaceImageUrl:String?,
+
+    val spaceThumbnailUrl:String?,
+
+    val comparisonVideoUrl:String?,
+
+    @OneToMany(mappedBy = "space")
+    val tags: MutableSet<SpaceTag>?,
 
     @OneToMany(mappedBy = "space") // SpaceUser 엔티티와의 관계 설정
-    val spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
+    val spaceUsers: MutableSet<SpaceUser>?,
 
     @OneToMany
-    val history: MutableSet<History> = mutableSetOf(),
+    val histories: MutableSet<History>?
 ):BaseEntity()
