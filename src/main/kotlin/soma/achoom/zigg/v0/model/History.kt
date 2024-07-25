@@ -7,10 +7,12 @@ import jakarta.persistence.*
 
 data class History(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id:Long?,
-
+    val historyId:Long?,
+    val historyName: String,
     @OneToMany
-    val feedbacks: MutableSet<Feedback> = mutableSetOf(),
+    val feedbacks: MutableSet<Feedback>?,
+
+    val historyVideoUrl:String
 
 ) :BaseEntity(){
 }

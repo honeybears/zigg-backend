@@ -9,22 +9,22 @@ import kotlin.time.Duration
 @Table(name = "feedback")
 data class Feedback(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id:Long?,
+    val feedbackId:Long?,
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    val type:FeedbackType,
+    val feedbackType: FeedbackType,
 
-    val timeline:Duration,
+    val feedbackTimeline:Duration,
 
     val feedbackMessage: String,
 
     @OneToOne
     @Nullable
-    val creatorId:User?,
+    val feedbackCreator: User?,
 
     @OneToMany
-    val recipientId:MutableSet<User> = mutableSetOf(),
+    val recipients:MutableSet<User>
 
-) :BaseEntity(){
+) : BaseEntity(){
 }

@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import soma.achoom.zigg.v0.model.S3Option
+import soma.achoom.zigg.v0.model.enums.S3Option
 
 @Service
 class S3Service @Autowired constructor(

@@ -1,4 +1,4 @@
-package soma.achoom.zigg.v0.model
+package soma.achoom.zigg.v0.model.enums
 
 enum class S3Option {
     HISTORY_VIDEO,
