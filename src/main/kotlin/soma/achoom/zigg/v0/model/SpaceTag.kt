@@ -6,7 +6,7 @@ import jakarta.persistence.*
 data class SpaceTag(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val spaceTagId:Long,
+    val spaceTagId:Long?,
 
 
     @ManyToOne

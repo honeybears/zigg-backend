@@ -6,7 +6,7 @@ import jakarta.persistence.*
 data class Space(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val spaceId:Long,
+    val spaceId:Long?,
     val spaceName: String,
 
     val spaceImageUrl:String?,

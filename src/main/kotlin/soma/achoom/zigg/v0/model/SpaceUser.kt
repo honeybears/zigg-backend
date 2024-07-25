@@ -9,7 +9,7 @@ import soma.achoom.zigg.v0.model.enums.SpaceUserStatus
 data class SpaceUser(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val spaceUserId: Long? = null,
+    val spaceUserId: Long?,
 
     @ManyToOne
     @JoinColumn(name = "space_id")
