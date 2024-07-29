@@ -1,28 +1,50 @@
 package soma.achoom.zigg.v0.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import soma.achoom.zigg.v0.model.enums.SpaceRole
 import soma.achoom.zigg.v0.model.enums.SpaceUserStatus
+import java.util.*
 
 @Entity
-@Table(name = "space_user") // 조인 테이블 이름 명시
+@Table(name = "space_user")
 data class SpaceUser(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val spaceUserId: Long?,
+    @JsonBackReference
+    var spaceUserId: Long?,
 
     @ManyToOne
     @JoinColumn(name = "space_id")
-    val space: Space,
+    @JsonBackReference
+
+    var space: Space,
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    val user: User,
+    @JsonBackReference
+    var user: User,
 
-    @Column(name = "role") // 추가할 role 컬럼
+    @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    val spaceRole: SpaceRole,
+    var spaceRole: SpaceRole?,
 
     @Enumerated(EnumType.STRING)
-    val inviteStatus: SpaceUserStatus
+    var inviteStatus: SpaceUserStatus,
+
 ):BaseEntity()
+{
+    @get:JsonInclude
+    val userName: String?
+        get() = user.userName
+
+    override fun hashCode(): Int {
+        return Objects.hash(user, inviteStatus, spaceRole, spaceUserId)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other)
+    }
+}
+

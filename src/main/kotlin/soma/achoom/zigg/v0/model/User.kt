@@ -25,4 +25,4 @@ data class User(
     var provider: OAuthProviderEnum,
 
     var providerId:String
-    ) : BaseEntity()
+) : BaseEntity()

@@ -41,4 +41,4 @@ out/
 
 /src/main/resources/**.properties
 
-properties.sh
+*.sh

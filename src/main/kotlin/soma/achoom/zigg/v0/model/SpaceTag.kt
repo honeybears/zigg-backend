@@ -1,19 +1,22 @@
 package soma.achoom.zigg.v0.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 
 @Entity
 data class SpaceTag(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val spaceTagId:Long?,
+    var spaceTagId:Long?,
 
 
     @ManyToOne
     @JoinColumn(name = "spaceId")
-    val space: Space,
+    @JsonBackReference
 
-    val tag: String
+    var space: Space,
+
+    var tag: String
 ) {
 
 }
