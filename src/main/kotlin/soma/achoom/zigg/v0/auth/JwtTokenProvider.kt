@@ -12,7 +12,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
-import soma.achoom.zigg.v0.dto.token.JwtTokenInfoDto
 import java.util.*
 
 
@@ -22,7 +21,7 @@ class JwtTokenProvider {
     lateinit var secretKey: String
     private val key by lazy { Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)) }
 
-    fun createTokenWithUserInfo(user:soma.achoom.zigg.v0.model.User, userInfo: Map<String, Any>): JwtTokenInfoDto {
+    fun createTokenWithUserInfo(user: soma.achoom.zigg.v0.model.User, userInfo: Map<String, Any>): String {
 
         val userId = user.providerId
         val authorities = user.role
@@ -35,11 +34,11 @@ class JwtTokenProvider {
             .setIssuedAt(now)
             .signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)
             .compact()
-        return JwtTokenInfoDto("Bearer", accessToken)
+        return "Bearer $accessToken"
     }
 
-    fun getAuthentication(token : String) : Authentication {
-        val claims : Claims = Jwts
+    fun getAuthentication(token: String): Authentication {
+        val claims: Claims = Jwts
             .parserBuilder()
             .setSigningKey(key)
             .build()
@@ -47,24 +46,24 @@ class JwtTokenProvider {
             .body
         val auth = claims["auth"] ?: throw RuntimeException("잘못된 토큰입니다.")
         val oauthProvider = claims["provider"] as String // Extract the OAuth provider
-        val authorities : Collection<GrantedAuthority> = (auth as String)
+        val authorities: Collection<GrantedAuthority> = (auth as String)
             .split(",")
             .map { SimpleGrantedAuthority(it) }
-        val userDetails = CustomUserDetails(claims.subject, "",oauthProvider,authorities)
-        return  UsernamePasswordAuthenticationToken(userDetails, null, authorities)
+        val userDetails = CustomUserDetails(claims.subject, "", oauthProvider, authorities)
+        return UsernamePasswordAuthenticationToken(userDetails, null, authorities)
     }
 
-    fun validateToken(token : String) : Boolean {
+    fun validateToken(token: String): Boolean {
         try {
             getClaims(token)
             return true
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             println(e.message)
         }
         return false
     }
 
-    private fun getClaims(token: String) : Claims {
+    private fun getClaims(token: String): Claims {
         return Jwts
             .parserBuilder()
             .setSigningKey(key)

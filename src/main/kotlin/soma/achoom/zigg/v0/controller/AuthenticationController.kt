@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import soma.achoom.zigg.v0.dto.token.OAuthTokenVerificationDto
-import soma.achoom.zigg.v0.dto.token.TokenResponseDto
+import soma.achoom.zigg.v0.dto.request.OAuth2MetaDataRequestDto
+import soma.achoom.zigg.v0.dto.response.UserExistsResponseDto
+import soma.achoom.zigg.v0.dto.token.OAuth2UserRequestDto
 import soma.achoom.zigg.v0.service.AuthenticationService
 
 @RestController
@@ -15,9 +16,15 @@ import soma.achoom.zigg.v0.service.AuthenticationService
 class AuthenticationController @Autowired constructor(
     private val authenticationService: AuthenticationService
 ) {
-    @PostMapping("/oauth/token")
-    fun verifyAndGenerateToken(@RequestBody requestDto: OAuthTokenVerificationDto): ResponseEntity<TokenResponseDto> {
-        val tokenResponseDto:TokenResponseDto = authenticationService.verifyAndGenerateToken(requestDto)
-        return ResponseEntity.ok(tokenResponseDto)
+    @PostMapping("/tokens")
+    fun verifyAndGenerateToken(@RequestBody oAuth2UserRequestDto: OAuth2UserRequestDto): ResponseEntity<Void> {
+        val tokenHeader = authenticationService.generateJWTToken(oAuth2UserRequestDto)
+        return ResponseEntity.ok().headers(tokenHeader).build()
+    }
+
+    @PostMapping
+    fun checkUserExists(@RequestBody oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): ResponseEntity<UserExistsResponseDto> {
+        val userExistsResponseDto = authenticationService.userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto)
+        return ResponseEntity.ok(userExistsResponseDto)
     }
 }
