@@ -22,9 +22,5 @@ class AuthenticationController @Autowired constructor(
         return ResponseEntity.ok().headers(tokenHeader).build()
     }
 
-    @PostMapping
-    fun checkUserExists(@RequestBody oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): ResponseEntity<UserExistsResponseDto> {
-        val userExistsResponseDto = authenticationService.userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto)
-        return ResponseEntity.ok(userExistsResponseDto)
-    }
+
 }

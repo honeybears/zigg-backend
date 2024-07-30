@@ -1,5 +1,6 @@
 package soma.achoom.zigg.v0.service
 
+import com.amazonaws.services.kms.model.AlreadyExistsException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -41,6 +42,14 @@ class AuthenticationService @Autowired constructor(
 
     fun registers(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
 
+        // Validate if the user nickname already exists
+        oAuth2UserRequestDto.userNickname?.let {
+            userRepository.findUserByUserNickname(it)?.let {
+                throw AlreadyExistsException("User already exists")
+            }
+        }
+
+        // Validate if OAuth2 access token is valid
         when (oAuth2UserRequestDto.platform) {
             OAuthProviderEnum.GOOGLE.name -> {
                 if (verifyGoogleToken(oAuth2UserRequestDto.idToken)) {
@@ -113,6 +122,8 @@ class AuthenticationService @Autowired constructor(
         val user: User = userRepository.findUserByProviderAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
         ) ?: User(
+            userNickname = oAuth2UserRequestDto.userNickname,
+            userName = oAuth2UserRequestDto.userName,
             providerId = oAuth2UserRequestDto.providerId,
             provider = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform)
         )
