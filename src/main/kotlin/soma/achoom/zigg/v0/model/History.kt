@@ -1,5 +1,6 @@
 package soma.achoom.zigg.v0.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 
 @Entity
