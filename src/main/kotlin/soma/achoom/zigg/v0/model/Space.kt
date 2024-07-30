@@ -18,9 +18,6 @@ data class Space(
 
     var comparisonVideoUrl:String?,
 
-    @OneToMany(mappedBy = "space",cascade = [CascadeType.ALL], orphanRemoval = true)
-    var tags: MutableSet<SpaceTag> = mutableSetOf(),
-
     @OneToMany(mappedBy = "space",cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 

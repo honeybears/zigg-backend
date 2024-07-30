@@ -9,7 +9,6 @@ import soma.achoom.zigg.v0.dto.request.SpaceRequestDto
 import soma.achoom.zigg.v0.dto.response.SpaceListResponse
 import soma.achoom.zigg.v0.dto.response.SpaceResponseDto
 import soma.achoom.zigg.v0.model.Space
-import soma.achoom.zigg.v0.model.SpaceTag
 import soma.achoom.zigg.v0.model.SpaceUser
 import soma.achoom.zigg.v0.model.enums.S3Option
 import soma.achoom.zigg.v0.model.enums.SpaceUserStatus
@@ -56,14 +55,6 @@ class SpaceService @Autowired constructor(
 
         invitedUsers?.let { space.spaceUsers.addAll(it) }
 
-        spaceRequestDto.tags?.map {
-            val tag = SpaceTag(
-                space = space,
-                tag = it,
-                spaceTagId = null
-            )
-            space.tags.add(tag)
-        }
         spaceRepository.save(space)
 
         return SpaceResponseDto.from(space, generatedPreSignedUrl = s3Service.generatePreSignedUrl(spaceImageUrl, 10))
