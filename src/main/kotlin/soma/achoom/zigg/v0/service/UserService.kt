@@ -1,5 +1,6 @@
 package soma.achoom.zigg.v0.service
 
+import com.amazonaws.services.kms.model.AlreadyExistsException
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.dto.request.UserRequestDto
@@ -12,20 +13,12 @@ class UserService: BaseService() {
         return UserResponseDto.from(user)
     }
 
-
-    fun userNickNameIsValid(nickName: String): Boolean {
-        return userRepository.existsUserByUserNicknameNotNullAndUserNickname(nickName)
-    }
-
-    fun updateUserNickName(authentication: Authentication,userRequestDto: UserRequestDto): UserResponseDto {
-        val user = getAuthUser(authentication)
-        user.userNickname = userRequestDto.userNickname + "#" + user.userId
-        userRepository.save(user)
-        return UserResponseDto.from(user)
-    }
-
-
     fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): UserResponseDto {
+        userRequestDto.userNickname?.let {
+            userRepository.findUserByUserNickname(it)?.let {
+                throw AlreadyExistsException("User already exists")
+            }
+        }
         val user = getAuthUser(authentication)
         user.userName = userRequestDto.userName
         user.userNickname = userRequestDto.userNickname + "#" + user.userId

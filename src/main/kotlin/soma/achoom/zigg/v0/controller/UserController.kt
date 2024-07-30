@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import soma.achoom.zigg.v0.dto.request.OAuth2MetaDataRequestDto
 import soma.achoom.zigg.v0.dto.request.UserRequestDto
+import soma.achoom.zigg.v0.dto.response.UserExistsResponseDto
 import soma.achoom.zigg.v0.dto.response.UserResponseDto
 import soma.achoom.zigg.v0.dto.token.OAuth2UserRequestDto
 import soma.achoom.zigg.v0.service.AuthenticationService
@@ -52,5 +54,9 @@ class UserController @Autowired constructor(
         return ResponseEntity.ok(userResponseDto)
 
     }
-
+    @PostMapping("/exists")
+    fun checkUserExists(@RequestBody oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): ResponseEntity<UserExistsResponseDto> {
+        val userExistsResponseDto = authenticationService.userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto)
+        return ResponseEntity.ok(userExistsResponseDto)
+    }
 }
