@@ -54,7 +54,7 @@ class S3Service @Autowired constructor(
         removeS3(s3Path)
 
     }
-    fun generatePreSignedUrl(identifyKey:Long, s3Option: S3Option, expirationInMinutes:Int):String {
+    fun generatePreSignedUrlToGet(identifyKey:Long, s3Option: S3Option, expirationInMinutes:Int):String {
         val s3Path = when (s3Option) {
             S3Option.HISTORY_VIDEO -> "dev/history_video/$identifyKey"
             S3Option.USER_IMAGE -> "dev/user_image/$identifyKey"
@@ -69,10 +69,17 @@ class S3Service @Autowired constructor(
         return amazonS3.generatePresignedUrl(generatePreSignedUrlRequest).toString()
     }
 
-    fun generatePreSignedUrl(s3Path: String, expirationInMinutes: Int):String {
+    fun generatePreSignedUrlToGet(s3Path: String, expirationInMinutes: Int):String {
         val expiration = Date(System.currentTimeMillis() + expirationInMinutes * 60 * 1000)
         val generatePreSignedUrlRequest = GeneratePresignedUrlRequest(bucket, s3Path)
             .withMethod(HttpMethod.GET)
+            .withExpiration(expiration)
+        return amazonS3.generatePresignedUrl(generatePreSignedUrlRequest).toString()
+    }
+    fun generatePreSignedUrlToPut(s3Path: String, expirationInMinutes: Int):String {
+        val expiration = Date(System.currentTimeMillis() + expirationInMinutes * 60 * 1000)
+        val generatePreSignedUrlRequest = GeneratePresignedUrlRequest(bucket, s3Path)
+            .withMethod(HttpMethod.PUT)
             .withExpiration(expiration)
         return amazonS3.generatePresignedUrl(generatePreSignedUrlRequest).toString()
     }

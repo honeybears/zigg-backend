@@ -15,12 +15,12 @@ abstract class BaseService{
         val providerId = authentication.name
         val userDetails = authentication.principal as CustomUserDetails
 
-        val user = userRepository.findUserByProviderAndProviderId(
+        val user = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(userDetails.getOAuthProvider()), providerId
         ) ?: throw IllegalArgumentException("user not found")
         println(user.userId)
         println(user.providerId)
-        println(user.provider)
+        println(user.platform)
         return user
     }
 }

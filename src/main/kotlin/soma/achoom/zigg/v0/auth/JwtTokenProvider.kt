@@ -9,8 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -30,7 +28,7 @@ class JwtTokenProvider {
 
         val accessToken = Jwts.builder()
             .setSubject(userId)
-            .addClaims(mapOf("auth" to authorities, "provider" to user.provider.name))
+            .addClaims(mapOf("auth" to authorities, "provider" to user.platform.name))
             .setIssuedAt(now)
             .signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)
             .compact()

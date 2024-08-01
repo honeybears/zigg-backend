@@ -2,18 +2,25 @@ package soma.achoom.zigg.v0.dto.request
 
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import org.jetbrains.annotations.Nullable
-import soma.achoom.zigg.v0.model.FeedbackType
-import kotlin.time.Duration
+import soma.achoom.zigg.v0.model.Feedback
+import soma.achoom.zigg.v0.model.History
+import soma.achoom.zigg.v0.model.SpaceUser
 
 data class FeedbackRequestDto(
-    val id:Long?,
     @Enumerated(EnumType.STRING)
-    val type: FeedbackType?,
-    val timeline: Duration?,
-    @Nullable
-    val creatorId: UserRequestDto?,
-    val recipientId:MutableSet<UserRequestDto>?,
+    val feedbackTimeline: String?,
+    val feedbackMessage : String?,
+    val recipientId:MutableSet<Long>,
 ) {
+    fun toFeedBack(creator: SpaceUser, recipients: MutableSet<SpaceUser>,history: History): Feedback {
+        return Feedback(
+            feedbackId = null,
+            feedbackTimeline = feedbackTimeline!!,
+            feedbackMessage = feedbackMessage,
+            feedbackCreator = creator,
+            recipients = recipients,
+            history = history
+        )
 
+    }
 }

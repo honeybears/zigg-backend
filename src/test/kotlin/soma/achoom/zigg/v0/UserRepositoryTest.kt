@@ -24,7 +24,7 @@ class UserRepositoryTest @Autowired constructor(
             userName = "test",
             providerId = "test",
             role = UserRole.USER,
-            provider = OAuthProviderEnum.TEST,
+            platform = OAuthProviderEnum.TEST,
         )
         userRepository.save(user)
         val user2 = userRepository.findUserByUserNickname("test")?: throw IllegalArgumentException("user not found")

@@ -3,28 +3,33 @@ package soma.achoom.zigg.v0.model
 import jakarta.persistence.*
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
-import kotlin.time.Duration
 
 @Entity
-@Table(name = "feedback")
 data class Feedback(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var feedbackId:Long?,
+    var feedbackId: Long?,
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    var feedbackType: FeedbackType,
+    var feedbackType: FeedbackType = FeedbackType.USER,
 
-    var feedbackTimeline:Duration,
+    var feedbackTimeline: String?,
 
     var feedbackMessage: String?,
 
     @OneToOne
     @Nullable
-    var feedbackCreator: User?,
+    var feedbackCreator: SpaceUser?,
 
     @OneToMany
-    var recipients:MutableSet<User>
+    var recipients: MutableSet<SpaceUser>?,
 
-) : BaseEntity(){
+    @ManyToOne
+    @JoinColumn(name = "history_id")
+    var history: History?,  // Ensure this property exists
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean = false
+
+) : BaseEntity() {
 }
