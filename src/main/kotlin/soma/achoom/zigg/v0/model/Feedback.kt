@@ -26,7 +26,7 @@ data class Feedback(
 
     @ManyToOne
     @JoinColumn(name = "history_id")
-    var history: History?,  // Ensure this property exists
+    var history: History,  // Ensure this property exists
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false
