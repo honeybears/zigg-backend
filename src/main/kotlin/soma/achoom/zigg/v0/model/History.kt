@@ -1,20 +1,23 @@
 package soma.achoom.zigg.v0.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "history")
-
 data class History(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var historyId:Long?,
+    var historyId: Long?,
+
     var historyName: String?,
-    @OneToMany
-    var feedbacks: MutableSet<Feedback>?,
 
-    var historyVideoUrl:String?
+    @ManyToOne
+    @JoinColumn(name = "space_id")
+    var space: Space,
 
+    @OneToMany(mappedBy = "history", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var feedbacks: MutableSet<Feedback> = mutableSetOf(),
 
-) :BaseEntity(){
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean = false
+
+) : BaseEntity() {
 }

@@ -12,7 +12,6 @@ import java.util.*
 data class SpaceUser(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonBackReference
     var spaceUserId: Long?,
 
     @ManyToOne
@@ -33,14 +32,22 @@ data class SpaceUser(
     @Enumerated(EnumType.STRING)
     var inviteStatus: SpaceUserStatus,
 
-):BaseEntity()
-{
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean = false
+
+    ) : BaseEntity() {
+    @get:JsonInclude
+    val userId: Long
+        get() = user.userId!!
+
     @get:JsonInclude
     val userName: String?
         get() = user.userName
+
     @get: JsonInclude
     val userNickname: String?
         get() = user.userNickname
+
     @get : JsonInclude
     val profileImageUrl: String
         get() = user.profileImageUrl

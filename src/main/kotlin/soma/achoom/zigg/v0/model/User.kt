@@ -20,12 +20,19 @@ data class User(
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
 
-    var profileImageUrl:String = "default",
+    var profileImageUrl: String = "default",
 
     @Enumerated(EnumType.STRING)
-    @JsonBackReference
-    var provider: OAuthProviderEnum,
+    var platform: OAuthProviderEnum,
 
     @JsonBackReference
-    var providerId:String
-) : BaseEntity()
+    var providerId: String,
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean = false
+) : BaseEntity(){
+    override fun equals(other: Any?): Boolean {
+        return providerId == (other as User).providerId
+
+    }
+}

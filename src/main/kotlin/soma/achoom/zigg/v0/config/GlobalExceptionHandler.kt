@@ -16,4 +16,8 @@ class GlobalExceptionHandler {
     fun handleAlreadyExistsException(e: AlreadyExistsException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.CONFLICT).build()
     }
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+    }
 }

@@ -21,7 +21,7 @@ class AuthenticationService @Autowired constructor(
 ) : BaseService() {
 
     fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): UserExistsResponseDto {
-        val user = userRepository.findUserByProviderAndProviderId(
+        val user = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2MetaDataRequestDto.platform), oAuth2MetaDataRequestDto.providerId
         )
         user?.let {
@@ -31,12 +31,13 @@ class AuthenticationService @Autowired constructor(
     }
 
     fun generateJWTToken(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
-        val user = userRepository.findUserByProviderAndProviderId(
+        val user = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
         ) ?: throw IllegalArgumentException("register first")
         val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
         val header = HttpHeaders()
         header.set("Authorization", accessToken)
+        header.set("platform", oAuth2UserRequestDto.platform)
         return header
     }
 
@@ -57,6 +58,7 @@ class AuthenticationService @Autowired constructor(
                     val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
+                    header.set("platform", oAuth2UserRequestDto.platform)
                     return header
                 } else {
                     throw IllegalArgumentException("Invalid access token")
@@ -69,6 +71,7 @@ class AuthenticationService @Autowired constructor(
                     val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
+                    header.set("platform", oAuth2UserRequestDto.platform)
                     return header
                 } else {
                     throw IllegalArgumentException("Invalid access token")
@@ -80,6 +83,7 @@ class AuthenticationService @Autowired constructor(
                 val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
                 val header = HttpHeaders()
                 header.set("Authorization", accessToken)
+                header.set("platform", oAuth2UserRequestDto.platform)
                 return header
             }
 
@@ -119,13 +123,13 @@ class AuthenticationService @Autowired constructor(
 
 
     private fun saveOrUpdate(oAuth2UserRequestDto: OAuth2UserRequestDto): User {
-        val user: User = userRepository.findUserByProviderAndProviderId(
+        val user: User = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
         ) ?: User(
             userNickname = oAuth2UserRequestDto.userNickname,
             userName = oAuth2UserRequestDto.userName,
             providerId = oAuth2UserRequestDto.providerId,
-            provider = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform)
+            platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform)
         )
         return userRepository.save(user)
 
