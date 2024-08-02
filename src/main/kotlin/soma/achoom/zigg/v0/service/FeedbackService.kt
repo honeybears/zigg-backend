@@ -5,11 +5,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.dto.request.FeedbackRequestDto
 import soma.achoom.zigg.v0.dto.response.FeedbackResponseDto
-import soma.achoom.zigg.v0.model.enums.SpaceUserStatus
-import soma.achoom.zigg.v0.repository.FeedbackRepository
-import soma.achoom.zigg.v0.repository.HistoryRepository
-import soma.achoom.zigg.v0.repository.SpaceRepository
-import soma.achoom.zigg.v0.repository.SpaceUserRepository
+import soma.achoom.zigg.v0.repository.*
 
 @Service
 class FeedbackService @Autowired constructor(
@@ -17,6 +13,7 @@ class FeedbackService @Autowired constructor(
     private val feedbackRepository: FeedbackRepository,
     private val spaceUserRepository: SpaceUserRepository,
     private val spaceRepository: SpaceRepository,
+    private val feedbackRecipientRepository: FeedbackRecipientRepository
 ) : SpaceAsset() {
     fun getFeedbacks(
         authentication: Authentication,
@@ -30,9 +27,9 @@ class FeedbackService @Autowired constructor(
 
         val history =
             historyRepository.findHistoryByHistoryId(historyId) ?: throw IllegalArgumentException("history not found")
-        val feedbacks = history.feedbacks?.toMutableSet() ?: mutableSetOf()
+        val feedbacks = history.feedbacks.toMutableSet() ?: mutableSetOf()
         return feedbacks.filter{!it.isDeleted}.map {
-            FeedbackResponseDto.of(it)
+            FeedbackResponseDto.from(it)
         }
     }
 
@@ -43,23 +40,24 @@ class FeedbackService @Autowired constructor(
         feedbackRequestDto: FeedbackRequestDto
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw IllegalArgumentException("space not found")
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw IllegalArgumentException("space not found")
         val spaceUser = validateSpaceUser(user, space)
 
-        val history =
-            historyRepository.findHistoryByHistoryId(historyId) ?: throw IllegalArgumentException("history not found")
-        val feedback = feedbackRepository.save(
-            feedbackRequestDto.toFeedBack(
-                creator = spaceUser,
-                recipients = feedbackRequestDto.recipientId.map{
-                    spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw IllegalArgumentException("recipient not found")
-                }.toMutableSet(),
-                history = history
-            )
-        )
-        history.feedbacks.add(feedback)
-        historyRepository.save(history)
-        return FeedbackResponseDto.of(feedback)
+        val history = historyRepository.findHistoryByHistoryId(historyId)
+                ?: throw IllegalArgumentException("history not found")
+
+        val feedbackRecipient = feedbackRequestDto.recipientId.map {
+            spaceUserRepository.findSpaceUserBySpaceUserId(it)
+                ?: throw IllegalArgumentException("recipient not found")
+        }.toMutableSet()
+
+        val feedback = feedbackRequestDto.toFeedBack(history,spaceUser,feedbackRecipient)
+//        history.feedbacks.add(feedback)
+//        historyRepository.save(history)
+//        return FeedbackResponseDto.from(feedback)
+        feedbackRepository.save(feedback)
+        return FeedbackResponseDto.from(feedback)
     }
 
     fun updateFeedback(
@@ -81,7 +79,9 @@ class FeedbackService @Autowired constructor(
         feedback.isDeleted = true
         feedbackRepository.save(feedback)
 
-        val newFeedbackResponseDto = this.createFeedback(authentication, spaceId, historyId, feedbackRequestDto)
+        val newFeedbackResponseDto =
+            createFeedback(authentication, spaceId, historyId, feedbackRequestDto)
+
         return newFeedbackResponseDto
     }
 
@@ -92,14 +92,18 @@ class FeedbackService @Autowired constructor(
         feedbackId: Long
     ) {
         val user = getAuthUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw IllegalArgumentException("space not found")
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw IllegalArgumentException("space not found")
 
         val spaceUser = validateSpaceUser(user, space)
 
         val history =
-            historyRepository.findHistoryByHistoryId(historyId) ?: throw IllegalArgumentException("history not found")
+            historyRepository.findHistoryByHistoryId(historyId)
+                ?: throw IllegalArgumentException("history not found")
         val feedback =
-            feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw IllegalArgumentException("feedback not found")
+            feedbackRepository.findFeedbackByFeedbackId(feedbackId)
+                ?: throw IllegalArgumentException("feedback not found")
+
         feedback.isDeleted = true
         feedbackRepository.save(feedback)
     }
@@ -112,15 +116,18 @@ class FeedbackService @Autowired constructor(
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw IllegalArgumentException("space not found")
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw IllegalArgumentException("space not found")
 
         val spaceUser = validateSpaceUser(user, space)
 
         val history =
-            historyRepository.findHistoryByHistoryId(historyId) ?: throw IllegalArgumentException("history not found")
+            historyRepository.findHistoryByHistoryId(historyId)
+                ?: throw IllegalArgumentException("history not found")
         val feedback =
-            feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw IllegalArgumentException("feedback not found")
-        return FeedbackResponseDto.of(feedback)
+            feedbackRepository.findFeedbackByFeedbackId(feedbackId)
+                ?: throw IllegalArgumentException("feedback not found")
+        return FeedbackResponseDto.from(feedback)
     }
 
 

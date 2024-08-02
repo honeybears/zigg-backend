@@ -10,4 +10,5 @@ interface UserRepository : JpaRepository<User, Long> {
     fun findUserByUserNickname(nickname:String): User?
     fun existsUserByUserNicknameNotNullAndUserNickname(nickname:String): Boolean
     fun findUserByPlatformAndProviderId(provider:OAuthProviderEnum, providerId:String): User?
+    fun findUserByUserId(userId:Long): User?
 }

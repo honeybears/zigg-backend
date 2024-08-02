@@ -12,11 +12,6 @@ data class Space(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var spaceId: Long?,
     var spaceName: String?,
-    var spaceImageUrl: String?,
-
-    var spaceThumbnailUrl: String?,
-
-    var comparisonVideoUrl: String?,
 
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
@@ -29,11 +24,5 @@ data class Space(
 
 
 ) : BaseEntity() {
-    override fun hashCode(): Int {
-        return Objects.hash(spaceName, spaceImageUrl, spaceId, comparisonVideoUrl, spaceThumbnailUrl)
-    }
 
-    override fun equals(other: Any?): Boolean {
-        return super.equals(other)
-    }
 }

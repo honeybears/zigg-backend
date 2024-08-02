@@ -24,25 +24,8 @@ class SpaceController @Autowired constructor(
     private val spaceService: SpaceService
 ) {
     @PostMapping
-    fun createSpace(authentication:Authentication, @RequestPart("spaceRequestDto") spaceRequestDto: SpaceRequestDto, @RequestPart("spaceImage") spaceImage:MultipartFile?) : ResponseEntity<SpaceResponseDto> {
-        println(spaceRequestDto.spaceImage)
-        val spaceResponseDto = spaceService.createSpace(authentication, spaceRequestDto,spaceImage)
+    fun createSpace(authentication:Authentication, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val spaceResponseDto = spaceService.createSpace(authentication, spaceRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
-    @GetMapping
-    fun getSpaces(authentication:Authentication): ResponseEntity<SpaceListResponse> {
-        val spaces = spaceService.getSpaces(authentication)
-        return ResponseEntity.ok(spaces)
-    }
-    @GetMapping("/{spaceId}")
-    fun getSpace(authentication:Authentication, @PathVariable spaceId:Long): ResponseEntity<SpaceResponseDto> {
-        val space = spaceService.getSpace(authentication,spaceId)
-        return ResponseEntity.ok(space)
-    }
-    @PatchMapping("/{spaceId}")
-    fun updateSpace(authentication:Authentication, @PathVariable spaceId:Long, @RequestPart("spaceRequestDto") spaceRequestDto: SpaceRequestDto): ResponseEntity<SpaceResponseDto> {
-        val space = spaceService.updateSpace(authentication,spaceId,spaceRequestDto)
-        return ResponseEntity.ok(space)
-    }
-
 }
