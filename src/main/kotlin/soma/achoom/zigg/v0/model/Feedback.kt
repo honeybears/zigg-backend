@@ -1,35 +1,51 @@
 package soma.achoom.zigg.v0.model
 
 import jakarta.persistence.*
-import org.jetbrains.annotations.NotNull
-import org.jetbrains.annotations.Nullable
+import soma.achoom.zigg.v0.model.enums.FeedbackType
+import java.util.*
 
 @Entity
 data class Feedback(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var feedbackId: Long?,
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    var feedbackType: FeedbackType = FeedbackType.USER,
+    var feedbackType: FeedbackType? = FeedbackType.USER,
 
     var feedbackTimeline: String?,
 
     var feedbackMessage: String?,
 
-    @OneToOne
-    @Nullable
-    var feedbackCreator: SpaceUser?,
-
-    @OneToMany
-    var recipients: MutableSet<SpaceUser>?,
-
     @ManyToOne
     @JoinColumn(name = "history_id")
-    var history: History,  // Ensure this property exists
+    var history: History?,
+
+    @ManyToOne
+    @JoinColumn(name = "creator_id", unique = false)
+    var feedbackCreator: SpaceUser?,
+
+    @OneToMany(mappedBy = "feedback", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var recipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false
 
 ) : BaseEntity() {
+    override fun hashCode(): Int {
+        return Objects.hash(feedbackId)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val feedback = other as Feedback
+        return feedbackId == feedback.feedbackId
+                && feedbackType == feedback.feedbackType
+                && feedbackTimeline == feedback.feedbackTimeline
+                && feedbackMessage == feedback.feedbackMessage
+                && feedbackCreator == feedback.feedbackCreator
+                && createAt == feedback.createAt
+                && updateAt == feedback.updateAt
+                && isDeleted == feedback.isDeleted
+    }
 }

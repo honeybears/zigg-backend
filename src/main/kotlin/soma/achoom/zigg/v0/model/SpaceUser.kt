@@ -17,7 +17,6 @@ data class SpaceUser(
     @ManyToOne
     @JoinColumn(name = "space_id")
     @JsonBackReference
-
     var space: Space,
 
     @ManyToOne
@@ -29,11 +28,17 @@ data class SpaceUser(
     @Enumerated(EnumType.STRING)
     var spaceRole: SpaceRole?,
 
+    @OneToMany(mappedBy = "recipient", cascade = [CascadeType.ALL], orphanRemoval = true)
+
+    @JsonBackReference
+    var feedbackRecipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
+
     @Enumerated(EnumType.STRING)
     var inviteStatus: SpaceUserStatus,
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false
+
 
     ) : BaseEntity() {
     @get:JsonInclude
@@ -53,11 +58,14 @@ data class SpaceUser(
         get() = user.profileImageUrl
 
     override fun hashCode(): Int {
-        return Objects.hash(user, inviteStatus, spaceRole, spaceUserId)
+        return Objects.hash(spaceUserId)
     }
 
     override fun equals(other: Any?): Boolean {
-        return super.equals(other)
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val spaceUser = other as SpaceUser
+        return spaceUserId == spaceUser.spaceUserId && space == spaceUser.space && user == spaceUser.user && spaceRole == spaceUser.spaceRole && inviteStatus == spaceUser.inviteStatus
     }
 }
 
