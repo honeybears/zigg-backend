@@ -61,6 +61,7 @@ class SpaceService @Autowired constructor(
                 spaceUserId = null
             )
             space.spaceUsers.add(spaceUser)
+
         }
 
         spaceRepository.save(space)
