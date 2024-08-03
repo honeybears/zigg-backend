@@ -60,6 +60,7 @@ class SpaceService @Autowired constructor(
                 inviteStatus = SpaceUserStatus.ACCEPTED,
                 spaceUserId = null
             )
+
             space.spaceUsers.add(spaceUser)
 
         }
