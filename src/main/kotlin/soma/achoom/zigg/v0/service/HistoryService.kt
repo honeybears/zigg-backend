@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.dto.request.HistoryRequestDto
 import soma.achoom.zigg.v0.dto.response.HistoryResponseDto
+import soma.achoom.zigg.v0.exception.UnknownSpace
 import soma.achoom.zigg.v0.repository.HistoryRepository
 import soma.achoom.zigg.v0.repository.SpaceRepository
 
@@ -16,11 +17,13 @@ class HistoryService @Autowired constructor(
 ) : BaseService() {
     fun createHistory(authentication: Authentication, spaceId: Long, historyRequestDto: HistoryRequestDto) : HistoryResponseDto{
         val user = getAuthUser(authentication)
-        val space = spaceRepository.findById(spaceId).orElseThrow { IllegalArgumentException("space not found") }
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw UnknownSpace()
         val history = historyRequestDto.toHistory(space)
         historyRepository.save(history)
         return HistoryResponseDto.from(history)
 
     }
+
 
 }
