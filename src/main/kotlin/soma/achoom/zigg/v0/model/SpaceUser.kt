@@ -65,7 +65,7 @@ data class SpaceUser(
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
         val spaceUser = other as SpaceUser
-        return spaceUserId == spaceUser.spaceUserId && space == spaceUser.space && user == spaceUser.user && spaceRole == spaceUser.spaceRole && inviteStatus == spaceUser.inviteStatus
+        return spaceUserId == spaceUser.spaceUserId && space == spaceUser.space && user == spaceUser.user
     }
 }
 
