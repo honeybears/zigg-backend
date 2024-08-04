@@ -22,7 +22,6 @@ import soma.achoom.zigg.v0.repository.SpaceUserRepository
 @Service
 class SpaceService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
-    private val s3Service: S3Service,
     private val spaceUserRepository: SpaceUserRepository,
     private val historyRepository: HistoryRepository
 ) : SpaceAsset() {

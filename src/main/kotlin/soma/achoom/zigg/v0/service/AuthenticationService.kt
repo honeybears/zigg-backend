@@ -1,6 +1,5 @@
 package soma.achoom.zigg.v0.service
 
-import com.amazonaws.services.kms.model.AlreadyExistsException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -46,7 +45,7 @@ class AuthenticationService @Autowired constructor(
         // Validate if the user nickname already exists
         oAuth2UserRequestDto.userNickname?.let {
             userRepository.findUserByUserNickname(it)?.let {
-                throw AlreadyExistsException("User already exists")
+                throw IllegalAccessError("User nickname already exists")
             }
         }
 
