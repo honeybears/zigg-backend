@@ -10,7 +10,7 @@ data class SpaceResponseDto(
     val spaceName: String?,
 
     val spaceUsers: MutableSet<SpaceUser>?,
-    val history: MutableSet<History>?,
+    val history: MutableSet<HistoryResponseDto> = mutableSetOf(),
 
     ) : BaseResponseDto() {
     companion object {
@@ -19,7 +19,7 @@ data class SpaceResponseDto(
                 spaceId = space.spaceId,
                 spaceName = space.spaceName,
                 spaceUsers = space.spaceUsers,
-                history = space.histories
+                history = space.histories.map { HistoryResponseDto.from(it) }.toMutableSet()
             )
         }
     }
