@@ -13,16 +13,15 @@ import soma.achoom.zigg.v0.repository.SpaceRepository
 class HistoryService @Autowired constructor(
     private val historyRepository: HistoryRepository,
     private val spaceRepository: SpaceRepository,
-    private val s3Service: S3Service,
 ) : BaseService() {
+
     fun createHistory(authentication: Authentication, spaceId: Long, historyRequestDto: HistoryRequestDto) : HistoryResponseDto{
-        val user = getAuthUser(authentication)
+        getAuthUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw UnknownSpace()
         val history = historyRequestDto.toHistory(space)
         historyRepository.save(history)
         return HistoryResponseDto.from(history)
-
     }
 
 

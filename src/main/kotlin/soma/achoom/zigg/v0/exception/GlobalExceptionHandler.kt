@@ -1,6 +1,5 @@
 package soma.achoom.zigg.v0.exception
 
-import com.amazonaws.services.kms.model.AlreadyExistsException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -12,10 +11,7 @@ class GlobalExceptionHandler {
     fun handleNoSuchElementException(e: NoSuchElementException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
     }
-    @ExceptionHandler(AlreadyExistsException::class)
-    fun handleAlreadyExistsException(e: AlreadyExistsException): ResponseEntity<Any> {
-        return ResponseEntity.status(HttpStatus.CONFLICT).build()
-    }
+
     @ExceptionHandler(RuntimeException::class)
     fun handleRuntimeException(e: RuntimeException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
