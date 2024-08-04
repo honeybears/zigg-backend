@@ -8,6 +8,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    @ExceptionHandler(UserNotFoundException::class)
+    fun handleUserNotFound(e: UserNotFoundException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+    }
+    @ExceptionHandler(UserAlreadyExistsException::class)
+    fun handleUserAlreadyExists(e: UserAlreadyExistsException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build()
+    }
     @ExceptionHandler(NoSuchElementException::class)
     fun handleNoSuchElementException(e: NoSuchElementException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
@@ -20,28 +28,28 @@ class GlobalExceptionHandler {
     fun handleRuntimeException(e: RuntimeException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
     }
-    @ExceptionHandler(UnknownSpace::class)
-    fun handleUnknownSpace(e: UnknownSpace): ResponseEntity<Any> {
+    @ExceptionHandler(SpaceNotFoundException::class)
+    fun handleUnknownSpace(e: SpaceNotFoundException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
     }
-    @ExceptionHandler(UnknownHistory::class)
-    fun handleUnknownHistory(e: UnknownHistory): ResponseEntity<Any> {
+    @ExceptionHandler(HistoryNotFoundException::class)
+    fun handleUnknownHistory(e: HistoryNotFoundException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
     }
-    @ExceptionHandler(UnKnownFeedback::class)
-    fun handleUnKnowFeedback(e: UnKnownFeedback): ResponseEntity<Any> {
+    @ExceptionHandler(FeedbackNotFoundException::class)
+    fun handleUnKnowFeedback(e: FeedbackNotFoundException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
     }
-    @ExceptionHandler(AlreadyExistsSpaceUser::class)
-    fun handleAlreadyExistsSpaceUser(e: AlreadyExistsSpaceUser): ResponseEntity<Any> {
+    @ExceptionHandler(AlreadyExistsSpaceUserException::class)
+    fun handleAlreadyExistsSpaceUser(e: AlreadyExistsSpaceUserException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.CONFLICT).build()
     }
-    @ExceptionHandler(LowSpacePermission::class)
-    fun handleLowSpacePermission(e: LowSpacePermission): ResponseEntity<Any> {
+    @ExceptionHandler(LowSpacePermissionException::class)
+    fun handleLowSpacePermission(e: LowSpacePermissionException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build()
     }
-    @ExceptionHandler(NoExistsSpaceUser::class)
-    fun handlerNoExistsSpaceUser(e: NoExistsSpaceUser): ResponseEntity<Any> {
+    @ExceptionHandler(SpaceUserNotFoundInSpaceException::class)
+    fun handlerNoExistsSpaceUser(e: SpaceUserNotFoundInSpaceException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
     }
 }

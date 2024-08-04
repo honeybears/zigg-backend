@@ -1,7 +1,7 @@
 package soma.achoom.zigg.v0.service
 
-import soma.achoom.zigg.v0.exception.LowSpacePermission
-import soma.achoom.zigg.v0.exception.NoExistsSpaceUser
+import soma.achoom.zigg.v0.exception.LowSpacePermissionException
+import soma.achoom.zigg.v0.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.v0.model.Space
 import soma.achoom.zigg.v0.model.SpaceUser
 import soma.achoom.zigg.v0.model.User
@@ -14,7 +14,7 @@ abstract class SpaceAsset() : BaseService() {
         }?.let {
             return it
         }
-        throw NoExistsSpaceUser()
+        throw SpaceUserNotFoundInSpaceException()
     }
     protected fun validateSpaceUserRoleIsAdmin(user: User, space: Space): SpaceUser {
         space.spaceUsers.find {
@@ -22,6 +22,6 @@ abstract class SpaceAsset() : BaseService() {
         }?.let {
             return it
         }
-        throw LowSpacePermission()
+        throw LowSpacePermissionException()
     }
 }

@@ -23,4 +23,14 @@ data class History(
     var isDeleted: Boolean = false
 
 ) : BaseEntity() {
+
+        override fun hashCode(): Int {
+            return historyId.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is History) return false
+            return historyId == other.historyId && historyName == other.historyName && space == other.space && feedbacks == other.feedbacks && isDeleted == other.isDeleted
+        }
 }
