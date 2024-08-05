@@ -30,7 +30,7 @@ class SecurityConfig(
             }
             .authorizeHttpRequests {
                 it.requestMatchers("/api/v0/auth", "/api/v0/auth/tokens","/health").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v0/users","/api/v0/users/exists").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v0/users","/api/v0/users/exists","/test").permitAll()
                     .requestMatchers("/api/**").authenticated()
                     .anyRequest().permitAll()
             }
