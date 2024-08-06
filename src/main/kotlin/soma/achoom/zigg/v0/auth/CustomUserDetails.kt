@@ -14,4 +14,5 @@ class CustomUserDetails(private val username: String, private val password: Stri
     override fun isEnabled(): Boolean = true
     fun getOAuthProvider(): String = oauthProvider
 
+
 }
