@@ -8,6 +8,7 @@ import soma.achoom.zigg.v0.dto.response.FeedbackResponseDto
 import soma.achoom.zigg.v0.exception.FeedbackNotFoundException
 import soma.achoom.zigg.v0.exception.HistoryNotFoundException
 import soma.achoom.zigg.v0.exception.SpaceNotFoundException
+import soma.achoom.zigg.v0.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.v0.repository.*
 
 @Service
@@ -44,7 +45,7 @@ class FeedbackService @Autowired constructor(
         val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
 
         val feedbackRecipient = feedbackRequestDto.recipientId.map {
-            spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw FeedbackNotFoundException()
+            spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw SpaceUserNotFoundInSpaceException()
         }.toMutableSet()
 
         val feedback = feedbackRequestDto.toFeedBack(history, spaceUser, feedbackRecipient)
