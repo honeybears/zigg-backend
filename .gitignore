@@ -42,5 +42,4 @@ out/
 /src/main/resources/**.properties
 
 *.sh
-
 /src/main/resources/gcs.json
