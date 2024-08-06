@@ -21,7 +21,7 @@ class UserService: BaseService() {
         }
         val user = getAuthUser(authentication)
         user.userName = userRequestDto.userName
-        user.userNickname = userRequestDto.userNickname + "#" + user.userId
+        user.userNickname = userRequestDto.userNickname
         userRepository.save(user)
         return UserResponseDto.from(user)
     }
