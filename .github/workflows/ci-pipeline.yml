@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - dev
   pull_request:
     branches:
       - main
@@ -11,8 +10,8 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: zigg_application
-  ECS_SERVICE: zigg-spring-ecs
-  ECS_CLUSTER: zigg_backend_infra-dev
+  ECS_SERVICE: zigg-spring-ecs-dev
+  ECS_CLUSTER: zigg-backend-infra-dev
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: zigg-service
 
