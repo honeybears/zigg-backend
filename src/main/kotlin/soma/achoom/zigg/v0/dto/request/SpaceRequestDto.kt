@@ -20,36 +20,28 @@ data class SpaceRequestDto(
 
     fun toSpace(admin: User, invitedUser: MutableSet<User>): Space {
         val space = Space(
-            spaceId = null,
             spaceName = spaceName,
-            spaceUsers = mutableSetOf(),
-            histories = mutableSetOf(),
+            spaceId = null,
         )
         space.spaceUsers.add(
             SpaceUser(
                 space = space,
                 user = admin,
                 spaceRole = SpaceRole.ADMIN,
-                feedbackRecipients = mutableSetOf(),
                 inviteStatus = SpaceUserStatus.ACCEPTED,
                 spaceUserId = null
             )
         )
         invitedUser.forEach {
-            println(it.userNickname)
-            val spaceUser = SpaceUser(
+            space.spaceUsers.add(SpaceUser(
                 space = space,
                 user = it,
-                spaceRole = SpaceRole.USER,
-                feedbackRecipients = mutableSetOf(),
+                spaceRole = SpaceRole.USER, // Use correct role
                 inviteStatus = SpaceUserStatus.ACCEPTED,
                 spaceUserId = null
-            )
-            space.spaceUsers.add(
-                spaceUser
-            )
+            ))
+
         }
-        println(space.spaceUsers.count())
         return space
     }
 

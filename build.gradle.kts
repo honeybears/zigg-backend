@@ -33,11 +33,13 @@ dependencies {
 	//implementation ("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 	implementation("org.springframework.cloud:spring-cloud-gcp-starter:1.2.5.RELEASE")
 	implementation("org.springframework.cloud:spring-cloud-gcp-storage:1.2.5.RELEASE")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3") // 최신 버전 사용
+
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation ("org.json:json:20231013")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
