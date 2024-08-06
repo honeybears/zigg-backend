@@ -13,4 +13,6 @@ class CustomUserDetails(private val username: String, private val password: Stri
     override fun isCredentialsNonExpired(): Boolean = true
     override fun isEnabled(): Boolean = true
     fun getOAuthProvider(): String = oauthProvider
+
+
 }

@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.dto.request.UserRequestDto
 import soma.achoom.zigg.v0.dto.response.UserResponseDto
+import soma.achoom.zigg.v0.exception.UserAlreadyExistsException
 
 @Service
 class UserService: BaseService() {
@@ -15,12 +16,13 @@ class UserService: BaseService() {
     fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): UserResponseDto {
         userRequestDto.userNickname?.let {
             userRepository.findUserByUserNickname(it)?.let {
-                throw IllegalAccessError("User nickname already exists")
+
+                throw UserAlreadyExistsException()
             }
         }
         val user = getAuthUser(authentication)
         user.userName = userRequestDto.userName
-        user.userNickname = userRequestDto.userNickname + "#" + user.userId
+        user.userNickname = userRequestDto.userNickname
         userRepository.save(user)
         return UserResponseDto.from(user)
     }

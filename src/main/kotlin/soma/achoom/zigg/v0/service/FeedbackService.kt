@@ -5,9 +5,10 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.dto.request.FeedbackRequestDto
 import soma.achoom.zigg.v0.dto.response.FeedbackResponseDto
-import soma.achoom.zigg.v0.exception.UnKnownFeedback
-import soma.achoom.zigg.v0.exception.UnknownHistory
-import soma.achoom.zigg.v0.exception.UnknownSpace
+import soma.achoom.zigg.v0.exception.FeedbackNotFoundException
+import soma.achoom.zigg.v0.exception.HistoryNotFoundException
+import soma.achoom.zigg.v0.exception.SpaceNotFoundException
+import soma.achoom.zigg.v0.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.v0.repository.*
 
 @Service
@@ -22,11 +23,11 @@ class FeedbackService @Autowired constructor(
         authentication: Authentication, spaceId: Long, historyId: Long
     ): List<FeedbackResponseDto> {
         val user = getAuthUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw UnknownSpace()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
 
-        val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw UnknownHistory()
+        val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedbacks = history.feedbacks.toMutableSet()
         return feedbacks.filter { !it.isDeleted }.map {
             FeedbackResponseDto.from(it)
@@ -37,14 +38,14 @@ class FeedbackService @Autowired constructor(
         authentication: Authentication, spaceId: Long, historyId: Long, feedbackRequestDto: FeedbackRequestDto
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw UnknownSpace()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         val spaceUser = validateSpaceUser(user, space)
 
-        val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw UnknownHistory()
+        val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
 
         val feedbackRecipient = feedbackRequestDto.recipientId.map {
-            spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw UnKnownFeedback()
+            spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw SpaceUserNotFoundInSpaceException()
         }.toMutableSet()
 
         val feedback = feedbackRequestDto.toFeedBack(history, spaceUser, feedbackRecipient)
@@ -60,12 +61,12 @@ class FeedbackService @Autowired constructor(
         feedbackRequestDto: FeedbackRequestDto
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw UnknownSpace()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUserRoleIsAdmin(user, space)
 
-        historyRepository.findHistoryByHistoryId(historyId) ?: throw UnknownHistory()
-        val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw UnKnownFeedback()
+        historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
+        val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
         feedback.isDeleted = true
         feedbackRepository.save(feedback)
 
@@ -78,13 +79,13 @@ class FeedbackService @Autowired constructor(
         authentication: Authentication, spaceId: Long, historyId: Long, feedbackId: Long
     ) {
         val user = getAuthUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw UnknownSpace()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
 
 
-        historyRepository.findHistoryByHistoryId(historyId) ?: throw UnknownHistory()
-        val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw UnKnownFeedback()
+        historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
+        val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
 
         feedback.isDeleted = true
         feedbackRepository.save(feedback)
@@ -95,13 +96,13 @@ class FeedbackService @Autowired constructor(
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw UnknownSpace()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
 
 
-        historyRepository.findHistoryByHistoryId(historyId) ?: throw UnknownHistory()
-        val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw UnKnownFeedback()
+        historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
+        val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
         return FeedbackResponseDto.from(feedback)
     }
 
