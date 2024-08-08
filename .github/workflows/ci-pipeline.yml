@@ -29,7 +29,7 @@ jobs:
       - name: Download file from S3
         run: |
           mkdir ./src/main/resources
-          aws s3 cp s3://zigg-code-deploy-bucket/properties ./src/main/resources/ --recursive --include "*.properties"
+          aws s3 cp s3://zigg-code-deploy-bucket/properties ./src/main/resources/ --recursive
 
       - name: Login to Amazon ECR
         id: login-ecr

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -25,7 +26,11 @@ class UserController @Autowired constructor(
 
     private val authenticationService: AuthenticationService
 ) {
-
+    @GetMapping("/search/{nickname}")
+    fun searchUser(authentication: Authentication,@PathVariable nickname:String): ResponseEntity<UserResponseDto> {
+        val userResponseDto = userService.searchUser(authentication,nickname)
+        return ResponseEntity.ok(userResponseDto)
+    }
     @PostMapping
     fun registerUser(@RequestBody oAuth2UserRequestDto: OAuth2UserRequestDto): ResponseEntity<Void> {
         val tokenHeader = authenticationService.registers(oAuth2UserRequestDto)
