@@ -5,15 +5,20 @@ import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.HttpMethod
 import com.google.cloud.storage.Storage
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
 @Service
 class GCSService @Autowired constructor(
     private val gcsService: Storage,
+    @Value("\${gcp.bucket.name}")
+    private val bucketName: String,
+
 ) {
+
     fun preSignedUrl(objectName: String,expiration: Long, httpMethod: HttpMethod): String {
-        val blobId = BlobId.of("test-zigg",objectName )
+        val blobId = BlobId.of(bucketName,objectName )
         val option = BlobInfo.newBuilder(blobId).build()
         return gcsService.signUrl(
             option,
