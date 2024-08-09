@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import soma.achoom.zigg.v0.dto.request.SpaceRequestDto
-import soma.achoom.zigg.v0.dto.response.SpaceListResponse
 import soma.achoom.zigg.v0.dto.response.SpaceResponseDto
 import soma.achoom.zigg.v0.service.SpaceService
 
@@ -31,8 +29,12 @@ class SpaceController @Autowired constructor(
     }
 
     @PostMapping
-    fun createSpace(authentication:Authentication, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.createSpace(authentication, spaceRequestDto)
+    fun createSpace(
+        authentication:Authentication,
+        @RequestParam("space_image", required = false) spaceImage:MultipartFile ,
+        @RequestParam("spaceRequestDto", required = true) spaceRequestDto: SpaceRequestDto
+    ) : ResponseEntity<SpaceResponseDto> {
+        val spaceResponseDto = spaceService.createSpace(authentication, spaceImage, spaceRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
     @GetMapping("/{spaceId}")
@@ -41,8 +43,12 @@ class SpaceController @Autowired constructor(
         return ResponseEntity.ok(spaceResponseDto)
     }
     @PatchMapping("/{spaceId}")
-    fun updateSpace(authentication:Authentication, @PathVariable spaceId:Long, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.updateSpace(authentication, spaceId, spaceRequestDto)
+    fun updateSpace(
+        authentication:Authentication, @PathVariable spaceId:Long,
+        @RequestParam("space_image", required = false) spaceImage:MultipartFile ,
+        @RequestParam("spaceRequestDto", required = true) spaceRequestDto: SpaceRequestDto
+    ) : ResponseEntity<SpaceResponseDto> {
+        val spaceResponseDto = spaceService.updateSpace(authentication, spaceId, spaceImage,spaceRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
     @DeleteMapping("/{spaceId}")

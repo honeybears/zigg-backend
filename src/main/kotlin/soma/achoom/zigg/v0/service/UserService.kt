@@ -9,9 +9,10 @@ import soma.achoom.zigg.v0.exception.UserNotFoundException
 
 @Service
 class UserService: BaseService() {
-    fun searchUser(authentication: Authentication, nickname: String): UserResponseDto {
-        val user = userRepository.findUserByUserNickname(nickname) ?: throw UserNotFoundException()
-        return UserResponseDto.from(user)
+
+    fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
+        val users = userRepository.findUsersByUserNicknameLike(nickname) ?: throw UserNotFoundException()
+        return users.map(UserResponseDto::from).toMutableSet()
     }
 
     fun getUserInfo(authentication: Authentication): UserResponseDto {

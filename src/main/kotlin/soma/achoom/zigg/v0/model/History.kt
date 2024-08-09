@@ -10,11 +10,16 @@ data class History(
 
     var historyName: String?,
 
+    var historyVideoUrl: String? = null,
+
     @ManyToOne
     @JoinColumn(name = "space_id")
     @JsonBackReference
     var space: Space,
 
+    var videoThumbnailUrl: String? = null,
+
+    var videoDuration: String? = null,
     @OneToMany(mappedBy = "history", cascade = [CascadeType.ALL], orphanRemoval = true)
     var feedbacks: MutableSet<Feedback> = mutableSetOf(),
 

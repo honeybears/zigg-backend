@@ -18,10 +18,11 @@ data class SpaceRequestDto(
     val createdAt: LocalDateTime? = LocalDateTime.now(),
 ) {
 
-    fun toSpace(admin: User, invitedUser: MutableSet<User>): Space {
+    fun toSpace(admin: User, invitedUser: MutableSet<User>,spaceImageUrl:String): Space {
         val space = Space(
             spaceName = spaceName,
             spaceId = null,
+            spaceImageUrl = spaceImageUrl
         )
         space.spaceUsers.add(
             SpaceUser(

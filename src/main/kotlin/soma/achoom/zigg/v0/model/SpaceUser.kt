@@ -29,7 +29,6 @@ data class SpaceUser(
     var spaceRole: SpaceRole?,
 
     @OneToMany(mappedBy = "recipient", cascade = [CascadeType.ALL], orphanRemoval = true)
-
     @JsonBackReference
     var feedbackRecipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
@@ -55,7 +54,7 @@ data class SpaceUser(
 
     @get : JsonInclude
     val profileImageUrl: String
-        get() = user.profileImageUrl
+        get() = user.profileImageUrl?: ""
 
     override fun hashCode(): Int {
         return Objects.hash(spaceUserId)

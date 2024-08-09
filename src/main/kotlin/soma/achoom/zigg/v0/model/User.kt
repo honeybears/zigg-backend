@@ -21,7 +21,7 @@ data class User(
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
 
-    var profileImageUrl: String = "default",
+    var profileImageUrl: String? = null,
 
     @Enumerated(EnumType.STRING)
     var platform: OAuthProviderEnum,

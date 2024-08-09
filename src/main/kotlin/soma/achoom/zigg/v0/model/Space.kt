@@ -3,7 +3,6 @@ package soma.achoom.zigg.v0.model
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import jakarta.persistence.*
-import java.util.*
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "spaceId")
@@ -12,7 +11,7 @@ data class Space(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var spaceId: Long?,
     var spaceName: String?,
-
+    var spaceImageUrl: String? = null,
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
