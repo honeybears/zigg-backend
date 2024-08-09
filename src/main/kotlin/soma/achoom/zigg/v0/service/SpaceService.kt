@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import soma.achoom.zigg.v0.dto.request.SpaceRequestDto
 import soma.achoom.zigg.v0.dto.response.SpaceResponseDto
 import soma.achoom.zigg.v0.exception.SpaceNotFoundException
@@ -17,12 +18,13 @@ import soma.achoom.zigg.v0.repository.SpaceUserRepository
 class SpaceService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
     private val spaceUserRepository: SpaceUserRepository,
-    private val historyRepository: HistoryRepository
+    private val historyRepository: HistoryRepository,
+    private val gcsService: GCSService
 ) : SpaceAsset() {
     @Value("\${space.default.image.url}")
     private lateinit var defaultSpaceImageUrl: String
 
-    fun createSpace(authentication: Authentication, spaceRequestDto: SpaceRequestDto): SpaceResponseDto {
+    fun createSpace(authentication: Authentication, spaceImage:MultipartFile?, spaceRequestDto: SpaceRequestDto): SpaceResponseDto {
         val user = getAuthUser(authentication)
 
         val inviteUser = spaceRequestDto.spaceUsers.map {
@@ -30,7 +32,11 @@ class SpaceService @Autowired constructor(
                 ?: throw UserNotFoundException()
         }.toMutableSet()
 
-        val space = spaceRequestDto.toSpace(user,inviteUser)
+//        val spaceImage = spaceImage?.let {
+//            uploadSpaceImage(it)
+//        } ?: defaultSpaceImageUrl
+//
+//        val space = spaceRequestDto.toSpace(user,inviteUser)
 
         spaceRepository.save(space)
 
@@ -39,7 +45,7 @@ class SpaceService @Autowired constructor(
 
     fun getSpaces(authentication: Authentication): List<SpaceResponseDto> {
         val user = getAuthUser(authentication)
-        val spaceList = spaceRepository.findSpaceByUser(user)
+        val spaceList = spaceRepository.findSpaceByUserAndAccepted(user)
         return spaceList.map { SpaceResponseDto.from(it) }
     }
 
@@ -54,7 +60,7 @@ class SpaceService @Autowired constructor(
         return SpaceResponseDto.from(space)
     }
 
-    fun updateSpace(authentication: Authentication, spaceId: Long, spaceRequestDto: SpaceRequestDto): SpaceResponseDto {
+    fun updateSpace(authentication: Authentication, spaceId: Long, spaceImage:MultipartFile?,spaceRequestDto: SpaceRequestDto): SpaceResponseDto {
         val user = getAuthUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
