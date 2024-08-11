@@ -10,6 +10,7 @@ import soma.achoom.zigg.v0.exception.HistoryNotFoundException
 import soma.achoom.zigg.v0.exception.SpaceNotFoundException
 import soma.achoom.zigg.v0.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.v0.repository.*
+import java.util.UUID
 
 @Service
 class FeedbackService @Autowired constructor(
@@ -20,7 +21,7 @@ class FeedbackService @Autowired constructor(
 ) : SpaceAsset() {
 
     fun getFeedbacks(
-        authentication: Authentication, spaceId: Long, historyId: Long
+        authentication: Authentication, spaceId: UUID, historyId: UUID
     ): List<FeedbackResponseDto> {
         val user = getAuthUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
@@ -35,7 +36,7 @@ class FeedbackService @Autowired constructor(
     }
 
     fun createFeedback(
-        authentication: Authentication, spaceId: Long, historyId: Long, feedbackRequestDto: FeedbackRequestDto
+        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackRequestDto: FeedbackRequestDto
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
@@ -55,9 +56,9 @@ class FeedbackService @Autowired constructor(
 
     fun updateFeedback(
         authentication: Authentication,
-        spaceId: Long,
-        historyId: Long,
-        feedbackId: Long,
+        spaceId: UUID,
+        historyId: UUID,
+        feedbackId: UUID,
         feedbackRequestDto: FeedbackRequestDto
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
@@ -76,7 +77,7 @@ class FeedbackService @Autowired constructor(
     }
 
     fun deleteFeedback(
-        authentication: Authentication, spaceId: Long, historyId: Long, feedbackId: Long
+        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
     ) {
         val user = getAuthUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
@@ -92,7 +93,7 @@ class FeedbackService @Autowired constructor(
     }
 
     fun getFeedback(
-        authentication: Authentication, spaceId: Long, historyId: Long, feedbackId: Long
+        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
     ): FeedbackResponseDto {
         val user = getAuthUser(authentication)
 

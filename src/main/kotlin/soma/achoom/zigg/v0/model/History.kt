@@ -2,11 +2,12 @@ package soma.achoom.zigg.v0.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
+import java.util.UUID
 
 @Entity
 data class History(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var historyId: Long?,
+    @Id
+    var historyId: UUID = UUID.randomUUID(),
 
     var historyName: String?,
 
@@ -17,7 +18,7 @@ data class History(
     @JsonBackReference
     var space: Space,
 
-    var videoThumbnailUrl: String? = null,
+    var historyVideoThumbnailUrl: String? = null,
 
     var videoDuration: String? = null,
     @OneToMany(mappedBy = "history", cascade = [CascadeType.ALL], orphanRemoval = true)

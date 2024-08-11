@@ -11,8 +11,7 @@ import java.util.*
 @Table(name = "user")
 data class User(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var userId: Long? = null,
+    var userId: UUID = UUID.randomUUID(),
 
     var userName: String? = null,
 
@@ -28,6 +27,9 @@ data class User(
 
     @JsonBackReference
     var providerId: String,
+
+    @JsonBackReference
+    var jwtToken: String,
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false

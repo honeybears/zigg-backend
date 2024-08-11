@@ -3,15 +3,17 @@ package soma.achoom.zigg.v0.model
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import jakarta.persistence.*
+import soma.achoom.zigg.v0.model.enums.SpaceRole
+import soma.achoom.zigg.v0.model.enums.SpaceUserStatus
+import java.util.UUID
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "spaceId")
 data class Space(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var spaceId: Long?,
+    var spaceId: UUID = UUID.randomUUID(),
     var spaceName: String?,
-    var spaceImageUrl: String? = null,
+    var spaceImageUrl: String,
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
@@ -23,5 +25,31 @@ data class Space(
 
 
 ) : BaseEntity() {
-
+    companion object{
+        fun createSpace(spaceName:String,spaceImageUrl: String,users:MutableSet<User>,admin:User):Space{
+            val space = Space(
+                spaceName = spaceName,
+                spaceImageUrl = spaceImageUrl,
+            )
+            space.spaceUsers.add(
+                SpaceUser(
+                    space = space,
+                    user = admin,
+                    inviteStatus = SpaceUserStatus.ACCEPTED,
+                    spaceRole = SpaceRole.ADMIN
+                )
+            )
+            users.forEach {
+                space.spaceUsers.add(
+                    SpaceUser(
+                        space = space,
+                        user = it,
+                        inviteStatus = SpaceUserStatus.ACCEPTED,
+                        spaceRole = SpaceRole.USER
+                    )
+                )
+            }
+            return space
+        }
+    }
 }
