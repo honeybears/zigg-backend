@@ -6,8 +6,8 @@ import java.util.*
 
 @Entity
 data class Feedback(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var feedbackId: Long?,
+    @Id
+    var feedbackId: UUID = UUID.randomUUID(),
 
     @Enumerated(EnumType.STRING)
     var feedbackType: FeedbackType? = FeedbackType.USER,

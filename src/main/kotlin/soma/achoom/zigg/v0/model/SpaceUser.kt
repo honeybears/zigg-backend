@@ -11,8 +11,7 @@ import java.util.*
 @Table(name = "space_user")
 data class SpaceUser(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var spaceUserId: Long?,
+    var spaceUserId: UUID = UUID.randomUUID(),
 
     @ManyToOne
     @JoinColumn(name = "space_id")
@@ -41,8 +40,8 @@ data class SpaceUser(
 
     ) : BaseEntity() {
     @get:JsonInclude
-    val userId: Long
-        get() = user.userId!!
+    val userId: UUID
+        get() = user.userId
 
     @get:JsonInclude
     val userName: String?

@@ -2,9 +2,10 @@ package soma.achoom.zigg.v0.dto.response
 
 import soma.achoom.zigg.v0.dto.BaseResponseDto
 import soma.achoom.zigg.v0.model.History
+import java.util.UUID
 
 data class HistoryResponseDto(
-    val id: Long?,
+    val id: UUID?,
     val historyName: String?,
     val feedbacks: MutableSet<FeedbackResponseDto>?,
 ) : BaseResponseDto()
