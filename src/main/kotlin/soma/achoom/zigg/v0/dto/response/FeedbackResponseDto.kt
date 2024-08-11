@@ -7,9 +7,10 @@ import soma.achoom.zigg.v0.model.Feedback
 import soma.achoom.zigg.v0.model.FeedbackRecipient
 import soma.achoom.zigg.v0.model.enums.FeedbackType
 import soma.achoom.zigg.v0.model.SpaceUser
+import java.util.UUID
 
 data class FeedbackResponseDto(
-    val feedbackId: Long?,
+    val feedbackId: UUID?,
     @Enumerated(EnumType.STRING)
     val feedbackType: FeedbackType?,
     val feedbackTimeline: String?,
