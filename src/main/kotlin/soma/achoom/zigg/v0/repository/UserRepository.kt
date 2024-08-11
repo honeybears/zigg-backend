@@ -13,5 +13,6 @@ interface UserRepository : JpaRepository<User, UUID> {
     fun existsUserByUserNicknameNotNullAndUserNickname(nickname:String): Boolean
     fun findUserByPlatformAndProviderId(provider:OAuthProviderEnum, providerId:String): User?
     fun findUserByUserId(userId:UUID): User?
+    @Query("SELECT u FROM User u WHERE u.userNickname LIKE :nickname%")
     fun findUsersByUserNicknameLike(nickname:String): List<User>
 }
