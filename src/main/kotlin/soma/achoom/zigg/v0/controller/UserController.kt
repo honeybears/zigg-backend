@@ -27,7 +27,7 @@ class UserController @Autowired constructor(
     private val authenticationService: AuthenticationService
 ) {
     @GetMapping("/search/{nickname}")
-    fun searchUser(authentication: Authentication,@PathVariable nickname:String): ResponseEntity<UserResponseDto> {
+    fun searchUser(authentication: Authentication,@PathVariable nickname:String): ResponseEntity<MutableSet<UserResponseDto>> {
         val userResponseDto = userService.searchUser(authentication,nickname)
         return ResponseEntity.ok(userResponseDto)
     }
@@ -49,16 +49,7 @@ class UserController @Autowired constructor(
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto)
     }
 
-    @PostMapping("/info")
-    fun test(authentication:Authentication, @RequestBody userRequestDto: UserRequestDto):ResponseEntity<UserResponseDto>{
-        println(authentication.name)
-        println(authentication.details)
-        println(authentication.credentials)
-        println(authentication.authorities)
-        val userResponseDto = UserResponseDto(authentication.name.toLong(),"test","test")
-        return ResponseEntity.ok(userResponseDto)
 
-    }
     @PostMapping("/exists")
     fun checkUserExists(@RequestBody oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): ResponseEntity<UserExistsResponseDto> {
         val userExistsResponseDto = authenticationService.userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto)

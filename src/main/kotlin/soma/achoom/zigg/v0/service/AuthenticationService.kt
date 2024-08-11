@@ -38,27 +38,31 @@ class AuthenticationService @Autowired constructor(
         val header = HttpHeaders()
         header.set("Authorization", accessToken)
         header.set("platform", oAuth2UserRequestDto.platform)
+        user.jwtToken = accessToken
+        userRepository.save(user)
         return header
     }
 
     fun registers(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
 
-        // Validate if the user nickname already exists
         oAuth2UserRequestDto.userNickname?.let {
             userRepository.findUserByUserNickname(it)?.let {
                 throw UserAlreadyExistsException()
             }
         }
 
-        // Validate if OAuth2 access token is valid
+
         when (oAuth2UserRequestDto.platform) {
             OAuthProviderEnum.GOOGLE.name -> {
+                val user = saveOrUpdate(oAuth2UserRequestDto)
+
                 if (verifyGoogleToken(oAuth2UserRequestDto.idToken)) {
-                    val user = saveOrUpdate(oAuth2UserRequestDto)
                     val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
+                    user.jwtToken = accessToken
+                    userRepository.save(user)
                     return header
                 } else {
                     throw IllegalArgumentException("Invalid access token")
@@ -68,10 +72,13 @@ class AuthenticationService @Autowired constructor(
             OAuthProviderEnum.KAKAO.name -> {
                 if (verifyKakaoToken(oAuth2UserRequestDto.idToken)) {
                     val user = saveOrUpdate(oAuth2UserRequestDto)
+
                     val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
+                    user.jwtToken = accessToken
+                    userRepository.save(user)
                     return header
                 } else {
                     throw IllegalArgumentException("Invalid access token")
@@ -80,10 +87,13 @@ class AuthenticationService @Autowired constructor(
 
             OAuthProviderEnum.APPLE.name -> {
                 val user = saveOrUpdate(oAuth2UserRequestDto)
+
                 val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
                 val header = HttpHeaders()
                 header.set("Authorization", accessToken)
                 header.set("platform", oAuth2UserRequestDto.platform)
+                user.jwtToken = accessToken
+                userRepository.save(user)
                 return header
             }
 
@@ -129,7 +139,8 @@ class AuthenticationService @Autowired constructor(
             userNickname = oAuth2UserRequestDto.userNickname,
             userName = oAuth2UserRequestDto.userName,
             providerId = oAuth2UserRequestDto.providerId,
-            platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform)
+            platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
+            jwtToken = ""
         )
         return userRepository.save(user)
 

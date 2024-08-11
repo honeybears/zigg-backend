@@ -6,9 +6,9 @@ import java.util.*
 
 @Entity
 data class FeedbackRecipient(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     @JsonBackReference
-    var id: Long? = null,
+    var id: UUID = UUID.randomUUID(),
 
     @ManyToOne
     @JoinColumn(name = "feedback_id")

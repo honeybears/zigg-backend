@@ -11,8 +11,7 @@ import java.util.*
 @Table(name = "user")
 data class User(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var userId: Long? = null,
+    var userId: UUID = UUID.randomUUID(),
 
     var userName: String? = null,
 
@@ -21,13 +20,16 @@ data class User(
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
 
-    var profileImageUrl: String = "default",
+    var profileImageUrl: String? = null,
 
     @Enumerated(EnumType.STRING)
     var platform: OAuthProviderEnum,
 
     @JsonBackReference
     var providerId: String,
+
+    @JsonBackReference
+    var jwtToken: String,
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false

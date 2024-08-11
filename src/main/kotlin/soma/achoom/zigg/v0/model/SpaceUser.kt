@@ -11,8 +11,7 @@ import java.util.*
 @Table(name = "space_user")
 data class SpaceUser(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var spaceUserId: Long?,
+    var spaceUserId: UUID = UUID.randomUUID(),
 
     @ManyToOne
     @JoinColumn(name = "space_id")
@@ -29,7 +28,6 @@ data class SpaceUser(
     var spaceRole: SpaceRole?,
 
     @OneToMany(mappedBy = "recipient", cascade = [CascadeType.ALL], orphanRemoval = true)
-
     @JsonBackReference
     var feedbackRecipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
@@ -42,8 +40,8 @@ data class SpaceUser(
 
     ) : BaseEntity() {
     @get:JsonInclude
-    val userId: Long
-        get() = user.userId!!
+    val userId: UUID
+        get() = user.userId
 
     @get:JsonInclude
     val userName: String?
@@ -55,7 +53,7 @@ data class SpaceUser(
 
     @get : JsonInclude
     val profileImageUrl: String
-        get() = user.profileImageUrl
+        get() = user.profileImageUrl?: ""
 
     override fun hashCode(): Int {
         return Objects.hash(spaceUserId)
