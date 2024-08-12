@@ -1,8 +1,10 @@
 package soma.achoom.zigg.v0.user.dto
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import soma.achoom.zigg.v0.user.entity.User
 import java.util.UUID
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class UserResponseDto(
     val userId: UUID?,
     val userName: String?,

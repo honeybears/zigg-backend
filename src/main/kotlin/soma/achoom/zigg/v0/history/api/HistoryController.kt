@@ -25,17 +25,20 @@ class HistoryController @Autowired constructor(
     private val gcsService: GCSService
 
 ) {
+    @GetMapping("/pre-signed-url/{fileType}")
+    fun getPreSignedUrl() : ResponseEntity<String> {
+        val preSignedUrl = gcsService.getPreSignedPutUrl(GCSDataType.HISTORY_VIDEO,UUID.randomUUID())
+        return ResponseEntity.ok(preSignedUrl)
+    }
+
+
     @GetMapping("/{spaceId}")
     fun getHistories(authentication: Authentication, @PathVariable spaceId: UUID) : ResponseEntity<List<HistoryResponseDto>> {
         val historyResponseDto = historyService.getHistories(authentication, spaceId)
         return ResponseEntity.ok(historyResponseDto)
     }
 
-    @GetMapping("/pre-signed-url")
-    fun getPreSignedUrl() : ResponseEntity<String> {
-        val preSignedUrl = gcsService.getPreSignedPutUrl(GCSDataType.HISTORY_VIDEO,UUID.randomUUID())
-        return ResponseEntity.ok(preSignedUrl)
-    }
+
 
     @PostMapping("/{spaceId}")
     fun creatHistory(
