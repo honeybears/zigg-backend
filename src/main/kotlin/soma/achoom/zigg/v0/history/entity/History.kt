@@ -14,7 +14,7 @@ data class History(
 
     var historyName: String?,
 
-    var historyVideoUrl: String,
+    var historyVideoKey: String,
 
     @ManyToOne
     @JoinColumn(name = "space_id")

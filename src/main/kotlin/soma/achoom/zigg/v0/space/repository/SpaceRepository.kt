@@ -15,7 +15,9 @@ interface SpaceRepository : JpaRepository<Space, UUID> {
     fun findSpaceBySpaceId(spaceId: UUID): Space?
     fun findSpaceByHistoriesContains(history: History): Space?
 
-    @Query("select s from Space s where s in (select spaceUser.space from s.spaceUsers spaceUser where spaceUser.user = :user and spaceUser.inviteStatus = 'ACCEPT')")
+    // @Query("select s from Space s where s in (select spaceUser.space from s.spaceUsers spaceUser where spaceUser.user = :user and spaceUser.inviteStatus = 'ACCEPT')")
+
+    @Query("select s from Space s where s in (select spaceUser.space from SpaceUser spaceUser where spaceUser.user = :user and spaceUser.inviteStatus = 'ACCEPTED')")
     fun findSpaceByUserAndAccepted(user: User) : List<Space>
 
 }

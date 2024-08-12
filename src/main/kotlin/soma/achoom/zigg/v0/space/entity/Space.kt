@@ -14,7 +14,7 @@ data class Space(
     @Id
     var spaceId: UUID = UUID.randomUUID(),
     var spaceName: String?,
-    var spaceImageUrl: String,
+    var spaceImageKey: String,
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
@@ -30,7 +30,7 @@ data class Space(
         fun createSpace(spaceName:String, spaceImageUrl: String, users:MutableSet<User>, admin: User): Space {
             val space = Space(
                 spaceName = spaceName,
-                spaceImageUrl = spaceImageUrl,
+                spaceImageKey = spaceImageUrl,
             )
             space.spaceUsers.add(
                 SpaceUser(
