@@ -1,12 +1,12 @@
 package soma.achoom.zigg.v0.history.service
 
-import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.global.util.BaseService
 import soma.achoom.zigg.global.infra.GCSService
+import soma.achoom.zigg.v0.ai.service.AIService
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.v0.history.dto.HistoryRequestDto
 import soma.achoom.zigg.v0.history.dto.HistoryResponseDto
@@ -19,7 +19,8 @@ import java.util.UUID
 class HistoryService @Autowired constructor(
     private val historyRepository: HistoryRepository,
     private val spaceRepository: SpaceRepository,
-    private val gcsService: GCSService
+    private val gcsService: GCSService,
+    private val aiService: AIService
 ) : BaseService() {
 
     fun createHistory(
@@ -41,19 +42,19 @@ class HistoryService @Autowired constructor(
 
         val history = History(
             historyId = UUID.fromString(uuid),
-            historyVideoUrl = bucketKey,
+            historyVideoKey = bucketKey,
             historyName = historyRequestDto.historyName,
             space = space
         )
 
-
+        aiService
 
         historyRepository.save(history)
 
         return HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(history.historyVideoUrl),
+            historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(history.historyVideoKey),
             feedbacks = history.feedbacks.map { feedback ->
                 FeedbackResponseDto.from(feedback)
             }.toMutableSet()
@@ -69,7 +70,7 @@ class HistoryService @Autowired constructor(
             HistoryResponseDto(
                 historyId = it.historyId,
                 historyName = it.historyName,
-                historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(it.historyVideoUrl),
+                historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(it.historyVideoKey),
                 feedbacks = it.feedbacks.map { feedback ->
                     FeedbackResponseDto.from(feedback)
                 }.toMutableSet()
@@ -86,7 +87,7 @@ class HistoryService @Autowired constructor(
         return HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(history.historyVideoUrl),
+            historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(history.historyVideoKey),
             feedbacks = history.feedbacks.map { feedback ->
                 FeedbackResponseDto.from(feedback)
             }.toMutableSet()

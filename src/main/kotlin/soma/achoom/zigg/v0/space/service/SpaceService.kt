@@ -46,7 +46,7 @@ class SpaceService @Autowired constructor(
             admin = user
         )
         spaceImage?.let {
-            space.spaceImageUrl = gcsService.uploadFile(GCSDataType.SPACE_IMAGE, spaceImage, space.spaceId)
+            space.spaceImageKey = gcsService.uploadFile(GCSDataType.SPACE_IMAGE, spaceImage, space.spaceId)
         }
 
         spaceRepository.save(space)
@@ -54,8 +54,10 @@ class SpaceService @Autowired constructor(
         return SpaceResponseDto(
             spaceId = space.spaceId,
             spaceName = space.spaceName,
-            spaceImageUrl = gcsService.generatePreSignedUrl(space.spaceImageUrl),
-            spaceUsers = space.spaceUsers
+            spaceImageUrl = gcsService.generatePreSignedUrl(space.spaceImageKey),
+            spaceUsers = space.spaceUsers.map {
+                it.user.userName!!
+            }.toMutableSet(),
         )
     }
 
@@ -66,18 +68,10 @@ class SpaceService @Autowired constructor(
             SpaceResponseDto(
                 spaceId = it.spaceId,
                 spaceName = it.spaceName,
-                spaceImageUrl = gcsService.generatePreSignedUrl(it.spaceImageUrl),
-                spaceUsers = it.spaceUsers,
-                history = it.histories.map {
-                    HistoryResponseDto(
-                        historyId = it.historyId,
-                        historyName = it.historyName,
-                        historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(it.historyVideoUrl),
-                        feedbacks = it.feedbacks.map { feedback ->
-                            FeedbackResponseDto.from(feedback)
-                        }.toMutableSet()
-                    )
-                }.toMutableSet()
+                spaceImageUrl = gcsService.generatePreSignedUrl(it.spaceImageKey),
+                spaceUsers = it.spaceUsers.map {
+                    it.user.userName!!
+                }.toMutableSet(),
             )
         }
     }
@@ -93,13 +87,15 @@ class SpaceService @Autowired constructor(
         return SpaceResponseDto(
             spaceId = space.spaceId,
             spaceName = space.spaceName,
-            spaceImageUrl = gcsService.generatePreSignedUrl(space.spaceImageUrl),
-            spaceUsers = space.spaceUsers,
+            spaceImageUrl = gcsService.generatePreSignedUrl(space.spaceImageKey),
+            spaceUsers = space.spaceUsers.map {
+                it.user.userName!!
+            }.toMutableSet(),
             history = space.histories.map {
                 HistoryResponseDto(
                     historyId = it.historyId,
                     historyName = it.historyName,
-                    historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(it.historyVideoUrl),
+                    historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(it.historyVideoKey),
                     feedbacks = it.feedbacks.map { feedback ->
                         FeedbackResponseDto.from(feedback)
                     }.toMutableSet()

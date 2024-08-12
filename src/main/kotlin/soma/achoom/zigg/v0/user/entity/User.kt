@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 import soma.achoom.zigg.v0.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.global.util.BaseEntity
-import soma.achoom.zigg.v0.user.UserRole
 import java.util.*
 
 
@@ -21,7 +20,7 @@ data class User(
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
 
-    var profileImageUrl: String? = null,
+    var profileImageKey: String? = null,
 
     @Enumerated(EnumType.STRING)
     var platform: OAuthProviderEnum,
