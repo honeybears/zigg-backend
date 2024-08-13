@@ -1,9 +1,6 @@
 package soma.achoom.zigg.v0.history.service
 
-import jakarta.transaction.Transactional
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
@@ -19,6 +16,8 @@ import soma.achoom.zigg.v0.history.dto.HistoryResponseDto
 import soma.achoom.zigg.v0.history.entity.History
 import soma.achoom.zigg.v0.history.repository.HistoryRepository
 import soma.achoom.zigg.v0.space.repository.SpaceRepository
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Service
@@ -30,6 +29,7 @@ class HistoryService @Autowired constructor(
     @Value("\${gcp.bucket.name}")
     private val bucketName: String,
 ) : BaseService() {
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun createHistory(
         authentication: Authentication,
         spaceId: UUID,
@@ -41,30 +41,29 @@ class HistoryService @Autowired constructor(
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
 
-        historyRequestDto.historyVideoUrl
-            ?: throw IllegalArgumentException("historyVideoUrl is required")
-
         val bucketKey = gcsService.convertPreSignedUrlToGeneralKey(historyRequestDto.historyVideoUrl)
 
 
-        val response = aiService.createThumbnailRequest(
+        val response = async{
+            return@async aiService.createThumbnailRequest(
                 GenerateThumbnailRequestDto(
                     bucketName = bucketName,
                     historyVideoKey = bucketKey
                 )
-        )
+            )
+        }
 
         val uuid = getLastPathSegment(bucketKey).split(".")[0]
 
+        response.await()
         val history = History(
             historyId = UUID.fromString(uuid),
             historyVideoKey = bucketKey,
-            historyName = historyRequestDto.historyName,
+            historyName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")),
             space = space,
-            historyVideoThumbnailUrl = response.historyThumbnailKey
+            historyVideoThumbnailUrl = response.getCompleted().historyThumbnailKey
         )
 
-        println(response.historyThumbnailKey)
         historyRepository.save(history)
 
         return@coroutineScope HistoryResponseDto(
