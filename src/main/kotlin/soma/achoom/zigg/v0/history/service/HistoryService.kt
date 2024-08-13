@@ -1,11 +1,17 @@
 package soma.achoom.zigg.v0.history.service
 
+import jakarta.transaction.Transactional
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.global.util.BaseService
 import soma.achoom.zigg.global.infra.GCSService
+import soma.achoom.zigg.v0.ai.dto.GenerateThumbnailRequestDto
 import soma.achoom.zigg.v0.ai.service.AIService
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.v0.history.dto.HistoryRequestDto
@@ -20,14 +26,15 @@ class HistoryService @Autowired constructor(
     private val historyRepository: HistoryRepository,
     private val spaceRepository: SpaceRepository,
     private val gcsService: GCSService,
-    private val aiService: AIService
+    private val aiService: AIService,
+    @Value("\${gcp.bucket.name}")
+    private val bucketName: String,
 ) : BaseService() {
-
-    fun createHistory(
+    suspend fun createHistory(
         authentication: Authentication,
         spaceId: UUID,
         historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto {
+    ): HistoryResponseDto = coroutineScope {
 
         getAuthUser(authentication)
 
@@ -38,26 +45,36 @@ class HistoryService @Autowired constructor(
             ?: throw IllegalArgumentException("historyVideoUrl is required")
 
         val bucketKey = gcsService.convertPreSignedUrlToGeneralKey(historyRequestDto.historyVideoUrl)
-        val uuid = getLastPathSegment(bucketKey)
+
+
+        val response = aiService.createThumbnailRequest(
+                GenerateThumbnailRequestDto(
+                    bucketName = bucketName,
+                    historyVideoKey = bucketKey
+                )
+        )
+
+        val uuid = getLastPathSegment(bucketKey).split(".")[0]
 
         val history = History(
             historyId = UUID.fromString(uuid),
             historyVideoKey = bucketKey,
             historyName = historyRequestDto.historyName,
-            space = space
+            space = space,
+            historyVideoThumbnailUrl = response.historyThumbnailKey
         )
 
-        aiService
-
+        println(response.historyThumbnailKey)
         historyRepository.save(history)
 
-        return HistoryResponseDto(
+        return@coroutineScope HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(history.historyVideoKey),
+            historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoKey),
             feedbacks = history.feedbacks.map { feedback ->
                 FeedbackResponseDto.from(feedback)
-            }.toMutableSet()
+            }.toMutableSet(),
+            historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!)
         )
     }
 
@@ -70,10 +87,11 @@ class HistoryService @Autowired constructor(
             HistoryResponseDto(
                 historyId = it.historyId,
                 historyName = it.historyName,
-                historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(it.historyVideoKey),
+                historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
                 feedbacks = it.feedbacks.map { feedback ->
                     FeedbackResponseDto.from(feedback)
-                }.toMutableSet()
+                }.toMutableSet(),
+                historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!)
             )
         }
     }
@@ -87,19 +105,20 @@ class HistoryService @Autowired constructor(
         return HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(history.historyVideoKey),
+            historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoKey),
             feedbacks = history.feedbacks.map { feedback ->
                 FeedbackResponseDto.from(feedback)
-            }.toMutableSet()
+            }.toMutableSet(),
+            historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!)
         )
     }
 
-    fun updateHistory(
+    suspend fun updateHistory(
         authentication: Authentication,
         spaceId: UUID,
         historyId: UUID,
         historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto {
+    ): HistoryResponseDto  = coroutineScope{
         getAuthUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
@@ -108,7 +127,7 @@ class HistoryService @Autowired constructor(
         history.isDeleted = true
         historyRepository.save(history)
         val newHistory = createHistory(authentication, spaceId, historyRequestDto)
-        return newHistory
+        return@coroutineScope newHistory
     }
 
     fun deleteHistory(authentication: Authentication, spaceId: UUID, historyId: UUID) {

@@ -16,7 +16,7 @@ abstract class BaseEntity {
     @CreatedDate
     @Column(name = "created_at", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy:MM:dd")
-    open var createAt: LocalDateTime? = null
+    open var createAt: LocalDateTime? = LocalDateTime.now()
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
