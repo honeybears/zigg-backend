@@ -39,8 +39,5 @@ out/
 ### Kotlin ###
 .kotlin
 
-/src/main/resources/**.properties
-
 *.sh
-
-/src/main/resources/gcs.json
+/src/main/resources/**
