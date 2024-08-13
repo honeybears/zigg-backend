@@ -1,6 +1,8 @@
 package soma.achoom.zigg.v0.history.service
 
+
 import kotlinx.coroutines.*
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
@@ -16,6 +18,7 @@ import soma.achoom.zigg.v0.history.dto.HistoryResponseDto
 import soma.achoom.zigg.v0.history.entity.History
 import soma.achoom.zigg.v0.history.repository.HistoryRepository
 import soma.achoom.zigg.v0.space.repository.SpaceRepository
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -29,7 +32,9 @@ class HistoryService @Autowired constructor(
     @Value("\${gcp.bucket.name}")
     private val bucketName: String,
 ) : BaseService() {
+
     @OptIn(ExperimentalCoroutinesApi::class)
+
     suspend fun createHistory(
         authentication: Authentication,
         spaceId: UUID,
@@ -40,6 +45,7 @@ class HistoryService @Autowired constructor(
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
+
 
         val bucketKey = gcsService.convertPreSignedUrlToGeneralKey(historyRequestDto.historyVideoUrl)
 
