@@ -35,17 +35,14 @@ class GCSService @Autowired constructor(
         val blobId = BlobId.of(bucketName,objectType.path+id.toString())
         val option = BlobInfo.newBuilder(blobId).setContentType(multipartFile.contentType).build()
         val blob = googleCloudStorage.create(option,multipartFile.inputStream.readBytes())
-        println(blob.name.toString())
-        println(blob.blobId.name.toString())
         return blob.name
     }
 
 
-    //TODO: createThumbnail
     fun getPreSignedPutUrl(objectType: GCSDataType, id: UUID, uploadContentTypeRequestDto: UploadContentTypeRequestDto): String {
         val blobId = BlobId.of(bucketName,objectType.path+id.toString()+"."+uploadContentTypeRequestDto.fileExtension)
 
-        val option = BlobInfo.newBuilder(blobId).setContentType(uploadContentTypeRequestDto.contentType).build()
+        val option = BlobInfo.newBuilder(blobId).build()
 
         val preSignedUrl = googleCloudStorage.signUrl(
             option,

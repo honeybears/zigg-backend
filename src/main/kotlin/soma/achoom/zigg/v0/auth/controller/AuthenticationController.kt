@@ -1,4 +1,4 @@
-package soma.achoom.zigg.v0.auth.api
+package soma.achoom.zigg.v0.auth.controller
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
