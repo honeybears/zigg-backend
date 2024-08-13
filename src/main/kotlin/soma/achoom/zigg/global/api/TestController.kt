@@ -18,6 +18,6 @@ class TestController @Autowired constructor(
 
     @GetMapping("/gcs")
     fun testGCSConnection() : String{
-         return gcsService.generatePreSignedUrl("test")
+         return gcsService.getPreSignedGetUrl("test")
     }
 }
