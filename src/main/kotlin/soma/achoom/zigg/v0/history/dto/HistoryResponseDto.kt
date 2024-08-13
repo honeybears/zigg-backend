@@ -10,4 +10,5 @@ data class HistoryResponseDto(
     val historyName: String?,
     val historyVideoPreSignedUrl:String,
     val feedbacks: MutableSet<FeedbackResponseDto>?,
+    val historyVideoThumbnailPreSignedUrl:String
 )

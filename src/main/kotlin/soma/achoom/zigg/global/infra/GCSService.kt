@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import soma.achoom.zigg.v0.history.dto.UploadContentTypeRequestDto
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -19,7 +20,7 @@ class GCSService @Autowired constructor(
     private val bucketName: String,
 ) {
 
-    fun generatePreSignedUrl(objectName: String): String {
+    fun getPreSignedGetUrl(objectName: String): String {
         val blobId = BlobId.of(bucketName,objectName)
         val option = BlobInfo.newBuilder(blobId).build()
         return googleCloudStorage.signUrl(
@@ -41,10 +42,12 @@ class GCSService @Autowired constructor(
 
 
     //TODO: createThumbnail
-    fun getPreSignedPutUrl(objectType: GCSDataType, id: UUID): String {
-        val blobId = BlobId.of(bucketName,objectType.path+id.toString())
-        val option = BlobInfo.newBuilder(blobId).build()
-        val preSignedUrl =  googleCloudStorage.signUrl(
+    fun getPreSignedPutUrl(objectType: GCSDataType, id: UUID, uploadContentTypeRequestDto: UploadContentTypeRequestDto): String {
+        val blobId = BlobId.of(bucketName,objectType.path+id.toString()+"."+uploadContentTypeRequestDto.fileExtension)
+
+        val option = BlobInfo.newBuilder(blobId).setContentType(uploadContentTypeRequestDto.contentType).build()
+
+        val preSignedUrl = googleCloudStorage.signUrl(
             option,
             1000L,
             TimeUnit.SECONDS,
@@ -62,16 +65,6 @@ class GCSService @Autowired constructor(
         return objectKey
     }
 
-    fun getPreSignedGetUrl(objectType: GCSDataType, id: UUID): String {
-        val blobId = BlobId.of(bucketName,objectType.path+id.toString())
-        val option = BlobInfo.newBuilder(blobId).build()
-        return googleCloudStorage.signUrl(
-            option,
-            1000L,
-            TimeUnit.SECONDS,
-            Storage.SignUrlOption.httpMethod(HttpMethod.GET),
-            Storage.SignUrlOption.withV4Signature()
-        ).toString()
-    }
+
 
 }
