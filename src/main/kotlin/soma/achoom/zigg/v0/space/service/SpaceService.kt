@@ -54,7 +54,7 @@ class SpaceService @Autowired constructor(
         return SpaceResponseDto(
             spaceId = space.spaceId,
             spaceName = space.spaceName,
-            spaceImageUrl = gcsService.generatePreSignedUrl(space.spaceImageKey),
+            spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
             spaceUsers = space.spaceUsers.map {
                 it.user.userName!!
             }.toMutableSet(),
@@ -68,7 +68,7 @@ class SpaceService @Autowired constructor(
             SpaceResponseDto(
                 spaceId = it.spaceId,
                 spaceName = it.spaceName,
-                spaceImageUrl = gcsService.generatePreSignedUrl(it.spaceImageKey),
+                spaceImageUrl = gcsService.getPreSignedGetUrl(it.spaceImageKey),
                 spaceUsers = it.spaceUsers.map {
                     it.user.userName!!
                 }.toMutableSet(),
@@ -87,7 +87,7 @@ class SpaceService @Autowired constructor(
         return SpaceResponseDto(
             spaceId = space.spaceId,
             spaceName = space.spaceName,
-            spaceImageUrl = gcsService.generatePreSignedUrl(space.spaceImageKey),
+            spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
             spaceUsers = space.spaceUsers.map {
                 it.user.userName!!
             }.toMutableSet(),
@@ -95,10 +95,11 @@ class SpaceService @Autowired constructor(
                 HistoryResponseDto(
                     historyId = it.historyId,
                     historyName = it.historyName,
-                    historyVideoPreSignedUrl = gcsService.generatePreSignedUrl(it.historyVideoKey),
+                    historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
                     feedbacks = it.feedbacks.map { feedback ->
                         FeedbackResponseDto.from(feedback)
-                    }.toMutableSet()
+                    }.toMutableSet(),
+                    historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!)
                 )
             }.toMutableSet()
         )

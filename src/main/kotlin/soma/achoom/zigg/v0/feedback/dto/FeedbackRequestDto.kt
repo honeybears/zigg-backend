@@ -1,5 +1,6 @@
 package soma.achoom.zigg.v0.feedback.dto
 
+import jakarta.validation.constraints.Min
 import org.jetbrains.annotations.NotNull
 import soma.achoom.zigg.v0.feedback.entity.Feedback
 import soma.achoom.zigg.v0.feedback.entity.FeedbackRecipient
@@ -10,7 +11,8 @@ import java.util.UUID
 data class FeedbackRequestDto(
     val feedbackTimeline: String?,
     val feedbackMessage: String?,
-    @field:NotNull
+    @NotNull
+    @Min(value = 1, message = "받는 사람은 최소 1명 이상이어야 합니다.")
     val recipientId: MutableSet<UUID> = mutableSetOf(),
 ) {
     fun toFeedBack(history: History, creator: SpaceUser, recipients: MutableSet<SpaceUser>): Feedback {
