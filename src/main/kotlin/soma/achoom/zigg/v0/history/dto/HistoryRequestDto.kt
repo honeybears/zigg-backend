@@ -12,6 +12,7 @@ data class HistoryRequestDto(
     @NotNull
     @NotBlank
     val historyVideoUrl: String
+
 ){
 
 }
