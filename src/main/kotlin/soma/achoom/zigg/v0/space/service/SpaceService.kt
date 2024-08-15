@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import soma.achoom.zigg.v0.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.v0.user.exception.UserNotFoundException
-import soma.achoom.zigg.global.infra.GCSService
+import soma.achoom.zigg.global.infra.gcs.GCSService
 import soma.achoom.zigg.global.util.SpaceAsset
-import soma.achoom.zigg.global.infra.GCSDataType
+import soma.achoom.zigg.global.infra.gcs.GCSDataType
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.v0.history.dto.HistoryResponseDto
 import soma.achoom.zigg.v0.space.dto.SpaceRequestDto
@@ -56,8 +56,9 @@ class SpaceService @Autowired constructor(
             spaceName = space.spaceName,
             spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
             spaceUsers = space.spaceUsers.map {
-                it.user.userName!!
+                it.toResponseDto()
             }.toMutableSet(),
+            createdAt = space.createAt
         )
     }
 
@@ -70,8 +71,10 @@ class SpaceService @Autowired constructor(
                 spaceName = it.spaceName,
                 spaceImageUrl = gcsService.getPreSignedGetUrl(it.spaceImageKey),
                 spaceUsers = it.spaceUsers.map {
-                    it.user.userName!!
+                    it.toResponseDto()
                 }.toMutableSet(),
+                createdAt = it.createAt
+
             )
         }
     }
@@ -89,7 +92,7 @@ class SpaceService @Autowired constructor(
             spaceName = space.spaceName,
             spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
             spaceUsers = space.spaceUsers.map {
-                it.user.userName!!
+                it.toResponseDto()
             }.toMutableSet(),
             history = space.histories.map {
                 HistoryResponseDto(
@@ -101,7 +104,9 @@ class SpaceService @Autowired constructor(
                     }.toMutableSet(),
                     historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!)
                 )
-            }.toMutableSet()
+            }.toMutableSet(),
+            createdAt = space.createAt
+
         )
     }
 

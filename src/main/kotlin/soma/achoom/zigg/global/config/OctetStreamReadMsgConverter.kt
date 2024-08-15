@@ -1,4 +1,4 @@
-package soma.achoom.zigg.global.component
+package soma.achoom.zigg.global.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
