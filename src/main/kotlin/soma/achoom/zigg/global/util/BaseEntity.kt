@@ -22,4 +22,5 @@ abstract class BaseEntity {
     @Column(name = "updated_at", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy:MM:dd")
     open var updateAt: LocalDateTime? = null
+
 }
