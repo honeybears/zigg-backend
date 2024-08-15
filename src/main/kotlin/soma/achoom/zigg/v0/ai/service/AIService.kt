@@ -23,7 +23,8 @@ class AIService(webClientBuilder: WebClient.Builder, @Value("\${fastapi.default.
             .awaitBody()
     }
 
-    suspend fun createThumbnailRequest(generateThumbnailRequestDto: GenerateThumbnailRequestDto): GenerateThumbnailResponseDto = withContext(Dispatchers.IO) {
+    suspend fun createThumbnailRequest(generateThumbnailRequestDto: GenerateThumbnailRequestDto): GenerateThumbnailResponseDto
+    = withContext(Dispatchers.IO) {
         val response = webClient.post()
             .uri("/fastapi/v0/thumbnail")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
