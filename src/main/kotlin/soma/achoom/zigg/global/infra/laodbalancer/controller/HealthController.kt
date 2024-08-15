@@ -1,4 +1,4 @@
-package soma.achoom.zigg.global.controller
+package soma.achoom.zigg.global.infra.laodbalancer.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
