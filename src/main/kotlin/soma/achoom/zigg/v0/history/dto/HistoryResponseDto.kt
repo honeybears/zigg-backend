@@ -2,7 +2,6 @@ package soma.achoom.zigg.v0.history.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
-import soma.achoom.zigg.v0.history.entity.History
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -13,5 +12,5 @@ data class HistoryResponseDto(
     val historyVideoPreSignedUrl:String,
     val feedbacks: MutableSet<FeedbackResponseDto>?,
     val historyVideoThumbnailPreSignedUrl:String,
-    val createAt:LocalDateTime?
+    val createdAt:LocalDateTime?
 )
