@@ -82,7 +82,7 @@ class HistoryService @Autowired constructor(
                 FeedbackResponseDto.from(feedback)
             }.toMutableSet(),
             historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
-            createAt = history.createAt
+            createdAt = history.createAt
         )
     }
 
@@ -100,7 +100,7 @@ class HistoryService @Autowired constructor(
                     FeedbackResponseDto.from(feedback)
                 }.toMutableSet(),
                 historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
-                createAt = it.createAt
+                createdAt = it.createAt
 
             )
         }
@@ -120,7 +120,7 @@ class HistoryService @Autowired constructor(
                 FeedbackResponseDto.from(feedback)
             }.toMutableSet(),
             historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
-            createAt = history.createAt
+            createdAt = history.createAt
 
         )
     }

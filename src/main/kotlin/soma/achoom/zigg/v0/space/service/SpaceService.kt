@@ -58,7 +58,8 @@ class SpaceService @Autowired constructor(
             spaceUsers = space.spaceUsers.map {
                 it.toResponseDto()
             }.toMutableSet(),
-            createdAt = space.createAt
+            createdAt = space.createAt,
+            updatedAt = space.updateAt
         )
     }
 
@@ -73,7 +74,8 @@ class SpaceService @Autowired constructor(
                 spaceUsers = it.spaceUsers.map {
                     it.toResponseDto()
                 }.toMutableSet(),
-                createdAt = it.createAt
+                createdAt = it.createAt,
+                updatedAt = it.updateAt
 
             )
         }
@@ -102,10 +104,13 @@ class SpaceService @Autowired constructor(
                     feedbacks = it.feedbacks.map { feedback ->
                         FeedbackResponseDto.from(feedback)
                     }.toMutableSet(),
-                    historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!)
+                    historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
+                    createdAt = it.createAt
                 )
             }.toMutableSet(),
-            createdAt = space.createAt
+
+            createdAt = space.createAt,
+            updatedAt = space.updateAt
 
         )
     }
