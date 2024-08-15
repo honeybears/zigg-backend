@@ -1,15 +1,17 @@
 package soma.achoom.zigg.v0.history.service
 
+import soma.achoom.zigg.global.annotation.AuthenticationValidate
+
+
 
 import kotlinx.coroutines.*
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.global.util.BaseService
-import soma.achoom.zigg.global.infra.GCSService
+import soma.achoom.zigg.global.infra.gcs.GCSService
 import soma.achoom.zigg.v0.ai.dto.GenerateThumbnailRequestDto
 import soma.achoom.zigg.v0.ai.service.AIService
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
@@ -34,7 +36,7 @@ class HistoryService @Autowired constructor(
 ) : BaseService() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-
+    @AuthenticationValidate
     suspend fun createHistory(
         authentication: Authentication,
         spaceId: UUID,
