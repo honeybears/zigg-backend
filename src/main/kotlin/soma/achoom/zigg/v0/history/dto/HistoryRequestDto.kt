@@ -11,7 +11,8 @@ data class HistoryRequestDto(
     val historyName: String?,
     @NotNull
     @NotBlank
-    val historyVideoUrl: String?
+    val historyVideoUrl: String
+
 ){
 
 }
