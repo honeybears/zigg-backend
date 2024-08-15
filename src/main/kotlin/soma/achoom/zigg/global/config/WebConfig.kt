@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import soma.achoom.zigg.global.component.OctetStreamReadMsgConverter
 
 
 @Configuration

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import soma.achoom.zigg.v0.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.global.util.BaseEntity
+import soma.achoom.zigg.v0.space.dto.SpaceUserResponseDto
 
 import soma.achoom.zigg.v0.user.entity.User
 import java.util.*
@@ -66,6 +67,15 @@ data class SpaceUser(
         if (other == null || javaClass != other.javaClass) return false
         val spaceUser = other as SpaceUser
         return spaceUserId == spaceUser.spaceUserId && space == spaceUser.space && user == spaceUser.user
+    }
+
+    fun toResponseDto() : SpaceUserResponseDto{
+        return SpaceUserResponseDto(
+            userNickname = this.user.userNickname,
+            spaceUserId = this.spaceUserId,
+            spaceRole = this.spaceRole,
+            userName = this.user.userName
+        )
     }
 }
 
