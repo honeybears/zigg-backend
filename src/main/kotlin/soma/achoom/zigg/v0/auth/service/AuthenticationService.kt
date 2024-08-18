@@ -49,12 +49,16 @@ class AuthenticationService @Autowired constructor(
 
     fun registers(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
 
-        oAuth2UserRequestDto.userNickname?.let {
-            userRepository.findUserByUserNickname(it)?.let {
-                throw UserAlreadyExistsException()
+        runCatching {
+            oAuth2UserRequestDto.userNickname?.let {
+                userRepository.findUserByUserNickname(it)?.let {
+                    throw UserAlreadyExistsException()
+                }
             }
+        }.onFailure {
+            println(it.message)
+            throw UserAlreadyExistsException()
         }
-
 
         when (oAuth2UserRequestDto.platform) {
             OAuthProviderEnum.GOOGLE.name -> {
