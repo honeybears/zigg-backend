@@ -22,13 +22,16 @@ class AuthenticationService @Autowired constructor(
 ) : BaseService() {
 
     fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): UserExistsResponseDto {
-        val user = userRepository.findUserByPlatformAndProviderId(
-            OAuthProviderEnum.valueOf(oAuth2MetaDataRequestDto.platform), oAuth2MetaDataRequestDto.providerId
-        )
-        user?.let {
-            return UserExistsResponseDto(true)
+
+        runCatching {
+            userRepository.findUserByPlatformAndProviderId(
+                OAuthProviderEnum.valueOf(oAuth2MetaDataRequestDto.platform), oAuth2MetaDataRequestDto.providerId
+            ) ?: return UserExistsResponseDto(false)
+        }.onFailure {
+            println(it.message)
+            return UserExistsResponseDto(false)
         }
-        return UserExistsResponseDto(false)
+        return UserExistsResponseDto(true)
     }
 
     fun generateJWTToken(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
