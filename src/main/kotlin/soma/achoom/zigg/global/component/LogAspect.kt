@@ -52,14 +52,6 @@ class LogAspect  {
         val methodSignature = joinPoint.signature as MethodSignature
         val method = methodSignature.method
         log.info("Method : ${method.name}")
-
-//        val args = joinPoint.args
-//        for (arg in args) {
-//            arg?.let {
-//                log.info("Parameter type : ${arg.javaClass.name}")
-//                log.info("Argument : $arg")
-//            }
-//        }
     }
     @AfterThrowing("all()", throwing = "exception")
     fun exceptionThrowingLogger(joinPoint: JoinPoint, exception: Exception) {
@@ -71,13 +63,5 @@ class LogAspect  {
         val methodSignature = joinPoint.signature as MethodSignature
         val method = methodSignature.method
         log.info("Method : ${method.name}")
-
-//        val args = joinPoint.args
-//        for (arg in args) {
-//            arg?.let {
-//                log.info("Parameter type : ${arg.javaClass.name}")
-//                log.info("Argument : $arg")
-//            }
-//        }
     }
 }

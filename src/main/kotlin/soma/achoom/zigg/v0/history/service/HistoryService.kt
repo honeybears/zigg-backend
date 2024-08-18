@@ -12,12 +12,19 @@ import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.global.util.BaseService
 import soma.achoom.zigg.global.infra.gcs.GCSService
+import soma.achoom.zigg.v0.ai.GeminiModelType
+import soma.achoom.zigg.v0.ai.dto.GenerateAIFeedbackResponseDto
+import soma.achoom.zigg.v0.ai.dto.GenerateAiFeedbackRequestDto
 import soma.achoom.zigg.v0.ai.dto.GenerateThumbnailRequestDto
 import soma.achoom.zigg.v0.ai.service.AIService
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
+import soma.achoom.zigg.v0.feedback.dto.FeedbackType
+import soma.achoom.zigg.v0.feedback.entity.Feedback
+import soma.achoom.zigg.v0.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.v0.history.dto.HistoryRequestDto
 import soma.achoom.zigg.v0.history.dto.HistoryResponseDto
 import soma.achoom.zigg.v0.history.entity.History
+import soma.achoom.zigg.v0.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.v0.history.repository.HistoryRepository
 import soma.achoom.zigg.v0.space.repository.SpaceRepository
 
@@ -33,6 +40,7 @@ class HistoryService @Autowired constructor(
     private val aiService: AIService,
     @Value("\${gcp.bucket.name}")
     private val bucketName: String,
+    private val feedbackRepository: FeedbackRepository,
 ) : BaseService() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -153,5 +161,45 @@ class HistoryService @Autowired constructor(
     }
     private fun getLastPathSegment(path: String):String{
         return path.split("/").last()
+    }
+    suspend fun generateAIFeedbackRequest(
+        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
+    ) = coroutineScope {
+        val user = getAuthUser(authentication)
+
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+        val history = historyRepository.findHistoryByHistoryId(historyId)
+            ?: throw SpaceNotFoundException()
+
+        space.referenceVideoKey ?: throw Exception("Reference video is not exist")
+
+        val aiFeedback = aiService.generateAIFeedbackRequest(
+            GenerateAiFeedbackRequestDto(
+                modelName = GeminiModelType.FLASH,
+                referenceVideoKey = space.referenceVideoKey!!,
+                comparisonVideoKey = history.historyVideoKey,
+                bucketName = bucketName,
+                historyId = historyId
+            )
+
+        )
+        return@coroutineScope
+    }
+    fun generateAIFeedbackResponse(generateAIFeedbackResponseDto: GenerateAIFeedbackResponseDto){
+
+        val aiFeedbackToFeedbackList = mutableListOf<Feedback>()
+        for(feedbacks in generateAIFeedbackResponseDto.timelineFeedback){
+            val feedback = Feedback(
+                feedbackId = UUID.randomUUID(),
+                feedbackType = FeedbackType.AI,
+                feedbackTimeline = feedbacks.time,
+                history = historyRepository.findHistoryByHistoryId(generateAIFeedbackResponseDto.historyId) ?: throw HistoryNotFoundException(),
+                feedbackMessage = feedbacks.message,
+                feedbackCreator = null
+            )
+            aiFeedbackToFeedbackList.add(feedback)
+            feedbackRepository.save(feedback)
+        }
     }
 }
