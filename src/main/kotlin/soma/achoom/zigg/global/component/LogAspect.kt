@@ -36,7 +36,7 @@ class LogAspect  {
 
     }
 
-    @Around("service()||repository()")
+    @Around("controller()||repository()")
     fun logging(joinPoint: ProceedingJoinPoint): Any {
         var result: Any
         val timeMs = measureTime {
