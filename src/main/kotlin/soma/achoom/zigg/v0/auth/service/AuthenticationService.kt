@@ -48,18 +48,10 @@ class AuthenticationService @Autowired constructor(
     }
 
     fun registers(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
-
-        runCatching {
-            oAuth2UserRequestDto.userNickname?.let {
-                userRepository.findUserByUserNickname(it)?.let {
-                    throw UserAlreadyExistsException()
-                }
-            }
-        }.onFailure {
-            println(it.message)
+        oAuth2UserRequestDto.userNickname?: throw IllegalArgumentException("userNickname is required")
+        userRepository.findUserByUserNickname(oAuth2UserRequestDto.userNickname)?.let {
             throw UserAlreadyExistsException()
         }
-
         when (oAuth2UserRequestDto.platform) {
             OAuthProviderEnum.GOOGLE.name -> {
                 val user = saveOrUpdate(oAuth2UserRequestDto)
