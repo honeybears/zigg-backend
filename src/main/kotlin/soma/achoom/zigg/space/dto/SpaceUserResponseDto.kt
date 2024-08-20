@@ -7,5 +7,6 @@ data class SpaceUserResponseDto(
     val userNickname: String?,
     val userName:String?,
     val spaceUserId: UUID?,
-    val spaceRole: SpaceRole?
+    val spaceRole: SpaceRole?,
+    val profileImageUrl: String?
 )
