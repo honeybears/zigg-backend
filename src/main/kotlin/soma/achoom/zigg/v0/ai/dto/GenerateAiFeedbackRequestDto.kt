@@ -8,5 +8,6 @@ data class GenerateAiFeedbackRequestDto(
     val historyId: UUID,
     val referenceVideoKey : String,
     val comparisonVideoKey: String,
-    val modelName:GeminiModelType
+    val modelName:GeminiModelType,
+    val token:String
 )

@@ -38,7 +38,8 @@ data class SpaceUser(
     var inviteStatus: SpaceUserStatus,
 
     @Column(name = "is_deleted")
-    var isDeleted: Boolean = false
+    var isDeleted: Boolean = false,
+
 
 
     ) : BaseEntity() {
