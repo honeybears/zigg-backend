@@ -75,8 +75,9 @@ class HistoryService @Autowired constructor(
         val history = History(
             historyId = UUID.fromString(uuid),
             historyVideoKey = bucketKey,
-            historyName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")),
+            historyName = historyRequestDto.historyName,
             space = space,
+            videoDuration = historyRequestDto.videoDuration,
             historyVideoThumbnailUrl = response.getCompleted().historyThumbnailKey
         )
 
@@ -90,7 +91,8 @@ class HistoryService @Autowired constructor(
                 FeedbackResponseDto.from(feedback)
             }.toMutableSet(),
             historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
-            createdAt = history.createAt
+            createdAt = history.createAt,
+            videoDuration = history.videoDuration
         )
     }
 
@@ -108,8 +110,8 @@ class HistoryService @Autowired constructor(
                     FeedbackResponseDto.from(feedback)
                 }.toMutableSet(),
                 historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
-                createdAt = it.createAt
-
+                createdAt = it.createAt,
+                videoDuration = it.videoDuration
             )
         }
     }
@@ -128,8 +130,8 @@ class HistoryService @Autowired constructor(
                 FeedbackResponseDto.from(feedback)
             }.toMutableSet(),
             historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
-            createdAt = history.createAt
-
+            createdAt = history.createAt,
+            videoDuration = history.videoDuration
         )
     }
 
@@ -162,44 +164,6 @@ class HistoryService @Autowired constructor(
     private fun getLastPathSegment(path: String):String{
         return path.split("/").last()
     }
-    suspend fun generateAIFeedbackRequest(
-        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
-    ) = coroutineScope {
-        val user = getAuthUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
-        val history = historyRepository.findHistoryByHistoryId(historyId)
-            ?: throw SpaceNotFoundException()
 
-        space.referenceVideoKey ?: throw Exception("Reference video is not exist")
-
-        val aiFeedback = aiService.generateAIFeedbackRequest(
-            GenerateAiFeedbackRequestDto(
-                modelName = GeminiModelType.FLASH,
-                referenceVideoKey = space.referenceVideoKey!!,
-                comparisonVideoKey = history.historyVideoKey,
-                bucketName = bucketName,
-                historyId = historyId
-            )
-
-        )
-        return@coroutineScope
-    }
-    fun generateAIFeedbackResponse(generateAIFeedbackResponseDto: GenerateAIFeedbackResponseDto){
-
-        val aiFeedbackToFeedbackList = mutableListOf<Feedback>()
-        for(feedbacks in generateAIFeedbackResponseDto.timelineFeedback){
-            val feedback = Feedback(
-                feedbackId = UUID.randomUUID(),
-                feedbackType = FeedbackType.AI,
-                feedbackTimeline = feedbacks.time,
-                history = historyRepository.findHistoryByHistoryId(generateAIFeedbackResponseDto.historyId) ?: throw HistoryNotFoundException(),
-                feedbackMessage = feedbacks.message,
-                feedbackCreator = null
-            )
-            aiFeedbackToFeedbackList.add(feedback)
-            feedbackRepository.save(feedback)
-        }
-    }
 }

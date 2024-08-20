@@ -1,5 +1,6 @@
 package soma.achoom.zigg.v0.space.service
 
+import kotlinx.coroutines.coroutineScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
@@ -10,8 +11,11 @@ import soma.achoom.zigg.v0.user.exception.UserNotFoundException
 import soma.achoom.zigg.global.infra.gcs.GCSService
 import soma.achoom.zigg.global.util.SpaceAsset
 import soma.achoom.zigg.global.infra.gcs.GCSDataType
+import soma.achoom.zigg.v0.ai.dto.YoutubeUrlRequestDto
+import soma.achoom.zigg.v0.ai.service.AIService
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.v0.history.dto.HistoryResponseDto
+import soma.achoom.zigg.v0.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.v0.space.dto.SpaceRequestDto
 import soma.achoom.zigg.v0.space.dto.SpaceResponseDto
 import soma.achoom.zigg.v0.space.entity.Space
@@ -22,7 +26,8 @@ import java.util.UUID
 @Service
 class SpaceService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
-    private val gcsService: GCSService
+    private val gcsService: GCSService,
+    private val aiService: AIService
 ) : SpaceAsset() {
     @Value("\${space.default.image.url}")
     private lateinit var defaultSpaceImageUrl: String
@@ -59,7 +64,8 @@ class SpaceService @Autowired constructor(
                 it.toResponseDto()
             }.toMutableSet(),
             createdAt = space.createAt,
-            updatedAt = space.updateAt
+            updatedAt = space.updateAt,
+            referenceVideoUrl = space.referenceVideoUrl
         )
     }
 
@@ -75,8 +81,8 @@ class SpaceService @Autowired constructor(
                     it.toResponseDto()
                 }.toMutableSet(),
                 createdAt = it.createAt,
-                updatedAt = it.updateAt
-
+                updatedAt = it.updateAt,
+                referenceVideoUrl = it.referenceVideoUrl
             )
         }
     }
@@ -105,12 +111,14 @@ class SpaceService @Autowired constructor(
                         FeedbackResponseDto.from(feedback)
                     }.toMutableSet(),
                     historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
-                    createdAt = it.createAt
+                    createdAt = it.createAt,
+                    videoDuration = it.videoDuration
                 )
             }.toMutableSet(),
 
             createdAt = space.createAt,
-            updatedAt = space.updateAt
+            updatedAt = space.updateAt,
+            referenceVideoUrl = space.referenceVideoUrl
 
         )
     }
@@ -146,5 +154,36 @@ class SpaceService @Autowired constructor(
         space.isDeleted = true
 
         spaceRepository.save(space)
+    }
+    suspend fun addReferenceUrl(authentication: Authentication, spaceId: UUID, spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto): SpaceResponseDto
+    = coroutineScope {
+        val user = getAuthUser(authentication)
+
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+
+        validateSpaceUser(user, space)
+        space.referenceVideoUrl = spaceReferenceUrlRequestDto.referenceUrl
+        space.referenceVideoKey = GCSDataType.SPACE_REFERENCE_VIDEO.name+space.spaceId+".mp4"
+        aiService.putYoutubeVideoToGCS(
+            YoutubeUrlRequestDto(
+                url =  spaceReferenceUrlRequestDto.referenceUrl,
+                bucketName = gcsService.bucketName,
+                bucketKey = space.referenceVideoKey!!
+            )
+        )
+        spaceRepository.save(space)
+
+        return@coroutineScope SpaceResponseDto(
+            spaceId = space.spaceId,
+            spaceName = space.spaceName,
+            spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
+            spaceUsers = space.spaceUsers.map {
+                it.toResponseDto()
+            }.toMutableSet(),
+            createdAt = space.createAt,
+            updatedAt = space.updateAt,
+            referenceVideoUrl = space.referenceVideoUrl
+        )
     }
 }
