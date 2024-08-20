@@ -1,11 +1,12 @@
 package soma.achoom.zigg.global.util
 
-import soma.achoom.zigg.v0.space.entity.SpaceRole
-import soma.achoom.zigg.v0.space.exception.LowSpacePermissionException
-import soma.achoom.zigg.v0.space.exception.SpaceUserNotFoundInSpaceException
-import soma.achoom.zigg.v0.space.entity.Space
-import soma.achoom.zigg.v0.space.entity.SpaceUser
-import soma.achoom.zigg.v0.user.entity.User
+import soma.achoom.zigg.version.v0.space.entity.Space
+import soma.achoom.zigg.version.v0.space.entity.SpaceRole
+import soma.achoom.zigg.version.v0.space.entity.SpaceUser
+import soma.achoom.zigg.version.v0.space.exception.LowSpacePermissionException
+import soma.achoom.zigg.version.v0.space.exception.SpaceUserNotFoundInSpaceException
+import soma.achoom.zigg.version.v0.user.entity.User
+
 
 abstract class SpaceAsset() : BaseService() {
     protected fun validateSpaceUser(user: User, space: Space): SpaceUser {

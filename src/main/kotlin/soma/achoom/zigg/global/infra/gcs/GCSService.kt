@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import soma.achoom.zigg.v0.history.dto.UploadContentTypeRequestDto
+import soma.achoom.zigg.version.v0.history.dto.UploadContentTypeRequestDto
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.TimeUnit

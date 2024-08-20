@@ -4,14 +4,14 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import soma.achoom.zigg.v0.feedback.exception.FeedbackNotFoundException
-import soma.achoom.zigg.v0.history.exception.HistoryNotFoundException
-import soma.achoom.zigg.v0.space.exception.AlreadyExistsSpaceUserException
-import soma.achoom.zigg.v0.space.exception.LowSpacePermissionException
-import soma.achoom.zigg.v0.space.exception.SpaceNotFoundException
-import soma.achoom.zigg.v0.space.exception.SpaceUserNotFoundInSpaceException
-import soma.achoom.zigg.v0.user.exception.UserAlreadyExistsException
-import soma.achoom.zigg.v0.user.exception.UserNotFoundException
+import soma.achoom.zigg.version.v0.feedback.exception.FeedbackNotFoundException
+import soma.achoom.zigg.version.v0.history.exception.HistoryNotFoundException
+import soma.achoom.zigg.version.v0.space.exception.AlreadyExistsSpaceUserException
+import soma.achoom.zigg.version.v0.space.exception.LowSpacePermissionException
+import soma.achoom.zigg.version.v0.space.exception.SpaceNotFoundException
+import soma.achoom.zigg.version.v0.space.exception.SpaceUserNotFoundInSpaceException
+import soma.achoom.zigg.version.v0.user.exception.UserAlreadyExistsException
+import soma.achoom.zigg.version.v0.user.exception.UserNotFoundException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
