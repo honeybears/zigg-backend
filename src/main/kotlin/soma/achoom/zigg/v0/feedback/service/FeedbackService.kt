@@ -1,10 +1,11 @@
 package soma.achoom.zigg.v0.feedback.service
 
-import com.google.cloud.storage.Storage
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import soma.achoom.zigg.global.infra.gcs.GCSService
 import soma.achoom.zigg.v0.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.v0.feedback.dto.FeedbackRequestDto
 import soma.achoom.zigg.v0.feedback.dto.FeedbackResponseDto
@@ -14,9 +15,16 @@ import soma.achoom.zigg.v0.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.v0.space.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.v0.history.repository.HistoryRepository
 import soma.achoom.zigg.global.util.SpaceAsset
+import soma.achoom.zigg.v0.ai.GeminiModelType
+import soma.achoom.zigg.v0.ai.dto.GenerateAIFeedbackResponseDto
+import soma.achoom.zigg.v0.ai.dto.GenerateAiFeedbackRequestDto
+import soma.achoom.zigg.v0.ai.service.AIService
+import soma.achoom.zigg.v0.feedback.dto.FeedbackType
+import soma.achoom.zigg.v0.feedback.entity.Feedback
 import soma.achoom.zigg.v0.space.repository.SpaceRepository
 import soma.achoom.zigg.v0.space.repository.SpaceUserRepository
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 
 @Service
 class FeedbackService @Autowired constructor(
@@ -24,6 +32,8 @@ class FeedbackService @Autowired constructor(
     private val feedbackRepository: FeedbackRepository,
     private val spaceUserRepository: SpaceUserRepository,
     private val spaceRepository: SpaceRepository,
+    private val aiService: AIService,
+    private val gcsService: GCSService
 ) : SpaceAsset() {
 
     fun getFeedbacks(
@@ -113,7 +123,46 @@ class FeedbackService @Autowired constructor(
         return FeedbackResponseDto.from(feedback)
     }
 
+    fun generateAIFeedbackResponse(historyId: UUID, generateAIFeedbackResponseDto: GenerateAIFeedbackResponseDto){
 
+        val aiFeedbackToFeedbackList = mutableListOf<Feedback>()
+        for(feedbacks in generateAIFeedbackResponseDto.timelineFeedbacks){
+            val feedback = Feedback(
+                feedbackId = UUID.randomUUID(),
+                feedbackType = FeedbackType.AI,
+                feedbackTimeline = feedbacks.time,
+                history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException(),
+                feedbackMessage = feedbacks.message,
+                feedbackCreator = null
+            )
+            aiFeedbackToFeedbackList.add(feedback)
+            feedbackRepository.save(feedback)
+        }
+    }
 
+    suspend fun generateAIFeedbackRequest(
+        authentication: Authentication, spaceId: UUID, historyId: UUID
+    ) : CompletableFuture<Void> = withContext(Dispatchers.IO) {
+        val user = getAuthUser(authentication)
+
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+        val history = historyRepository.findHistoryByHistoryId(historyId)
+            ?: throw SpaceNotFoundException()
+        space.referenceVideoKey ?: throw Exception("Reference video is not exist")
+
+        val aiFeedback = aiService.generateAIFeedbackRequest(
+            GenerateAiFeedbackRequestDto(
+                modelName = GeminiModelType.FLASH,
+                referenceVideoKey = space.referenceVideoKey!!,
+                comparisonVideoKey = history.historyVideoKey,
+                bucketName = gcsService.bucketName,
+                historyId = historyId,
+                token = user.jwtToken
+            )
+
+        )
+        return@withContext CompletableFuture.completedFuture(null)
+    }
 }
 

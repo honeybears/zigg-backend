@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import soma.achoom.zigg.v0.ai.dto.GenerateAIFeedbackResponseDto
-import soma.achoom.zigg.v0.ai.dto.GenerateAiFeedbackRequestDto
-import soma.achoom.zigg.v0.ai.dto.GenerateThumbnailRequestDto
-import soma.achoom.zigg.v0.ai.dto.GenerateThumbnailResponseDto
+import soma.achoom.zigg.v0.ai.dto.*
 
 @Service
 class AIService(webClientBuilder: WebClient.Builder, @Value("\${fastapi.default.url}") private val fastAPIUrl: String) {
@@ -50,6 +47,17 @@ class AIService(webClientBuilder: WebClient.Builder, @Value("\${fastapi.default.
             }
             .awaitBody<Any>()
         return@withContext
+    }
+
+    suspend fun putYoutubeVideoToGCS(youtubeUrlRequestDto: YoutubeUrlRequestDto) = withContext(Dispatchers.IO) {
+        val response = webClient.post()
+            .uri("/fastapi/v0/youtube")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(youtubeUrlRequestDto)
+            .retrieve()
+            .awaitBody<Any>()
+        return@withContext
+
     }
 
 }

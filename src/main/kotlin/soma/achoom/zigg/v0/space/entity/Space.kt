@@ -18,6 +18,8 @@ data class Space(
 
     var referenceVideoKey: String? = null,
 
+    var referenceVideoUrl: String? = null,
+
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
