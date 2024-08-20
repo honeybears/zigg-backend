@@ -16,22 +16,22 @@ class LogAspect  {
 
     val log = LoggerFactory.getLogger(this.javaClass)
 
-    @Pointcut("execution(* soma.achoom.zigg.v0..*(..))")
+    @Pointcut("execution(* soma.achoom.zigg..*(..))")
     fun all() {
 
     }
 
-    @Pointcut("execution(* soma.achoom.zigg.v0.*.service.*.*(..))")
+    @Pointcut("execution(* soma.achoom.zigg.*.service.*.*(..))")
     fun service() {
 
     }
 
-    @Pointcut("execution(* soma.achoom.zigg.v0.*.controller.*.*(..))")
+    @Pointcut("execution(* soma.achoom.zigg.*.controller.*.*(..))")
     fun controller() {
 
     }
 
-    @Pointcut("execution(* soma.achoom.zigg.v0.*.repository.*.*(..))")
+    @Pointcut("execution(* soma.achoom.zigg.*.repository.*.*(..))")
     fun repository() {
 
     }
