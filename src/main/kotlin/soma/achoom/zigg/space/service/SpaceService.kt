@@ -16,6 +16,7 @@ import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
+import soma.achoom.zigg.space.dto.SpaceUserResponseDto
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
@@ -66,7 +67,15 @@ class SpaceService @Autowired constructor(
             spaceName = space.spaceName,
             spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
             spaceUsers = space.spaceUsers.map {
-                it.toResponseDto()
+                SpaceUserResponseDto(
+                    userNickname = it.userNickname,
+                    userName = it.user.userName,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.spaceRole,
+                    profileImageUrl = it.user.profileImageKey?.let {
+                        gcsService.getPreSignedGetUrl(it)
+                    }
+                )
             }.toMutableSet(),
             createdAt = space.createAt,
             updatedAt = space.updateAt,
@@ -83,7 +92,15 @@ class SpaceService @Autowired constructor(
                 spaceName = it.spaceName,
                 spaceImageUrl = gcsService.getPreSignedGetUrl(it.spaceImageKey),
                 spaceUsers = it.spaceUsers.map {
-                    it.toResponseDto()
+                    SpaceUserResponseDto(
+                        userNickname = it.userNickname,
+                        userName = it.user.userName,
+                        spaceUserId = it.spaceUserId,
+                        spaceRole = it.spaceRole,
+                        profileImageUrl = it.user.profileImageKey?.let {
+                            gcsService.getPreSignedGetUrl(it)
+                        }
+                    )
                 }.toMutableSet(),
                 createdAt = it.createAt,
                 updatedAt = it.updateAt,
@@ -105,7 +122,15 @@ class SpaceService @Autowired constructor(
             spaceName = space.spaceName,
             spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
             spaceUsers = space.spaceUsers.map {
-                it.toResponseDto()
+                SpaceUserResponseDto(
+                    userNickname = it.userNickname,
+                    userName = it.user.userName,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.spaceRole,
+                    profileImageUrl = it.user.profileImageKey?.let {
+                        gcsService.getPreSignedGetUrl(it)
+                    }
+                )
             }.toMutableSet(),
             history = space.histories.map {
                 HistoryResponseDto(
@@ -184,7 +209,15 @@ class SpaceService @Autowired constructor(
             spaceName = space.spaceName,
             spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
             spaceUsers = space.spaceUsers.map {
-                it.toResponseDto()
+                SpaceUserResponseDto(
+                    userNickname = it.userNickname,
+                    userName = it.user.userName,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.spaceRole,
+                    profileImageUrl = it.user.profileImageKey?.let {
+                        gcsService.getPreSignedGetUrl(it)
+                    }
+                )
             }.toMutableSet(),
             history = space.histories.map {
                 HistoryResponseDto(
