@@ -186,6 +186,19 @@ class SpaceService @Autowired constructor(
             spaceUsers = space.spaceUsers.map {
                 it.toResponseDto()
             }.toMutableSet(),
+            history = space.histories.map {
+                HistoryResponseDto(
+                    historyId = it.historyId,
+                    historyName = it.historyName,
+                    historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
+                    feedbacks = it.feedbacks.map { feedback ->
+                        FeedbackResponseDto.from(feedback)
+                    }.toMutableSet(),
+                    historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
+                    createdAt = it.createAt,
+                    videoDuration = it.videoDuration
+                )
+            }.toMutableSet(),
             createdAt = space.createAt,
             updatedAt = space.updateAt,
             referenceVideoUrl = space.referenceVideoUrl
