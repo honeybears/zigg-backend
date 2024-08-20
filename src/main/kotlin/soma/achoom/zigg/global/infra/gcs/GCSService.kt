@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 class GCSService @Autowired constructor(
     private val googleCloudStorage: Storage,
     @Value("\${gcp.bucket.name}")
-    private val bucketName: String,
+    val bucketName: String,
 ) {
 
     fun getPreSignedGetUrl(objectName: String): String {

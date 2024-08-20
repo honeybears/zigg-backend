@@ -14,6 +14,7 @@ data class SpaceResponseDto(
     val spaceImageUrl: String?,
     val spaceUsers: MutableSet<SpaceUserResponseDto>?,
     val history: MutableSet<HistoryResponseDto>? = null,
+    val referenceVideoUrl:String?,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 ) {

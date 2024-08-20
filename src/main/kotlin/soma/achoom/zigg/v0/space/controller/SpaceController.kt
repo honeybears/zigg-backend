@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import soma.achoom.zigg.v0.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.v0.space.dto.SpaceRequestDto
 import soma.achoom.zigg.v0.space.dto.SpaceResponseDto
 import soma.achoom.zigg.v0.space.service.SpaceService
@@ -33,11 +34,13 @@ class SpaceController @Autowired constructor(
         val spaceResponseDto = spaceService.createSpace(authentication, spaceImage, spaceRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
+
     @GetMapping("/{spaceId}")
     fun getSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<SpaceResponseDto> {
         val spaceResponseDto = spaceService.getSpace(authentication, spaceId)
         return ResponseEntity.ok(spaceResponseDto)
     }
+
     @PatchMapping("/{spaceId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun updateSpace(
         authentication:Authentication, @PathVariable spaceId:UUID,
@@ -47,9 +50,16 @@ class SpaceController @Autowired constructor(
         val spaceResponseDto = spaceService.updateSpace(authentication, spaceId, spaceImage,spaceRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
+
     @DeleteMapping("/{spaceId}")
     fun deleteSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<Unit> {
         spaceService.deleteSpace(authentication, spaceId)
         return ResponseEntity.ok().build()
+    }
+
+    @PostMapping("/reference/{spaceId}")
+    suspend fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val spaceResponseDto = spaceService.addReferenceUrl(authentication, spaceId, spaceReferenceUrlRequestDto)
+        return ResponseEntity.ok(spaceResponseDto)
     }
 }

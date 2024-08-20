@@ -1,6 +1,7 @@
 package soma.achoom.zigg.v0.auth.service
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.v0.auth.filter.JwtTokenProvider
@@ -18,7 +19,9 @@ import java.net.http.HttpResponse
 
 @Service
 class AuthenticationService @Autowired constructor(
-    private var jwtTokenProvider: JwtTokenProvider
+    private var jwtTokenProvider: JwtTokenProvider,
+    @Value("\${user.default.profile.images}")
+    private val defaultProfileImages: List<String>
 ) : BaseService() {
 
     fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): UserExistsResponseDto {
@@ -140,7 +143,8 @@ class AuthenticationService @Autowired constructor(
             userName = oAuth2UserRequestDto.userName,
             providerId = oAuth2UserRequestDto.providerId,
             platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
-            jwtToken = ""
+            jwtToken = "",
+            profileImageKey = defaultProfileImages.random()
         )
         return userRepository.save(user)
 
