@@ -11,10 +11,7 @@ import java.util.*
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableJpaAuditing
-class ZiggApplication{
-
-}
-
+class ZiggApplication
 fun main(args: Array<String>) {
 	runApplication<ZiggApplication>(*args)
 }
