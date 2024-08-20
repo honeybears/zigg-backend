@@ -56,7 +56,7 @@ data class SpaceUser(
 
     @get : JsonInclude
     val profileImageUrl: String
-        get() = user.profileImageKey?: ""
+        get() = user.profileImageKey?:""
 
     override fun hashCode(): Int {
         return Objects.hash(spaceUserId)
@@ -74,7 +74,8 @@ data class SpaceUser(
             userNickname = this.user.userNickname,
             spaceUserId = this.spaceUserId,
             spaceRole = this.spaceRole,
-            userName = this.user.userName
+            userName = this.user.userName,
+            profileImageUrl = this.user.profileImageKey
         )
     }
 }
