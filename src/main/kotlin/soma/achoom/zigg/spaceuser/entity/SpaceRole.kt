@@ -1,4 +1,4 @@
-package soma.achoom.zigg.space.entity
+package soma.achoom.zigg.spaceuser.entity
 
 enum class SpaceRole {
     ADMIN,

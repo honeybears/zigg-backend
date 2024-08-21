@@ -1,11 +1,12 @@
-package soma.achoom.zigg.space.entity
+package soma.achoom.zigg.spaceuser.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import soma.achoom.zigg.global.util.BaseEntity
 import soma.achoom.zigg.feedback.entity.FeedbackRecipient
-import soma.achoom.zigg.space.dto.SpaceUserResponseDto
+import soma.achoom.zigg.space.entity.Space
+import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
 import soma.achoom.zigg.user.entity.User
 import java.util.*
 
@@ -18,7 +19,7 @@ data class SpaceUser(
     @ManyToOne
     @JoinColumn(name = "space_id")
     @JsonBackReference
-    var space: soma.achoom.zigg.space.entity.Space,
+    var space: Space,
 
     @ManyToOne
     @JoinColumn(name = "user_id")
