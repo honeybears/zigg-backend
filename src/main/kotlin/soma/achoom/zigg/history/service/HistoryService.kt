@@ -31,13 +31,12 @@ class HistoryService @Autowired constructor(
     private val userService: UserService,
 ) {
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @AuthenticationValidate
-    suspend fun createHistory(
+    fun createHistory(
         authentication: Authentication,
         spaceId: UUID,
         historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto = coroutineScope {
+    ): HistoryResponseDto  {
 
         userService.authenticationToUser(authentication)
 
@@ -48,8 +47,8 @@ class HistoryService @Autowired constructor(
         val bucketKey = gcsService.convertPreSignedUrlToGeneralKey(historyRequestDto.historyVideoUrl)
 
 
-        val response = async{
-            return@async aiService.createThumbnailRequest(
+        val response = runBlocking {
+            aiService.createThumbnailRequest(
                 GenerateThumbnailRequestDto(
                     bucketName = gcsService.bucketName,
                     historyVideoKey = bucketKey
@@ -57,21 +56,21 @@ class HistoryService @Autowired constructor(
             )
         }
 
+
         val uuid = getLastPathSegment(bucketKey).split(".")[0]
 
-        response.await()
         val history = History(
             historyId = UUID.fromString(uuid),
             historyVideoKey = bucketKey,
             historyName = historyRequestDto.historyName,
             space = space,
             videoDuration = historyRequestDto.videoDuration,
-            historyVideoThumbnailUrl = response.getCompleted().historyThumbnailKey
+            historyVideoThumbnailUrl = response.historyThumbnailKey
         )
 
         historyRepository.save(history)
 
-        return@coroutineScope HistoryResponseDto(
+        return HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
             historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoKey),
@@ -123,12 +122,12 @@ class HistoryService @Autowired constructor(
         )
     }
 
-    suspend fun updateHistory(
+    fun updateHistory(
         authentication: Authentication,
         spaceId: UUID,
         historyId: UUID,
         historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto = coroutineScope{
+    ): HistoryResponseDto  {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
@@ -137,7 +136,7 @@ class HistoryService @Autowired constructor(
         history.isDeleted = true
         historyRepository.save(history)
         val newHistory = createHistory(authentication, spaceId, historyRequestDto)
-        return@coroutineScope newHistory
+        return newHistory
     }
 
     fun deleteHistory(authentication: Authentication, spaceId: UUID, historyId: UUID) {
@@ -147,7 +146,8 @@ class HistoryService @Autowired constructor(
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw SpaceNotFoundException()
         history.isDeleted = true
-        historyRepository.save(history)
+            historyRepository.save(history)
+
     }
     private fun getLastPathSegment(path: String):String{
         return path.split("/").last()
