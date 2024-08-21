@@ -45,7 +45,6 @@ class HistoryController @Autowired constructor(
         @PathVariable spaceId: UUID,
         @RequestBody historyRequestDto: HistoryRequestDto
     ) :ResponseEntity<HistoryResponseDto> {
-        println(spaceId)
         val historyResponseDto = historyService.createHistory(authentication, spaceId,historyRequestDto)
         return ResponseEntity.ok(historyResponseDto)
     }
