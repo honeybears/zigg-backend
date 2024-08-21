@@ -2,6 +2,7 @@ package soma.achoom.zigg.space.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import soma.achoom.zigg.history.dto.HistoryResponseDto
+import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
 
 import java.time.LocalDateTime
 import java.util.UUID
