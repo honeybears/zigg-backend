@@ -2,6 +2,7 @@ package soma.achoom.zigg.space.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.spaceuser.entity.SpaceUser

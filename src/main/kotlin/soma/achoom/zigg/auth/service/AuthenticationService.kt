@@ -49,7 +49,9 @@ class AuthenticationService @Autowired constructor(
         header.set("Authorization", accessToken)
         header.set("platform", oAuth2UserRequestDto.platform)
         user.jwtToken = accessToken
-        userRepository.save(user)
+
+            userRepository.save(user)
+
         return header
     }
 
@@ -68,7 +70,10 @@ class AuthenticationService @Autowired constructor(
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
                     user.jwtToken = accessToken
+
                     userRepository.save(user)
+
+
                     return header
                 } else {
                     throw IllegalArgumentException("Invalid access token")
@@ -99,7 +104,9 @@ class AuthenticationService @Autowired constructor(
                 header.set("Authorization", accessToken)
                 header.set("platform", oAuth2UserRequestDto.platform)
                 user.jwtToken = accessToken
-                userRepository.save(user)
+
+                    userRepository.save(user)
+
                 return header
             }
 
@@ -149,6 +156,7 @@ class AuthenticationService @Autowired constructor(
             jwtToken = "",
             profileImageKey = defaultProfileImages.random()
         )
+
         return userRepository.save(user)
 
     }
