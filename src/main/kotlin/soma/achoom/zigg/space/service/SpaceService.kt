@@ -240,18 +240,19 @@ class SpaceService @Autowired constructor(
     }
     fun validateSpaceUserRoleIsAdmin(user: User , space:Space): SpaceUser {
         space.spaceUsers.find {
-            it.user == user
-        }?.let {
-            return it
-        }
-        throw SpaceUserNotFoundInSpaceException()
-    }
-    fun validateSpaceUser(user:User, space: Space): SpaceUser {
-        space.spaceUsers.find {
             it.user == user && it.spaceRole == SpaceRole.ADMIN
         }?.let {
             return it
         }
         throw LowSpacePermissionException()
+    }
+    fun validateSpaceUser(user:User, space: Space): SpaceUser {
+        space.spaceUsers.find {
+            it.user == user
+        }?.let {
+            return it
+        }
+        throw SpaceUserNotFoundInSpaceException()
+
     }
 }
