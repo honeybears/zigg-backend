@@ -2,6 +2,7 @@ package soma.achoom.zigg.space.dto
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import soma.achoom.zigg.spaceuser.dto.SpaceUserRequestDto
 import java.time.LocalDateTime
 import java.util.UUID
 

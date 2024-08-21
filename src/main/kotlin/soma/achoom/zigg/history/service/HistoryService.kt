@@ -29,7 +29,6 @@ class HistoryService @Autowired constructor(
     private val gcsService: GCSService,
     private val aiService: AIService,
     private val userService: UserService,
-    private val feedbackRepository: FeedbackRepository,
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)

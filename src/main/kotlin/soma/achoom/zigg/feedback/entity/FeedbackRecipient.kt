@@ -2,7 +2,7 @@ package soma.achoom.zigg.feedback.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
-import soma.achoom.zigg.space.entity.SpaceUser
+import soma.achoom.zigg.spaceuser.entity.SpaceUser
 import java.util.*
 
 @Entity

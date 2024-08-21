@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull
 import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.history.entity.History
-import soma.achoom.zigg.space.entity.SpaceUser
+import soma.achoom.zigg.spaceuser.entity.SpaceUser
 import java.util.UUID
 
 data class FeedbackRequestDto(

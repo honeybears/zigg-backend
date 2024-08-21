@@ -6,6 +6,9 @@ import jakarta.persistence.*
 import soma.achoom.zigg.global.util.BaseEntity
 
 import soma.achoom.zigg.history.entity.History
+import soma.achoom.zigg.spaceuser.entity.SpaceRole
+import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.spaceuser.entity.SpaceUserStatus
 import soma.achoom.zigg.user.entity.User
 import java.util.UUID
 
@@ -22,7 +25,7 @@ data class Space(
     var referenceVideoUrl: String? = null,
 
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
-    var spaceUsers: MutableSet<soma.achoom.zigg.space.entity.SpaceUser> = mutableSetOf(),
+    var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
     @OneToMany(mappedBy = "space",cascade = [CascadeType.ALL], orphanRemoval = true) // history 엔티티와의 관계 설정
     var histories: MutableSet<History> = mutableSetOf(),
@@ -39,20 +42,20 @@ data class Space(
                 spaceImageKey = spaceImageUrl,
             )
             space.spaceUsers.add(
-                soma.achoom.zigg.space.entity.SpaceUser(
+                SpaceUser(
                     space = space,
                     user = admin,
-                    inviteStatus = soma.achoom.zigg.space.entity.SpaceUserStatus.ACCEPTED,
-                    spaceRole = soma.achoom.zigg.space.entity.SpaceRole.ADMIN
+                    inviteStatus = SpaceUserStatus.ACCEPTED,
+                    spaceRole = SpaceRole.ADMIN
                 )
             )
             users.forEach {
                 space.spaceUsers.add(
-                    soma.achoom.zigg.space.entity.SpaceUser(
+                    SpaceUser(
                         space = space,
                         user = it,
-                        inviteStatus = soma.achoom.zigg.space.entity.SpaceUserStatus.ACCEPTED,
-                        spaceRole = soma.achoom.zigg.space.entity.SpaceRole.USER
+                        inviteStatus = SpaceUserStatus.ACCEPTED,
+                        spaceRole = SpaceRole.USER
                     )
                 )
             }
