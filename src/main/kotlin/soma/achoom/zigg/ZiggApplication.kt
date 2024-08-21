@@ -11,7 +11,13 @@ import java.util.*
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableJpaAuditing
-class ZiggApplication
+class ZiggApplication{
+	@PostConstruct
+	fun init() {
+		// Set the default timezone to UTC
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+	}
+}
 fun main(args: Array<String>) {
 	runApplication<ZiggApplication>(*args)
 }

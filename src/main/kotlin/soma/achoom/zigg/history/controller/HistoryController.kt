@@ -40,7 +40,7 @@ class HistoryController @Autowired constructor(
     }
 
     @PostMapping("/{spaceId}")
-    suspend fun creatHistory(
+    fun creatHistory(
         authentication: Authentication,
         @PathVariable spaceId: UUID,
         @RequestBody historyRequestDto: HistoryRequestDto
@@ -55,7 +55,7 @@ class HistoryController @Autowired constructor(
         return ResponseEntity.ok(historyResponseDto)
     }
     @PatchMapping("/{spaceId}/{historyId}")
-    suspend fun updateHistory(
+    fun updateHistory(
         authentication: Authentication,
         @PathVariable spaceId: UUID,
         @PathVariable historyId: UUID,

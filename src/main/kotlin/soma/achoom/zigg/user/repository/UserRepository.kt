@@ -2,6 +2,7 @@ package soma.achoom.zigg.user.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.user.entity.User
