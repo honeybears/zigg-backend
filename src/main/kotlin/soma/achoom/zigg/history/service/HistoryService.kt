@@ -12,7 +12,6 @@ import soma.achoom.zigg.global.infra.gcs.GCSService
 import soma.achoom.zigg.ai.dto.GenerateThumbnailRequestDto
 import soma.achoom.zigg.ai.service.AIService
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
-import soma.achoom.zigg.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
