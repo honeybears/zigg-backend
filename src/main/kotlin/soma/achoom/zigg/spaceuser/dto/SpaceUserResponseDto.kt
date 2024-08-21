@@ -1,6 +1,6 @@
-package soma.achoom.zigg.space.dto
+package soma.achoom.zigg.spaceuser.dto
 
-import soma.achoom.zigg.space.entity.SpaceRole
+import soma.achoom.zigg.spaceuser.entity.SpaceRole
 import java.util.UUID
 
 data class SpaceUserResponseDto(

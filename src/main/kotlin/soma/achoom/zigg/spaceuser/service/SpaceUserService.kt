@@ -1,9 +1,8 @@
-package soma.achoom.zigg.space.service
+package soma.achoom.zigg.spaceuser.service
 
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.space.entity.Space
-import soma.achoom.zigg.space.repository.SpaceUserRepository
-import java.util.UUID
+import soma.achoom.zigg.spaceuser.repository.SpaceUserRepository
 
 @Service
 class SpaceUserService constructor(
