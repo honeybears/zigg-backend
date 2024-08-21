@@ -14,28 +14,28 @@ import soma.achoom.zigg.ai.dto.YoutubeUrlRequestDto
 
 @Service
 class AIService(webClientBuilder: WebClient.Builder, @Value("\${fastapi.default.url}") private val fastAPIUrl: String) {
-
     private val webClient = webClientBuilder
         .baseUrl(fastAPIUrl)
         .build()
 
     suspend fun fetchDataFromFastAPI(): String = coroutineScope {
-        println(fastAPIUrl)
         webClient.get()
             .uri("/")
             .retrieve()
             .awaitBody()
     }
 
-    suspend fun createThumbnailRequest(generateThumbnailRequestDto: GenerateThumbnailRequestDto): GenerateThumbnailResponseDto
-    = withContext(Dispatchers.IO) {
+    suspend fun createThumbnailRequest(generateThumbnailRequestDto: GenerateThumbnailRequestDto): GenerateThumbnailResponseDto = withContext(Dispatchers.IO) {
+
         val response = webClient.post()
             .uri("/fastapi/v0/thumbnail")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
             .bodyValue(generateThumbnailRequestDto)
             .retrieve()
             .awaitBody<GenerateThumbnailResponseDto>()
+
         return@withContext response
+
     }
 
     suspend fun generateAIFeedbackRequest(generateAiFeedbackRequestDto: GenerateAiFeedbackRequestDto)

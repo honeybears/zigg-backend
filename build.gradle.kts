@@ -36,7 +36,8 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-gcp-starter:1.2.5.RELEASE")
 	implementation("org.springframework.cloud:spring-cloud-gcp-storage:1.2.5.RELEASE")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3") // 최신 버전 사용
-
+	implementation ("com.google.firebase:firebase-admin:9.2.0")    // Google Firebase Admin
+	implementation ("com.fasterxml.jackson.core:jackson-core:2.16.1")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

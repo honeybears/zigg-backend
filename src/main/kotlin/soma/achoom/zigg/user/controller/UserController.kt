@@ -45,7 +45,6 @@ class UserController @Autowired constructor(
 
     @PatchMapping
     fun updateUser(authentication: Authentication,@RequestBody userRequestDto: UserRequestDto): ResponseEntity<UserResponseDto> {
-        println(userRequestDto.userNickname)
         val userResponseDto = userService.updateUser(authentication,userRequestDto)
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto)
     }
