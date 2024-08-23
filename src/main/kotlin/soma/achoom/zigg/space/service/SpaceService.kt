@@ -140,7 +140,28 @@ class SpaceService @Autowired constructor(
                     historyName = it.historyName,
                     historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
                     feedbacks = it.feedbacks.map { feedback ->
-                        FeedbackResponseDto.from(feedback)
+                        FeedbackResponseDto(
+                            feedbackId = feedback.feedbackId,
+                            feedbackType = feedback.feedbackType,
+                            feedbackTimeline = feedback.feedbackTimeline,
+                            feedbackMessage = feedback.feedbackMessage,
+                            creatorId = SpaceUserResponseDto(
+                                spaceUserId = feedback.feedbackCreator?.spaceUserId,
+                                spaceRole = feedback.feedbackCreator?.spaceRole,
+                                userName = feedback.feedbackCreator?.user?.userName,
+                                userNickname = feedback.feedbackCreator?.user?.userNickname,
+                                profileImageUrl = gcsService.getPreSignedGetUrl( feedback.feedbackCreator?.user?.profileImageKey!!)
+                            ),
+                            recipientId = feedback.recipients.map { recipient ->
+                                SpaceUserResponseDto(
+                                    spaceUserId = recipient.recipient.spaceUserId,
+                                    spaceRole = recipient.recipient.spaceRole,
+                                    userName = recipient.recipient.user.userName,
+                                    userNickname = recipient.recipient.user.userNickname,
+                                    profileImageUrl = gcsService.getPreSignedGetUrl( recipient.recipient.user.profileImageKey!!)
+                                )
+                            }.toMutableSet()
+                        )
                     }.toMutableSet(),
                     historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
                     createdAt = it.createAt,
@@ -229,7 +250,28 @@ class SpaceService @Autowired constructor(
                     historyName = it.historyName,
                     historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
                     feedbacks = it.feedbacks.map { feedback ->
-                        FeedbackResponseDto.from(feedback)
+                        FeedbackResponseDto(
+                            feedbackId = feedback.feedbackId,
+                            feedbackType = feedback.feedbackType,
+                            feedbackTimeline = feedback.feedbackTimeline,
+                            feedbackMessage = feedback.feedbackMessage,
+                            creatorId = SpaceUserResponseDto(
+                                spaceUserId = feedback.feedbackCreator?.spaceUserId,
+                                spaceRole = feedback.feedbackCreator?.spaceRole,
+                                userName = feedback.feedbackCreator?.user?.userName,
+                                userNickname = feedback.feedbackCreator?.user?.userNickname,
+                                profileImageUrl = gcsService.getPreSignedGetUrl( feedback.feedbackCreator?.user?.profileImageKey!!)
+                            ),
+                            recipientId = feedback.recipients.map { recipient ->
+                                SpaceUserResponseDto(
+                                    spaceUserId = recipient.recipient.spaceUserId,
+                                    spaceRole = recipient.recipient.spaceRole,
+                                    userName = recipient.recipient.user.userName,
+                                    userNickname = recipient.recipient.user.userNickname,
+                                    profileImageUrl = gcsService.getPreSignedGetUrl( recipient.recipient.user.profileImageKey!!)
+                                )
+                            }.toMutableSet()
+                        )
                     }.toMutableSet(),
                     historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
                     createdAt = it.createAt,
