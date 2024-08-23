@@ -70,14 +70,5 @@ data class SpaceUser(
         return spaceUserId == spaceUser.spaceUserId && space == spaceUser.space && user == spaceUser.user
     }
 
-    fun toResponseDto() : SpaceUserResponseDto {
-        return SpaceUserResponseDto(
-            userNickname = this.user.userNickname,
-            spaceUserId = this.spaceUserId,
-            spaceRole = this.spaceRole,
-            userName = this.user.userName,
-            profileImageUrl = this.user.profileImageKey
-        )
-    }
 }
 
