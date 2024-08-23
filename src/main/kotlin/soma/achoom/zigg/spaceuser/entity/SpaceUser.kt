@@ -3,7 +3,7 @@ package soma.achoom.zigg.spaceuser.entity
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
-import soma.achoom.zigg.global.util.BaseEntity
+import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto

@@ -1,4 +1,4 @@
-package soma.achoom.zigg.global.component
+package soma.achoom.zigg.global.aspect
 
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect

@@ -1,4 +1,4 @@
-package soma.achoom.zigg.global.component
+package soma.achoom.zigg.global.aspect
 
 import lombok.extern.slf4j.Slf4j
 import org.aspectj.lang.JoinPoint
@@ -13,7 +13,7 @@ import kotlin.time.measureTime
 @Slf4j
 @Component
 class LogAspect  {
-
+    
     val log = LoggerFactory.getLogger(this.javaClass)
 
     @Pointcut("execution(* soma.achoom.zigg..*(..))")
@@ -42,8 +42,7 @@ class LogAspect  {
         val timeMs = measureTime {
             result = joinPoint.proceed()
         }.inWholeMilliseconds
-        log.info("log = {}", joinPoint.signature)
-        log.info("time = {}ms", timeMs)
+        log.info("log = {}, time = {}ms", joinPoint.signature,timeMs)
         return result
     }
 
@@ -62,6 +61,6 @@ class LogAspect  {
     fun controllerResponseLogger(joinPoint: JoinPoint) {
         val methodSignature = joinPoint.signature as MethodSignature
         val method = methodSignature.method
-        log.info("Method : ${method.name}")
+        log.info("Request : ${method.name}")
     }
 }

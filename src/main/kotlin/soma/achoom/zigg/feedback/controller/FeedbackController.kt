@@ -44,7 +44,7 @@ class FeedbackController @Autowired constructor(private val feedbackService: Fee
 
     @OptIn(DelicateCoroutinesApi::class)
     @GetMapping("ai/{spaceId}/{historyId}")
-    suspend fun generateAIFeedback(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID): ResponseEntity<Void> {
+    fun generateAIFeedback(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID): ResponseEntity<Void> {
         GlobalScope.launch {
             val feedbackResponseDto = feedbackService.generateAIFeedbackRequest(authentication, spaceId, historyId)
 
@@ -53,7 +53,7 @@ class FeedbackController @Autowired constructor(private val feedbackService: Fee
     }
     @OptIn(DelicateCoroutinesApi::class)
     @PostMapping("ai/{historyId}")
-    suspend fun generatedAiFeedbackFromFastApi(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID, @RequestBody generateAIFeedbackResponseDto: GenerateAIFeedbackResponseDto): ResponseEntity<Void> {
+    fun generatedAiFeedbackFromFastApi(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID, @RequestBody generateAIFeedbackResponseDto: GenerateAIFeedbackResponseDto): ResponseEntity<Void> {
         GlobalScope.launch {
             val feedbackResponseDto = feedbackService.generateAIFeedbackResponse(historyId,generateAIFeedbackResponseDto)
 

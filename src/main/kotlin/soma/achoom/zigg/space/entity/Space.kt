@@ -3,7 +3,7 @@ package soma.achoom.zigg.space.entity
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import jakarta.persistence.*
-import soma.achoom.zigg.global.util.BaseEntity
+import soma.achoom.zigg.global.BaseEntity
 
 import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.spaceuser.entity.SpaceRole

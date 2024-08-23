@@ -2,9 +2,8 @@ package soma.achoom.zigg.history.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
-import soma.achoom.zigg.global.util.BaseEntity
+import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.feedback.entity.Feedback
-import soma.achoom.zigg.space.entity.Space
 import java.util.UUID
 
 @Entity

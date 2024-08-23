@@ -2,7 +2,7 @@ package soma.achoom.zigg.user.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
-import soma.achoom.zigg.global.util.BaseEntity
+import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import java.util.*
 
