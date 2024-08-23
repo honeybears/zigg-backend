@@ -54,9 +54,9 @@ class HistoryService @Autowired constructor(
                 )
             )
         }
+        val uuid = bucketKey.split("/").last().split(".")[0]
 
-
-        val uuid = getLastPathSegment(bucketKey).split(".")[0]
+//        val uuid = getLastPathSegment(bucketKey).split(".")[0]
 
         val history = History(
             historyId = UUID.fromString(uuid),
@@ -148,9 +148,5 @@ class HistoryService @Autowired constructor(
             historyRepository.save(history)
 
     }
-    private fun getLastPathSegment(path: String):String{
-        return path.split("/").last()
-    }
-
 
 }

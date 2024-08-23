@@ -1,4 +1,4 @@
-package soma.achoom.zigg.global.util
+package soma.achoom.zigg.global
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.Column

@@ -1,7 +1,7 @@
 package soma.achoom.zigg.feedback.entity
 
 import jakarta.persistence.*
-import soma.achoom.zigg.global.util.BaseEntity
+import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.feedback.dto.FeedbackType
 import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.spaceuser.entity.SpaceUser

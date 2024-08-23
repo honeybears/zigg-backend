@@ -58,7 +58,7 @@ class SpaceController @Autowired constructor(
     }
 
     @PostMapping("/reference/{spaceId}")
-    suspend fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
+    fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
         val spaceResponseDto = spaceService.addReferenceUrl(authentication, spaceId, spaceReferenceUrlRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
