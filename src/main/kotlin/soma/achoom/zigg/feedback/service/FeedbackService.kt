@@ -1,6 +1,7 @@
 package soma.achoom.zigg.feedback.service
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
@@ -144,9 +145,9 @@ class FeedbackService @Autowired constructor(
         }
     }
 
-    suspend fun generateAIFeedbackRequest(
+    fun generateAIFeedbackRequest(
         authentication: Authentication, spaceId: UUID, historyId: UUID
-    ) : CompletableFuture<Void> = withContext(Dispatchers.IO) {
+    ) : CompletableFuture<Void>{
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -154,19 +155,22 @@ class FeedbackService @Autowired constructor(
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw SpaceNotFoundException()
         space.referenceVideoKey ?: throw Exception("Reference video is not exist")
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                val aiFeedback = aiService.generateAIFeedbackRequest(
+                    GenerateAiFeedbackRequestDto(
+                        modelName = GeminiModelType.FLASH,
+                        referenceVideoKey = space.referenceVideoKey!!,
+                        comparisonVideoKey = history.historyVideoKey,
+                        bucketName = gcsService.bucketName,
+                        historyId = historyId,
+                        token = user.jwtToken
+                    )
 
-        val aiFeedback = aiService.generateAIFeedbackRequest(
-            GenerateAiFeedbackRequestDto(
-                modelName = GeminiModelType.FLASH,
-                referenceVideoKey = space.referenceVideoKey!!,
-                comparisonVideoKey = history.historyVideoKey,
-                bucketName = gcsService.bucketName,
-                historyId = historyId,
-                token = user.jwtToken
-            )
-
-        )
-        return@withContext CompletableFuture.completedFuture(null)
+                )
+            }
+        }
+        return CompletableFuture.completedFuture(null)
     }
 }
 

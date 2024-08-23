@@ -1,6 +1,7 @@
 package soma.achoom.zigg.space.service
 
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
@@ -186,8 +187,7 @@ class SpaceService @Autowired constructor(
 
         spaceRepository.save(space)
     }
-    suspend fun addReferenceUrl(authentication: Authentication, spaceId: UUID, spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto): SpaceResponseDto
-    = coroutineScope {
+    fun addReferenceUrl(authentication: Authentication, spaceId: UUID, spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -196,16 +196,19 @@ class SpaceService @Autowired constructor(
         validateSpaceUser(user, space)
         space.referenceVideoUrl = spaceReferenceUrlRequestDto.referenceUrl
         space.referenceVideoKey = GCSDataType.SPACE_REFERENCE_VIDEO.name+space.spaceId+".mp4"
-        aiService.putYoutubeVideoToGCS(
-            YoutubeUrlRequestDto(
-                youtubeUrl =  spaceReferenceUrlRequestDto.referenceUrl,
-                bucketName = gcsService.bucketName,
-                bucketKey = space.referenceVideoKey!!
+        runBlocking {
+            aiService.putYoutubeVideoToGCS(
+                YoutubeUrlRequestDto(
+                    youtubeUrl =  spaceReferenceUrlRequestDto.referenceUrl,
+                    bucketName = gcsService.bucketName,
+                    bucketKey = space.referenceVideoKey!!
+                )
             )
-        )
+        }
+
         spaceRepository.save(space)
 
-        return@coroutineScope SpaceResponseDto(
+        return SpaceResponseDto(
             spaceId = space.spaceId,
             spaceName = space.spaceName,
             spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
