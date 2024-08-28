@@ -23,7 +23,7 @@ class AuthenticationController @Autowired constructor(
         val tokenHeader = authenticationService.generateJWTToken(oAuth2UserRequestDto)
         return ResponseEntity.ok().headers(tokenHeader).build()
     }
-    @GetMapping("/nickname")
+    @PostMapping("/nickname")
     fun checkNickname(@RequestBody nicknameValidRequestDto: NicknameValidRequestDto): ResponseEntity<NicknameValidResponseDto> {
         val nicknameValidResponseDto = authenticationService.checkNickname(nicknameValidRequestDto)
         return ResponseEntity.ok().body(nicknameValidResponseDto)
