@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.ai.dto.GenerateAiFeedbackRequestDto
-import soma.achoom.zigg.global.infra.gcs.GCSService
+import soma.achoom.zigg.storage.GCSService
 import soma.achoom.zigg.ai.GeminiModelType
 import soma.achoom.zigg.ai.dto.GenerateAIFeedbackResponseDto
 import soma.achoom.zigg.ai.service.AIService
