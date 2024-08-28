@@ -8,13 +8,14 @@ import kotlinx.coroutines.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import soma.achoom.zigg.global.infra.gcs.GCSService
+import soma.achoom.zigg.storage.GCSService
 import soma.achoom.zigg.ai.dto.GenerateThumbnailRequestDto
 import soma.achoom.zigg.ai.service.AIService
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
+import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
@@ -69,7 +70,6 @@ class HistoryService @Autowired constructor(
         )
 
         historyRepository.save(history)
-
         return HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
@@ -195,7 +195,7 @@ class HistoryService @Autowired constructor(
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         val history = historyRepository.findHistoryByHistoryId(historyId)
-            ?: throw SpaceNotFoundException()
+            ?: throw HistoryNotFoundException()
         history.isDeleted = true
         historyRepository.save(history)
         val newHistory = createHistory(authentication, spaceId, historyRequestDto)

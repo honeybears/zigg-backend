@@ -1,5 +1,6 @@
 package soma.achoom.zigg.user.repository
 
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
@@ -16,5 +17,5 @@ interface UserRepository : JpaRepository<User, UUID> {
     fun findUserByPlatformAndProviderId(provider: OAuthProviderEnum, providerId:String): User?
     fun findUserByUserId(userId:UUID): User?
     @Query("SELECT u FROM User u WHERE u.userNickname LIKE :nickname%")
-    fun findUsersByUserNicknameLike(nickname:String): List<User>
+    fun findUsersByUserNicknameLike(nickname:String, pageable: Pageable): List<User>
 }

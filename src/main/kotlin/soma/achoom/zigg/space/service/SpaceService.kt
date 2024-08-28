@@ -1,6 +1,5 @@
 package soma.achoom.zigg.space.service
 
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -8,8 +7,8 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
-import soma.achoom.zigg.global.infra.gcs.GCSService
-import soma.achoom.zigg.global.infra.gcs.GCSDataType
+import soma.achoom.zigg.storage.GCSService
+import soma.achoom.zigg.storage.GCSDataType
 import soma.achoom.zigg.ai.dto.YoutubeUrlRequestDto
 import soma.achoom.zigg.ai.service.AIService
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
