@@ -4,11 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
-import soma.achoom.zigg.auth.dto.NicknameValidResponseDto
+import soma.achoom.zigg.auth.dto.*
 
-import soma.achoom.zigg.auth.dto.OAuth2MetaDataRequestDto
-import soma.achoom.zigg.auth.dto.OAuth2UserRequestDto
-import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.JwtTokenProvider
 import soma.achoom.zigg.user.dto.UserExistsResponseDto
 import soma.achoom.zigg.user.entity.User
@@ -41,8 +38,8 @@ class AuthenticationService @Autowired constructor(
         return UserExistsResponseDto(true)
     }
 
-    fun checkNickname(nickname:String): NicknameValidResponseDto {
-        return NicknameValidResponseDto(userRepository.existsUserByUserNickname(nickname))
+    fun checkNickname(nicknameRequestDto:NicknameValidRequestDto): NicknameValidResponseDto {
+        return NicknameValidResponseDto(userRepository.existsUserByUserNickname(nicknameRequestDto.nickname))
     }
 
     fun generateJWTToken(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
