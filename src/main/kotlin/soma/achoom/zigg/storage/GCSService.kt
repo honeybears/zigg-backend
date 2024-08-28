@@ -1,4 +1,4 @@
-package soma.achoom.zigg.global.infra.gcs
+package soma.achoom.zigg.storage
 
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo

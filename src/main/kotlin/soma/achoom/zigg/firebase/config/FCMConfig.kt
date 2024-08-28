@@ -1,25 +1,24 @@
-package soma.achoom.zigg.global.infra.gcs
+package soma.achoom.zigg.firebase.config
 
 import com.google.auth.oauth2.GoogleCredentials
-import com.google.cloud.storage.Storage
-import com.google.cloud.storage.StorageOptions
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.util.ResourceUtils
 
 @Configuration
-class GCSConfig constructor(
-    @Value("\${gcs.keyfile.name}")
-    private val keyFileName: String
+class FCMConfig(
+    @Value("\${app.firebase-configuration.file}")
+    private val keyFileName : String
 ) {
-
     @Bean
-    fun gcsService(): Storage {
+    fun firebaseApp():FirebaseApp{
         val keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream()
-        return StorageOptions
-            .newBuilder()
+        val option = FirebaseOptions.builder()
             .setCredentials(GoogleCredentials.fromStream(keyFile))
-            .build().service
+            .build()
+        return FirebaseApp.initializeApp(option)
     }
 }

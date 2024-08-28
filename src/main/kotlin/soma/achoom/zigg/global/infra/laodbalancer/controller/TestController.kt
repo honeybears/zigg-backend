@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import soma.achoom.zigg.global.infra.gcs.GCSService
+import soma.achoom.zigg.storage.GCSService
 import soma.achoom.zigg.ai.service.AIService
 
 @RestController

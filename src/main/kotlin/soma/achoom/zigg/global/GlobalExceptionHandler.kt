@@ -10,6 +10,7 @@ import soma.achoom.zigg.spaceuser.exception.AlreadyExistsSpaceUserException
 import soma.achoom.zigg.spaceuser.exception.LowSpacePermissionException
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.spaceuser.exception.SpaceUserNotFoundInSpaceException
+import soma.achoom.zigg.user.exception.NicknameUserNotFoundException
 import soma.achoom.zigg.user.exception.UserAlreadyExistsException
 import soma.achoom.zigg.user.exception.UserNotFoundException
 
@@ -53,6 +54,10 @@ class GlobalExceptionHandler {
     }
     @ExceptionHandler(SpaceUserNotFoundInSpaceException::class)
     fun handlerNoExistsSpaceUser(e: SpaceUserNotFoundInSpaceException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+    }
+    @ExceptionHandler(NicknameUserNotFoundException::class)
+    fun handleNicknameUserNotFound(e: NicknameUserNotFoundException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
     }
 }

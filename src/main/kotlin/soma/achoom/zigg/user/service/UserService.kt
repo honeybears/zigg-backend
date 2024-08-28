@@ -1,14 +1,16 @@
 package soma.achoom.zigg.user.service
 
 
+import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
-import soma.achoom.zigg.global.infra.gcs.GCSService
+import soma.achoom.zigg.storage.GCSService
 import soma.achoom.zigg.user.dto.UserRequestDto
 import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.exception.NicknameUserNotFoundException
 import soma.achoom.zigg.user.exception.UserAlreadyExistsException
 import soma.achoom.zigg.user.exception.UserNotFoundException
 import soma.achoom.zigg.user.repository.UserRepository
@@ -21,7 +23,9 @@ class UserService(
 ) {
 
     fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
-        val users = userRepository.findUsersByUserNicknameLike(nickname) ?: throw UserNotFoundException()
+        val users = userRepository.findUsersByUserNicknameLike(nickname,PageRequest.of(0,5))
+            .let { it.ifEmpty { throw NicknameUserNotFoundException() } }
+
         return users.map {
             UserResponseDto(
                 userId = it.userId,

@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import soma.achoom.zigg.global.infra.gcs.GCSDataType
-import soma.achoom.zigg.global.infra.gcs.GCSService
+import soma.achoom.zigg.storage.GCSDataType
+import soma.achoom.zigg.storage.GCSService
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
