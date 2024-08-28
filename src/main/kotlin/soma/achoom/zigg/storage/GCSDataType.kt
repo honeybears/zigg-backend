@@ -1,4 +1,4 @@
-package soma.achoom.zigg.global.infra.gcs
+package soma.achoom.zigg.storage
 
 enum class GCSDataType (val path:String){
     HISTORY_THUMBNAIL("thumbnail/history/"),
