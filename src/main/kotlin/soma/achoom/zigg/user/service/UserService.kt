@@ -25,6 +25,7 @@ class UserService(
     fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
         val users = userRepository.findUsersByUserNicknameLike(nickname,PageRequest.of(0,5))
             .let { it.ifEmpty { throw NicknameUserNotFoundException() } }
+            .filter { it.userNickname != authenticationToUser(authentication).userNickname }
 
         return users.map {
             UserResponseDto(

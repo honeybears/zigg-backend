@@ -30,9 +30,8 @@ extra["snippetsDir"] = file("build/generated-snippets")
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	//implementation ("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+	implementation ("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
-
 	implementation("org.springframework.cloud:spring-cloud-gcp-starter:1.2.5.RELEASE")
 	implementation("org.springframework.cloud:spring-cloud-gcp-storage:1.2.5.RELEASE")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3") // 최신 버전 사용
