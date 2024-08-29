@@ -1,18 +1,13 @@
 package soma.achoom.zigg.space.service
 
-import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
-
-import soma.achoom.zigg.storage.GCSService
-import soma.achoom.zigg.storage.GCSDataType
-import soma.achoom.zigg.ai.dto.YoutubeUrlRequestDto
-import soma.achoom.zigg.ai.service.AIService
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
+import soma.achoom.zigg.global.ResponseDtoGenerator
 import soma.achoom.zigg.history.dto.HistoryResponseDto
+import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
@@ -24,7 +19,6 @@ import soma.achoom.zigg.spaceuser.entity.SpaceRole
 import soma.achoom.zigg.spaceuser.entity.SpaceUser
 import soma.achoom.zigg.spaceuser.exception.LowSpacePermissionException
 import soma.achoom.zigg.spaceuser.exception.SpaceUserNotFoundInSpaceException
-import soma.achoom.zigg.spaceuser.service.SpaceUserService
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.service.UserService
 import java.util.UUID
@@ -33,17 +27,15 @@ import java.util.UUID
 @Service
 class SpaceService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
-    private val gcsService: GCSService,
-    private val aiService: AIService,
     private val userService: UserService,
-    private val spaceUserService: SpaceUserService
+    private val s3Service: S3Service,
+    private val responseDtoGenerator: ResponseDtoGenerator
 )  {
     @Value("\${space.default.image.url}")
     private lateinit var defaultSpaceImageUrl: String
 
     fun createSpace(
         authentication: Authentication,
-        spaceImage: MultipartFile?,
         spaceRequestDto: SpaceRequestDto
     ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
@@ -51,62 +43,23 @@ class SpaceService @Autowired constructor(
             userService.findUserByNickName(it.userNickname!!)
         }
 
-        val space = Space.createSpace(
-            spaceImageUrl = defaultSpaceImageUrl,
+        val space = Space.create(
+            spaceImageUrl = spaceRequestDto.spaceImageUrl ?: defaultSpaceImageUrl,
             spaceName = spaceRequestDto.spaceName,
             users = inviteUser.toMutableSet(),
+
             admin = user
         )
-        spaceImage?.let {
-            space.spaceImageKey = gcsService.uploadFile(GCSDataType.SPACE_IMAGE, spaceImage, space.spaceId)
-        }
 
         spaceRepository.save(space)
-
-        return SpaceResponseDto(
-            spaceId = space.spaceId,
-            spaceName = space.spaceName,
-            spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
-            spaceUsers = space.spaceUsers.map {
-                SpaceUserResponseDto(
-                    userNickname = it.userNickname,
-                    userName = it.user.userName,
-                    spaceUserId = it.spaceUserId,
-                    spaceRole = it.spaceRole,
-                    profileImageUrl = it.user.profileImageKey?.let {
-                        gcsService.getPreSignedGetUrl(it)
-                    }
-                )
-            }.toMutableSet(),
-            createdAt = space.createAt,
-            updatedAt = space.updateAt,
-            referenceVideoUrl = space.referenceVideoUrl
-        )
+        return responseDtoGenerator.generateSpaceResponseShortDto(space)
     }
 
     fun getSpaces(authentication: Authentication): List<SpaceResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val spaceList = spaceRepository.findSpaceByUserAndAccepted(user)
         return spaceList.map {
-            SpaceResponseDto(
-                spaceId = it.spaceId,
-                spaceName = it.spaceName,
-                spaceImageUrl = gcsService.getPreSignedGetUrl(it.spaceImageKey),
-                spaceUsers = it.spaceUsers.map {
-                    SpaceUserResponseDto(
-                        userNickname = it.userNickname,
-                        userName = it.user.userName,
-                        spaceUserId = it.spaceUserId,
-                        spaceRole = it.spaceRole,
-                        profileImageUrl = it.user.profileImageKey?.let {
-                            gcsService.getPreSignedGetUrl(it)
-                        }
-                    )
-                }.toMutableSet(),
-                createdAt = it.createAt,
-                updatedAt = it.updateAt,
-                referenceVideoUrl = it.referenceVideoUrl
-            )
+            responseDtoGenerator.generateSpaceResponseShortDto(it)
         }
     }
 
@@ -117,68 +70,12 @@ class SpaceService @Autowired constructor(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-
-        return SpaceResponseDto(
-            spaceId = space.spaceId,
-            spaceName = space.spaceName,
-            spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
-            spaceUsers = space.spaceUsers.map {
-                SpaceUserResponseDto(
-                    userNickname = it.userNickname,
-                    userName = it.user.userName,
-                    spaceUserId = it.spaceUserId,
-                    spaceRole = it.spaceRole,
-                    profileImageUrl = it.user.profileImageKey?.let {
-                        gcsService.getPreSignedGetUrl(it)
-                    }
-                )
-            }.toMutableSet(),
-            history = space.histories.map {
-                HistoryResponseDto(
-                    historyId = it.historyId,
-                    historyName = it.historyName,
-                    historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
-                    feedbacks = it.feedbacks.map { feedback ->
-                        FeedbackResponseDto(
-                            feedbackId = feedback.feedbackId,
-                            feedbackType = feedback.feedbackType,
-                            feedbackTimeline = feedback.feedbackTimeline,
-                            feedbackMessage = feedback.feedbackMessage,
-                            creatorId = SpaceUserResponseDto(
-                                spaceUserId = feedback.feedbackCreator?.spaceUserId,
-                                spaceRole = feedback.feedbackCreator?.spaceRole,
-                                userName = feedback.feedbackCreator?.user?.userName,
-                                userNickname = feedback.feedbackCreator?.user?.userNickname,
-                                profileImageUrl = gcsService.getPreSignedGetUrl( feedback.feedbackCreator?.user?.profileImageKey!!)
-                            ),
-                            recipientId = feedback.recipients.map { recipient ->
-                                SpaceUserResponseDto(
-                                    spaceUserId = recipient.recipient.spaceUserId,
-                                    spaceRole = recipient.recipient.spaceRole,
-                                    userName = recipient.recipient.user.userName,
-                                    userNickname = recipient.recipient.user.userNickname,
-                                    profileImageUrl = gcsService.getPreSignedGetUrl( recipient.recipient.user.profileImageKey!!)
-                                )
-                            }.toMutableSet()
-                        )
-                    }.toMutableSet(),
-                    historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
-                    createdAt = it.createAt,
-                    videoDuration = it.videoDuration
-                )
-            }.toMutableSet(),
-
-            createdAt = space.createAt,
-            updatedAt = space.updateAt,
-            referenceVideoUrl = space.referenceVideoUrl
-
-        )
+        return responseDtoGenerator.generateSpaceResponseShortDto(space)
     }
 
     fun updateSpace(
         authentication: Authentication,
         spaceId: UUID,
-        spaceImage: MultipartFile?,
         spaceRequestDto: SpaceRequestDto
     ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
@@ -188,11 +85,13 @@ class SpaceService @Autowired constructor(
 
         validateSpaceUserRoleIsAdmin(user, space)
 
-        space.isDeleted = true
 
         spaceRepository.save(space)
-
-        return createSpace(authentication, spaceImage, spaceRequestDto)
+        space.spaceName = spaceRequestDto.spaceName
+        spaceRequestDto.spaceImageUrl?.let {
+            space.spaceImageKey = it
+        }
+        return responseDtoGenerator.generateSpaceResponseShortDto(space)
     }
 
     fun deleteSpace(authentication: Authentication, spaceId: UUID) {
@@ -203,9 +102,7 @@ class SpaceService @Autowired constructor(
 
         validateSpaceUserRoleIsAdmin(user, space)
 
-        space.isDeleted = true
-
-        spaceRepository.save(space)
+        spaceRepository.delete(space)
     }
     fun addReferenceUrl(authentication: Authentication, spaceId: UUID, spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
@@ -215,72 +112,10 @@ class SpaceService @Autowired constructor(
 
         validateSpaceUser(user, space)
         space.referenceVideoUrl = spaceReferenceUrlRequestDto.referenceUrl
-        space.referenceVideoKey = GCSDataType.SPACE_REFERENCE_VIDEO.name+space.spaceId+".mp4"
-        runBlocking {
-            aiService.putYoutubeVideoToGCS(
-                YoutubeUrlRequestDto(
-                    youtubeUrl =  spaceReferenceUrlRequestDto.referenceUrl,
-                    bucketName = gcsService.bucketName,
-                    bucketKey = space.referenceVideoKey!!
-                )
-            )
-        }
 
         spaceRepository.save(space)
 
-        return SpaceResponseDto(
-            spaceId = space.spaceId,
-            spaceName = space.spaceName,
-            spaceImageUrl = gcsService.getPreSignedGetUrl(space.spaceImageKey),
-            spaceUsers = space.spaceUsers.map {
-                SpaceUserResponseDto(
-                    userNickname = it.userNickname,
-                    userName = it.user.userName,
-                    spaceUserId = it.spaceUserId,
-                    spaceRole = it.spaceRole,
-                    profileImageUrl = it.user.profileImageKey?.let {
-                        gcsService.getPreSignedGetUrl(it)
-                    }
-                )
-            }.toMutableSet(),
-            history = space.histories.map {
-                HistoryResponseDto(
-                    historyId = it.historyId,
-                    historyName = it.historyName,
-                    historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
-                    feedbacks = it.feedbacks.map { feedback ->
-                        FeedbackResponseDto(
-                            feedbackId = feedback.feedbackId,
-                            feedbackType = feedback.feedbackType,
-                            feedbackTimeline = feedback.feedbackTimeline,
-                            feedbackMessage = feedback.feedbackMessage,
-                            creatorId = SpaceUserResponseDto(
-                                spaceUserId = feedback.feedbackCreator?.spaceUserId,
-                                spaceRole = feedback.feedbackCreator?.spaceRole,
-                                userName = feedback.feedbackCreator?.user?.userName,
-                                userNickname = feedback.feedbackCreator?.user?.userNickname,
-                                profileImageUrl = gcsService.getPreSignedGetUrl( feedback.feedbackCreator?.user?.profileImageKey!!)
-                            ),
-                            recipientId = feedback.recipients.map { recipient ->
-                                SpaceUserResponseDto(
-                                    spaceUserId = recipient.recipient.spaceUserId,
-                                    spaceRole = recipient.recipient.spaceRole,
-                                    userName = recipient.recipient.user.userName,
-                                    userNickname = recipient.recipient.user.userNickname,
-                                    profileImageUrl = gcsService.getPreSignedGetUrl( recipient.recipient.user.profileImageKey!!)
-                                )
-                            }.toMutableSet()
-                        )
-                    }.toMutableSet(),
-                    historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
-                    createdAt = it.createAt,
-                    videoDuration = it.videoDuration
-                )
-            }.toMutableSet(),
-            createdAt = space.createAt,
-            updatedAt = space.updateAt,
-            referenceVideoUrl = space.referenceVideoUrl
-        )
+        return responseDtoGenerator.generateSpaceResponseShortDto(space)
     }
     fun validateSpaceUserRoleIsAdmin(user: User , space:Space): SpaceUser {
         space.spaceUsers.find {
@@ -297,6 +132,5 @@ class SpaceService @Autowired constructor(
             return it
         }
         throw SpaceUserNotFoundInSpaceException()
-
     }
 }

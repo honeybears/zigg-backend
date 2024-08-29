@@ -36,8 +36,8 @@ data class Space(
 
 ) : BaseEntity() {
     companion object{
-        fun createSpace(spaceName:String, spaceImageUrl: String, users:MutableSet<User>, admin: User): soma.achoom.zigg.space.entity.Space {
-            val space = soma.achoom.zigg.space.entity.Space(
+        fun create(spaceName:String, spaceImageUrl: String, users:MutableSet<User>, admin: User): soma.achoom.zigg.space.entity.Space {
+            val space = Space(
                 spaceName = spaceName,
                 spaceImageKey = spaceImageUrl,
             )

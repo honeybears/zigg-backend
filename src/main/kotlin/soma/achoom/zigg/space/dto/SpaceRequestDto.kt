@@ -13,6 +13,7 @@ data class SpaceRequestDto(
     @Min(value = 2, message = "space 이름은 2자 이상이어야 합니다.")
     val spaceName: String,
     val spaceUsers: List<SpaceUserRequestDto>,
+    val spaceImageUrl: String?,
     val createdAt: LocalDateTime? = LocalDateTime.now(),
 ) {
 

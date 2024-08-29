@@ -9,6 +9,7 @@ data class HistoryRequestDto(
     @NotNull
     @NotBlank
     val historyVideoUrl: String,
+    val historyThumbnailUrl:String,
     var videoDuration: String
 
 ){

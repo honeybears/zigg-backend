@@ -25,13 +25,12 @@ class SpaceController @Autowired constructor(
         return ResponseEntity.ok(spaceListResponse)
     }
 
-    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping
     fun createSpace(
         authentication:Authentication,
-        @RequestPart(value = "space_image", required = false) spaceImage:MultipartFile? ,
-        @Valid @RequestPart(value = "spaceRequestDto") spaceRequestDto: SpaceRequestDto
+        @RequestBody spaceRequestDto: SpaceRequestDto
     ) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.createSpace(authentication, spaceImage, spaceRequestDto)
+        val spaceResponseDto = spaceService.createSpace(authentication, spaceRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
 
@@ -41,13 +40,9 @@ class SpaceController @Autowired constructor(
         return ResponseEntity.ok(spaceResponseDto)
     }
 
-    @PatchMapping("/{spaceId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun updateSpace(
-        authentication:Authentication, @PathVariable spaceId:UUID,
-        @RequestPart("space_image", required = false) spaceImage:MultipartFile? ,
-        @Valid @RequestPart("spaceRequestDto", required = true) spaceRequestDto: SpaceRequestDto
-    ) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.updateSpace(authentication, spaceId, spaceImage,spaceRequestDto)
+    @PatchMapping("/{spaceId}")
+    fun updateSpace(authentication:Authentication,@PathVariable spaceId:UUID, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val spaceResponseDto = spaceService.updateSpace(authentication,spaceId, spaceRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
 
