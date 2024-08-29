@@ -54,6 +54,7 @@ dependencies {
 	runtimeOnly ("com.h2database:h2")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("io.mockk:mockk:1.13.5")
+	implementation ("mysql:mysql-connector-java:8.0.33")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
