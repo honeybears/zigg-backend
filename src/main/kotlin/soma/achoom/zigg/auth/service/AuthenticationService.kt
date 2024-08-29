@@ -41,7 +41,6 @@ class AuthenticationService @Autowired constructor(
     fun checkNickname(nicknameRequestDto:NicknameValidRequestDto): NicknameValidResponseDto {
         return NicknameValidResponseDto(userRepository.existsUserByUserNickname(nicknameRequestDto.nickname))
     }
-
     fun generateJWTToken(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
         val user = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
