@@ -20,7 +20,7 @@ data class History(
     @JsonBackReference
     var space: soma.achoom.zigg.space.entity.Space,
 
-    var historyVideoThumbnailUrl: String? = null,
+    var historyVideoThumbnailUrl: String,
 
     var videoDuration: String? = null,
     @OneToMany(mappedBy = "history", cascade = [CascadeType.ALL], orphanRemoval = true)

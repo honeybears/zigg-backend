@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
-import soma.achoom.zigg.storage.GCSService
+import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.user.dto.UserRequestDto
 import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
@@ -18,21 +18,22 @@ import soma.achoom.zigg.user.repository.UserRepository
 
 @Service
 class UserService(
-    private val gcsService: GCSService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val s3Service: S3Service
 ) {
 
     fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
         val users = userRepository.findUsersByUserNicknameLike(nickname,PageRequest.of(0,5))
             .let { it.ifEmpty { throw NicknameUserNotFoundException() } }
-            .filter { it.userNickname != authenticationToUser(authentication).userNickname }
 
-        return users.map {
+
+        return users
+            .filter { it.userNickname != authenticationToUser(authentication).userNickname }.map {
             UserResponseDto(
                 userId = it.userId,
                 userName = it.userName,
                 userNickname = it.userNickname,
-                profileImageUrl = gcsService.getPreSignedGetUrl(it.profileImageKey!!)
+                profileImageUrl = s3Service.getPreSignedGetUrl(it.profileImageKey)
             )
         }.toMutableSet()
     }
@@ -43,7 +44,7 @@ class UserService(
             userId = user.userId,
             userName = user.userName,
             userNickname = user.userNickname,
-            profileImageUrl = gcsService.getPreSignedGetUrl(user.profileImageKey!!)
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey)
         )
     }
 
@@ -62,7 +63,7 @@ class UserService(
             userId = user.userId,
             userName = user.userName,
             userNickname = user.userNickname,
-            profileImageUrl = gcsService.getPreSignedGetUrl(user.profileImageKey!!)
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey)
         )
     }
     fun authenticationToUser(authentication: Authentication): User {

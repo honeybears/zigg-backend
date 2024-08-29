@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
-import soma.achoom.zigg.ai.dto.GenerateAIFeedbackResponseDto
 import soma.achoom.zigg.feedback.dto.FeedbackRequestDto
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.feedback.service.FeedbackService
@@ -39,25 +38,6 @@ class FeedbackController @Autowired constructor(private val feedbackService: Fee
     @DeleteMapping("{spaceId}/{historyId}/{feedbackId}")
     fun deleteFeedback(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID, @PathVariable feedbackId: UUID): ResponseEntity<Any> {
         feedbackService.deleteFeedback(authentication, spaceId, historyId, feedbackId)
-        return ResponseEntity.noContent().build()
-    }
-
-    @OptIn(DelicateCoroutinesApi::class)
-    @GetMapping("ai/{spaceId}/{historyId}")
-    fun generateAIFeedback(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID): ResponseEntity<Void> {
-        GlobalScope.launch {
-            val feedbackResponseDto = feedbackService.generateAIFeedbackRequest(authentication, spaceId, historyId)
-
-        }
-        return ResponseEntity.noContent().build()
-    }
-    @OptIn(DelicateCoroutinesApi::class)
-    @PostMapping("ai/{historyId}")
-    fun generatedAiFeedbackFromFastApi(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID, @RequestBody generateAIFeedbackResponseDto: GenerateAIFeedbackResponseDto): ResponseEntity<Void> {
-        GlobalScope.launch {
-            val feedbackResponseDto = feedbackService.generateAIFeedbackResponse(historyId,generateAIFeedbackResponseDto)
-
-        }
         return ResponseEntity.noContent().build()
     }
 }
