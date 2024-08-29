@@ -15,7 +15,7 @@ env:
 
 jobs:
   dev-deploy:
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev' || github.event.pull_request.base.ref == 'dev'
     name: Deploy to Dev
     runs-on: ubuntu-latest
     steps:
@@ -68,7 +68,7 @@ jobs:
           wait-for-service-stability: true
 
   prod-deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.event.pull_request.base.ref == 'main
     name: Deploy to Prod
     runs-on: ubuntu-latest
     steps:
