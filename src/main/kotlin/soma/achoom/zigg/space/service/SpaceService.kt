@@ -47,7 +47,6 @@ class SpaceService @Autowired constructor(
             spaceImageUrl = spaceRequestDto.spaceImageUrl ?: defaultSpaceImageUrl,
             spaceName = spaceRequestDto.spaceName,
             users = inviteUser.toMutableSet(),
-
             admin = user
         )
 
