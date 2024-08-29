@@ -4,22 +4,21 @@ import soma.achoom.zigg.global.annotation.AuthenticationValidate
 
 
 
-import kotlinx.coroutines.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import soma.achoom.zigg.storage.GCSService
-import soma.achoom.zigg.ai.dto.GenerateThumbnailRequestDto
-import soma.achoom.zigg.ai.service.AIService
-import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
+import soma.achoom.zigg.global.ResponseDtoGenerator
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.history.repository.HistoryRepository
+import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
-import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
+import soma.achoom.zigg.spaceuser.entity.SpaceRole
+import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.user.repository.UserRepository
 import soma.achoom.zigg.user.service.UserService
 import java.util.UUID
 
@@ -27,9 +26,9 @@ import java.util.UUID
 class HistoryService @Autowired constructor(
     private val historyRepository: HistoryRepository,
     private val spaceRepository: SpaceRepository,
-    private val gcsService: GCSService,
-    private val aiService: AIService,
     private val userService: UserService,
+    private val userRepository: UserRepository,
+    private val responseDtoGenerator: ResponseDtoGenerator,
 ) {
 
     @AuthenticationValidate
@@ -43,65 +42,17 @@ class HistoryService @Autowired constructor(
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
-
-
-        val bucketKey = gcsService.convertPreSignedUrlToGeneralKey(historyRequestDto.historyVideoUrl)
-
-
-        val response = runBlocking {
-            aiService.createThumbnailRequest(
-                GenerateThumbnailRequestDto(
-                    bucketName = gcsService.bucketName,
-                    historyVideoKey = bucketKey
-                )
-            )
-        }
-        val uuid = bucketKey.split("/").last().split(".")[0]
-
-//        val uuid = getLastPathSegment(bucketKey).split(".")[0]
-
         val history = History(
-            historyId = UUID.fromString(uuid),
-            historyVideoKey = bucketKey,
+            historyId = UUID.fromString(historyRequestDto.historyVideoUrl.split("?")[0].split("/").last().split(".")[0]),
+            historyVideoKey = historyRequestDto.historyVideoUrl.split("?")[0].split("/").subList(3, historyRequestDto.historyVideoUrl.split("?")[0].split("/").size).joinToString("/"),
             historyName = historyRequestDto.historyName,
             space = space,
             videoDuration = historyRequestDto.videoDuration,
-            historyVideoThumbnailUrl = response.historyThumbnailKey
+            historyVideoThumbnailUrl = historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").subList(3, historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").size).joinToString("/")
         )
 
         historyRepository.save(history)
-        return HistoryResponseDto(
-            historyId = history.historyId,
-            historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoKey),
-            feedbacks = history.feedbacks.map { feedback ->
-                FeedbackResponseDto(
-                    feedbackId = feedback.feedbackId,
-                    feedbackType = feedback.feedbackType,
-                    feedbackTimeline = feedback.feedbackTimeline,
-                    feedbackMessage = feedback.feedbackMessage,
-                    creatorId = SpaceUserResponseDto(
-                        spaceUserId = feedback.feedbackCreator?.spaceUserId,
-                        spaceRole = feedback.feedbackCreator?.spaceRole,
-                        userName = feedback.feedbackCreator?.user?.userName,
-                        userNickname = feedback.feedbackCreator?.user?.userNickname,
-                        profileImageUrl = gcsService.getPreSignedGetUrl( feedback.feedbackCreator?.user?.profileImageKey!!)
-                    ),
-                    recipientId = feedback.recipients.map { recipient ->
-                        SpaceUserResponseDto(
-                            spaceUserId = recipient.recipient.spaceUserId,
-                            spaceRole = recipient.recipient.spaceRole,
-                            userName = recipient.recipient.user.userName,
-                            userNickname = recipient.recipient.user.userNickname,
-                            profileImageUrl = gcsService.getPreSignedGetUrl( recipient.recipient.user.profileImageKey!!)
-                        )
-                    }.toMutableSet()
-                )
-            }.toMutableSet(),
-            historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
-            createdAt = history.createAt,
-            videoDuration = history.videoDuration
-        )
+        return responseDtoGenerator.generateHistoryResponseShortDto(history)
     }
 
     fun getHistories(authentication: Authentication, spaceId: UUID): List<HistoryResponseDto> {
@@ -110,39 +61,8 @@ class HistoryService @Autowired constructor(
             ?: throw SpaceNotFoundException()
         val histories = historyRepository.findHistoriesBySpace(space)
         return histories.filter { !it.isDeleted }.map {
-            HistoryResponseDto(
-                historyId = it.historyId,
-                historyName = it.historyName,
-                historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
-                feedbacks = it.feedbacks.map { feedback ->
-                    FeedbackResponseDto(
-                        feedbackId = feedback.feedbackId,
-                        feedbackType = feedback.feedbackType,
-                        feedbackTimeline = feedback.feedbackTimeline,
-                        feedbackMessage = feedback.feedbackMessage,
-                        creatorId = SpaceUserResponseDto(
-                            spaceUserId = feedback.feedbackCreator?.spaceUserId,
-                            spaceRole = feedback.feedbackCreator?.spaceRole,
-                            userName = feedback.feedbackCreator?.user?.userName,
-                            userNickname = feedback.feedbackCreator?.user?.userNickname,
-                            profileImageUrl = gcsService.getPreSignedGetUrl( feedback.feedbackCreator?.user?.profileImageKey!!)
-                        ),
-                        recipientId = feedback.recipients.map { recipient ->
-                            SpaceUserResponseDto(
-                                spaceUserId = recipient.recipient.spaceUserId,
-                                spaceRole = recipient.recipient.spaceRole,
-                                userName = recipient.recipient.user.userName,
-                                userNickname = recipient.recipient.user.userNickname,
-                                profileImageUrl = gcsService.getPreSignedGetUrl( recipient.recipient.user.profileImageKey!!)
-                            )
-                        }.toMutableSet()
-                    )
-                }.toMutableSet(),
-                historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
-                createdAt = it.createAt,
-                videoDuration = it.videoDuration
-            )
-        }
+            responseDtoGenerator.generateHistoryResponseShortDto(it)
+        }.toList()
     }
 
     fun getHistory(authentication: Authentication, spaceId: UUID, historyId: UUID): HistoryResponseDto {
@@ -151,38 +71,7 @@ class HistoryService @Autowired constructor(
             ?: throw SpaceNotFoundException()
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw SpaceNotFoundException()
-        return HistoryResponseDto(
-            historyId = history.historyId,
-            historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoKey),
-            feedbacks = history.feedbacks.map { feedback ->
-                FeedbackResponseDto(
-                    feedbackId = feedback.feedbackId,
-                    feedbackType = feedback.feedbackType,
-                    feedbackTimeline = feedback.feedbackTimeline,
-                    feedbackMessage = feedback.feedbackMessage,
-                    creatorId = SpaceUserResponseDto(
-                        spaceUserId = feedback.feedbackCreator?.spaceUserId,
-                        spaceRole = feedback.feedbackCreator?.spaceRole,
-                        userName = feedback.feedbackCreator?.user?.userName,
-                        userNickname = feedback.feedbackCreator?.user?.userNickname,
-                        profileImageUrl = gcsService.getPreSignedGetUrl( feedback.feedbackCreator?.user?.profileImageKey!!)
-                    ),
-                    recipientId = feedback.recipients.map { recipient ->
-                        SpaceUserResponseDto(
-                            spaceUserId = recipient.recipient.spaceUserId,
-                            spaceRole = recipient.recipient.spaceRole,
-                            userName = recipient.recipient.user.userName,
-                            userNickname = recipient.recipient.user.userNickname,
-                            profileImageUrl = gcsService.getPreSignedGetUrl( recipient.recipient.user.profileImageKey!!)
-                        )
-                    }.toMutableSet()
-                )
-            }.toMutableSet(),
-            historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
-            createdAt = history.createAt,
-            videoDuration = history.videoDuration
-        )
+        return responseDtoGenerator.generateHistoryResponseDto(history)
     }
 
     fun updateHistory(
@@ -196,10 +85,29 @@ class HistoryService @Autowired constructor(
             ?: throw SpaceNotFoundException()
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw HistoryNotFoundException()
-        history.isDeleted = true
+
+        history.historyName = historyRequestDto.historyName
         historyRepository.save(history)
-        val newHistory = createHistory(authentication, spaceId, historyRequestDto)
-        return newHistory
+        return responseDtoGenerator.generateHistoryResponseDto(history)
+    }
+
+    fun inviteUserInSpace(authentication: Authentication, spaceId: UUID, userId: List<UUID>): SpaceResponseDto {
+        userService.authenticationToUser(authentication)
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+
+        val user = userRepository.findAllById(userId)
+
+        user.forEach {
+            val spaceUser = SpaceUser(
+                space = space,
+                user = it,
+                spaceRole = SpaceRole.USER,
+            )
+            space.spaceUsers.add(spaceUser)
+        }
+        spaceRepository.save(space)
+        return responseDtoGenerator.generateSpaceResponseShortDto(space)
     }
 
     fun deleteHistory(authentication: Authentication, spaceId: UUID, historyId: UUID) {
@@ -208,8 +116,8 @@ class HistoryService @Autowired constructor(
             ?: throw SpaceNotFoundException()
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw SpaceNotFoundException()
-        history.isDeleted = true
-            historyRepository.save(history)
+
+        historyRepository.delete(history)
 
     }
 

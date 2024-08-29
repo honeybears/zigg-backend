@@ -25,7 +25,7 @@ data class Feedback(
 
     @ManyToOne
     @JoinColumn(name = "creator_id", unique = false)
-    var feedbackCreator: SpaceUser?,
+    var feedbackCreator: SpaceUser,
 
     @OneToMany(mappedBy = "feedback", cascade = [CascadeType.ALL], orphanRemoval = true)
     var recipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
