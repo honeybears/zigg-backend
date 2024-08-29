@@ -20,7 +20,7 @@ data class User(
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
 
-    var profileImageKey: String? = null,
+    var profileImageKey: String,
 
     @Enumerated(EnumType.STRING)
     var platform: OAuthProviderEnum,

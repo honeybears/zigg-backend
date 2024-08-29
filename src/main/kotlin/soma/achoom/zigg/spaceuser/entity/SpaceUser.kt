@@ -35,7 +35,7 @@ data class SpaceUser(
     var feedbackRecipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
     @Enumerated(EnumType.STRING)
-    var inviteStatus: SpaceUserStatus,
+    var inviteStatus: SpaceUserStatus = SpaceUserStatus.WAITING,
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,

@@ -1,6 +1,7 @@
 package soma.achoom.zigg.history.controller
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -11,25 +12,33 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import soma.achoom.zigg.storage.GCSDataType
-import soma.achoom.zigg.storage.GCSService
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
 import soma.achoom.zigg.history.service.HistoryService
+import soma.achoom.zigg.s3.service.S3DataType
+import soma.achoom.zigg.s3.service.S3Service
 import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v0/spaces/histories")
 class HistoryController @Autowired constructor(
     private val historyService: HistoryService,
-    private val gcsService: GCSService
+    private val s3Service: S3Service
 
 ) {
-    @PostMapping("/pre-signed-url")
-    fun getPreSignedUrl(@RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto) : ResponseEntity<String> {
-        val preSignedUrl = gcsService.getPreSignedPutUrl(GCSDataType.HISTORY_VIDEO,UUID.randomUUID(), uploadContentTypeRequestDto)
-        return ResponseEntity.ok(preSignedUrl)
+    @PostMapping("/pre-signed-url/{value}")
+    fun getPreSignedUrl(@RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto,@PathVariable value:String) : ResponseEntity<String> {
+        if (value == "video"){
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_VIDEO,UUID.randomUUID(), uploadContentTypeRequestDto)
+            return ResponseEntity.ok(preSignedUrl)
+
+        }
+        if (value == "thumbnail"){
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_THUMBNAIL,UUID.randomUUID(), uploadContentTypeRequestDto)
+            return ResponseEntity.ok(preSignedUrl)
+        }
+        return ResponseEntity.badRequest().build()
     }
 
 
