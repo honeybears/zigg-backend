@@ -1,132 +1,3 @@
-#name: CI
-#on:
-#  pull_request:
-#    branches:
-#      - main
-#      - dev
-#
-#env:
-#  #DEV
-#  AWS_REGION_DEV: ap-northeast-2
-#  ECR_REPOSITORY_DEV: zigg_application
-#  ECS_SERVICE_DEV: zigg-spring-ecs-dev
-#  ECS_CLUSTER_DEV: zigg-backend-infra-dev
-#  ECS_TASK_DEFINITION_DEV: .aws/task-definition-dev.json
-#  #PROD
-#  CONTAINER_NAME_DEV: zigg-service
-#  AWS_REGION_PROD: ap-northeast-2
-#  ECR_REPOSITORY_PROD: zigg-service-prod
-#  ECS_SERVICE_PROD: zigg-spring-ecs-prod
-#  ECS_CLUSTER_PROD: zigg-backend-infra-prod
-#  ECS_TASK_DEFINITION_PROD: .aws/task-definition-dev.json
-#
-#jobs:
-#  dev-deploy:
-#    if: github.ref == 'refs/heads/dev' || github.event.pull_request.base.ref == 'dev'
-#    name: Deploy to Dev
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v4
-#
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-#          aws-region: ap-northeast-2
-#
-#      - name: Download file from S3
-#        run: |
-#          mkdir ./src/main/resources
-#          aws s3 cp s3://zigg-code-deploy-bucket/properties ./src/main/resources/ --recursive
-#
-#      - name: Login to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v1
-#
-#      - name: Build, tag, and push image to Amazon ECR
-#        id: build-image
-#        env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#          IMAGE_TAG: ${{ github.sha }}
-#        run: |
-#          # Build a docker container and
-#          # push it to ECR so that it can
-#          # be deployed to ECS.
-#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f dev.Dockerfile .
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-#
-#      - name: Fill in the new image ID in the Amazon ECS task definition
-#        id: task-def
-#        uses: aws-actions/amazon-ecs-render-task-definition@v1
-#        with:
-#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-#          container-name: ${{ env.CONTAINER_NAME }}
-#          image: ${{ steps.build-image.outputs.image }}
-#
-#      - name: Deploy Amazon ECS task definition
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ${{ steps.task-def.outputs.task-definition }}
-#          service: ${{ env.ECS_SERVICE }}
-#          cluster: ${{ env.ECS_CLUSTER }}
-#          wait-for-service-stability: true
-#
-#  prod-deploy:
-#    if: github.ref == 'refs/heads/main' || github.event.pull_request.base.ref == 'main'
-#    name: Deploy to Prod
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v4
-#
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-#          aws-region: ap-northeast-2
-#
-#      - name: Download file from S3
-#        run: |
-#          mkdir ./src/main/resources
-#          aws s3 cp s3://zigg-code-deploy-bucket/properties ./src/main/resources/ --recursive
-#
-#      - name: Login to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v1
-#
-#      - name: Build, tag, and push image to Amazon ECR
-#        id: build-image
-#        env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#          IMAGE_TAG: ${{ github.sha }}
-#        run: |
-#          # Build a docker container and
-#          # push it to ECR so that it can
-#          # be deployed to ECS.
-#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f prod.Dockerfile .
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-#
-#      - name: Fill in the new image ID in the Amazon ECS task definition
-#        id: task-def
-#        uses: aws-actions/amazon-ecs-render-task-definition@v1
-#        with:
-#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-#          container-name: ${{ env.CONTAINER_NAME }}
-#          image: ${{ steps.build-image.outputs.image }}
-#
-#      - name: Deploy Amazon ECS task definition
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ${{ steps.task-def.outputs.task-definition }}
-#          service: ${{ env.ECS_SERVICE }}
-#          cluster: ${{ env.ECS_CLUSTER }}
-#          wait-for-service-stability: true
-#
 name: CI
 on:
   pull_request:
@@ -135,25 +6,25 @@ on:
       - dev
 
 env:
-  AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: zigg_application
-  ECS_TASK_DEFINITION_DEV: .aws/task-definition-dev.json
-  ECS_TASK_DEFINITION_PROD: .aws/task-definition-prod.json
-  CONTAINER_NAME_DEV: zigg-service-dev
-  CONTAINER_NAME_PROD: zigg-service-prod
+  #DEV
+  AWS_REGION_DEV: ap-northeast-2
+  ECR_REPOSITORY_DEV: zigg_application
   ECS_SERVICE_DEV: zigg-spring-ecs-dev
-  ECS_SERVICE_PROD: zigg-spring-ecs-prod
   ECS_CLUSTER_DEV: zigg-backend-infra-dev
+  ECS_TASK_DEFINITION_DEV: .aws/task-definition-dev.json
+  #PROD
+  CONTAINER_NAME_DEV: zigg-service
+  AWS_REGION_PROD: ap-northeast-2
+  ECR_REPOSITORY_PROD: zigg-service-prod
+  ECS_SERVICE_PROD: zigg-spring-ecs-prod
   ECS_CLUSTER_PROD: zigg-backend-infra-prod
+  ECS_TASK_DEFINITION_PROD: .aws/task-definition-dev.json
 
 jobs:
-  deploy:
-    if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev'
-    name: Deploy
+  dev-deploy:
+    if: github.ref == 'refs/heads/dev' || github.event.pull_request.base.ref == 'dev'
+    name: Deploy to Dev
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: [dev, prod]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -163,7 +34,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ap-northeast-2
 
       - name: Download file from S3
         run: |
@@ -180,7 +51,10 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ${{ matrix.environment }}.Dockerfile .
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f dev.Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -188,14 +62,68 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ matrix.environment == 'dev' && env.ECS_TASK_DEFINITION_DEV || env.ECS_TASK_DEFINITION_PROD }}
-          container-name: ${{ matrix.environment == 'dev' && env.CONTAINER_NAME_DEV || env.CONTAINER_NAME_PROD }}
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ matrix.environment == 'dev' && env.ECS_SERVICE_DEV || env.ECS_SERVICE_PROD }}
-          cluster: ${{ matrix.environment == 'dev' && env.ECS_CLUSTER_DEV || env.ECS_CLUSTER_PROD }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+
+  prod-deploy:
+    if: github.ref == 'refs/heads/main' || github.event.pull_request.base.ref == 'main'
+    name: Deploy to Prod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          aws-region: ap-northeast-2
+
+      - name: Download file from S3
+        run: |
+          mkdir ./src/main/resources
+          aws s3 cp s3://zigg-code-deploy-bucket/properties ./src/main/resources/ --recursive
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f prod.Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
