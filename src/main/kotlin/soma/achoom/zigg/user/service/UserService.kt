@@ -51,7 +51,6 @@ class UserService(
     fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): UserResponseDto {
         userRequestDto.userNickname?.let {
             userRepository.findUserByUserNickname(it)?.let {
-
                 throw UserAlreadyExistsException()
             }
         }
