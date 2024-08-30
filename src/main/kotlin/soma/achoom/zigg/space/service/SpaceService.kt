@@ -28,7 +28,6 @@ import java.util.UUID
 class SpaceService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
     private val userService: UserService,
-    private val s3Service: S3Service,
     private val responseDtoGenerator: ResponseDtoGenerator
 )  {
     @Value("\${space.default.image.url}")
@@ -42,9 +41,10 @@ class SpaceService @Autowired constructor(
         val inviteUser = spaceRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }
-
         val space = Space.create(
-            spaceImageUrl = spaceRequestDto.spaceImageUrl ?: defaultSpaceImageUrl,
+            spaceImageUrl = spaceRequestDto.spaceImageUrl?.let {
+                it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size).joinToString("/")
+            } ?: defaultSpaceImageUrl,
             spaceName = spaceRequestDto.spaceName,
             users = inviteUser.toMutableSet(),
             admin = user
