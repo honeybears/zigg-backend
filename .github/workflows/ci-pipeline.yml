@@ -31,17 +31,24 @@ jobs:
       - name: Set environment variables based on branch
         run: |
           if [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "Dev branch"
             echo "ECS_TASK_DEFINITION=${{ env.ECS_TASK_DEFINITION_DEV }}" >> $GITHUB_ENV
             echo "CONTAINER_NAME=${{ env.CONTAINER_NAME_DEV }}" >> $GITHUB_ENV
             echo "ECS_SERVICE=${{ env.ECS_SERVICE_DEV }}" >> $GITHUB_ENV
             echo "ECS_CLUSTER=${{ env.ECS_CLUSTER_DEV }}" >> $GITHUB_ENV
-
-
           elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "Main branch"
             echo "ECS_TASK_DEFINITION=${{ env.ECS_TASK_DEFINITION_PROD }}" >> $GITHUB_ENV
             echo "CONTAINER_NAME=${{ env.CONTAINER_NAME_PROD }}" >> $GITHUB_ENV
             echo "ECS_SERVICE=${{ env.ECS_SERVICE_PROD }}" >> $GITHUB_ENV
             echo "ECS_CLUSTER=${{ env.ECS_CLUSTER_PROD }}" >> $GITHUB_ENV
+          fi
+
+      - name: Verify task definition file exists
+        run: |
+          if [ ! -f "${{ env.ECS_TASK_DEFINITION }}" ]; then
+            echo "Error: Task definition file does not exist: $ECS_TASK_DEFINITION"
+            exit 1
           fi
 
       - name: Configure AWS credentials
@@ -66,9 +73,6 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
           if [ "${{ github.ref_name }}" = "dev" ]; then
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f dev.Dockerfile .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -78,7 +82,6 @@ jobs:
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
           fi
-
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
@@ -94,5 +97,3 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: $ECS_SERVICE
           cluster: $ECS_CLUSTER
-
- 
