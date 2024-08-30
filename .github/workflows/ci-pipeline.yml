@@ -12,8 +12,8 @@ env:
   ECS_SERVICE_DEV: zigg-spring-ecs-dev
   ECS_CLUSTER_DEV: zigg-backend-infra-dev
   ECS_TASK_DEFINITION_DEV: .aws/task-definition-dev.json
-  #PROD
   CONTAINER_NAME_DEV: zigg-service
+  #PROD
   AWS_REGION_PROD: ap-northeast-2
   ECR_REPOSITORY_PROD: zigg-service-prod
   ECS_SERVICE_PROD: zigg-spring-ecs-prod
@@ -62,16 +62,16 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
+          task-definition: ${{ env.ECS_TASK_DEFINITION_DEV }}
+          container-name: ${{ env.CONTAINER_NAME_DEV }}
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE_DEV }}
+          cluster: ${{ env.ECS_CLUSTER_DEV }}
           wait-for-service-stability: true
 
   prod-deploy:
