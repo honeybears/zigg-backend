@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
+import soma.achoom.zigg.firebase.entity.FCMToken
 import java.util.*
 
 
 @Entity
-@Table(name = "user")
+@Table(name = "`user`")
 data class User(
     @Id
     var userId: UUID = UUID.randomUUID(),

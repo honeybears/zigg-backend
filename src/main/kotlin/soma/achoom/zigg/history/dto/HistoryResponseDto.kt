@@ -15,4 +15,17 @@ data class HistoryResponseDto(
     val createdAt:LocalDateTime?,
     val videoDuration: String?,
     val feedbackCount : Int?
-)
+){
+    override fun toString(): String {
+        return "HistoryResponseDto(\n" +
+                "historyId=$historyId,\n" +
+                "historyName=$historyName,\n" +
+                "historyVideoPreSignedUrl=$historyVideoPreSignedUrl,\n" +
+                "feedbacks=${feedbacks?.map { it.toString() }},\n" +
+                "historyVideoThumbnailPreSignedUrl=$historyVideoThumbnailPreSignedUrl,\n" +
+                "createdAt=$createdAt,\n" +
+                "videoDuration=$videoDuration,\n" +
+                "feedbackCount=$feedbackCount\n" +
+                ")"
+    }
+}
