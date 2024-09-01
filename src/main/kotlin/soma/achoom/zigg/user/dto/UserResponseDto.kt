@@ -21,4 +21,13 @@ data class UserResponseDto(
             )
         }
     }
+
+    override fun toString(): String {
+        return "UserResponseDto(\n" +
+                "userId=$userId,\n" +
+                "userName=$userName,\n" +
+                "userNickname=$userNickname,\n" +
+                "profileImageUrl=$profileImageUrl\n" +
+                ")\n"
+    }
 }
