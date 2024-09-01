@@ -100,9 +100,10 @@
 
 name: CI
 on:
-  pull_request:
+  push:
     branches:
       - main
+      - dev
 
 env:
   AWS_REGION: ap-northeast-2
