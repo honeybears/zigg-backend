@@ -11,7 +11,7 @@ import soma.achoom.zigg.firebase.service.FCMService
 class FCMController(
     private val fcmService: FCMService
 ) {
-    @PostMapping("token")
+    @PostMapping("/token")
     fun registerToken(authentication: Authentication,token: FCMTokenRequestDto) : ResponseEntity<Void> {
         fcmService.registerToken(authentication,token)
         return ResponseEntity.ok().build()
