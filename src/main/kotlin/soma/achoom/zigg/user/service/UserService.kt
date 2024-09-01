@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
 import soma.achoom.zigg.global.ResponseDtoManager
-import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.user.dto.UserRequestDto
 import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
