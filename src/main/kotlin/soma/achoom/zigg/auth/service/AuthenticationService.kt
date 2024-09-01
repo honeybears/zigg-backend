@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.*
 
 import soma.achoom.zigg.auth.filter.JwtTokenProvider
@@ -24,7 +25,7 @@ class AuthenticationService @Autowired constructor(
     private val defaultProfileImages: List<String>,
     private val userRepository: UserRepository
 )  {
-
+    @Transactional(readOnly = true)
     fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): UserExistsResponseDto {
 
         runCatching {
@@ -37,7 +38,7 @@ class AuthenticationService @Autowired constructor(
         }
         return UserExistsResponseDto(true)
     }
-
+    @Transactional(readOnly = true)
     fun checkNickname(nicknameRequestDto:NicknameValidRequestDto): NicknameValidResponseDto {
         return NicknameValidResponseDto(userRepository.existsUserByUserNickname(nicknameRequestDto.nickname))
     }
@@ -55,7 +56,7 @@ class AuthenticationService @Autowired constructor(
 
         return header
     }
-
+    @Transactional(readOnly = false)
     fun registers(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
         oAuth2UserRequestDto.userNickname?: throw IllegalArgumentException("userNickname is required")
         userRepository.findUserByUserNickname(oAuth2UserRequestDto.userNickname)?.let {
@@ -71,10 +72,7 @@ class AuthenticationService @Autowired constructor(
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
                     user.jwtToken = accessToken
-
                     userRepository.save(user)
-
-
                     return header
                 } else {
                     throw IllegalArgumentException("Invalid access token")
@@ -117,7 +115,6 @@ class AuthenticationService @Autowired constructor(
         }
 
     }
-
     private fun verifyGoogleToken(idToken: String): Boolean {
         val client =
             HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).followRedirects(HttpClient.Redirect.NORMAL)

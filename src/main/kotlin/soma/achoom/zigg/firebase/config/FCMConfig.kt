@@ -6,6 +6,9 @@ import com.google.firebase.FirebaseOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.DependsOn
+import java.io.FileInputStream
+import java.io.InputStream
 import javax.annotation.PostConstruct
 
 @Configuration
@@ -30,5 +33,12 @@ class FCMConfig(
     @Bean
     fun firebaseApp(): FirebaseApp {
         return FirebaseApp.getInstance()
+    }
+    @Bean
+    fun googleCredentials(): GoogleCredentials {
+        val keyFile = this.javaClass.classLoader.getResourceAsStream(keyFileName)
+            ?: throw IllegalArgumentException("Firebase key file not found: $keyFileName")
+
+        return GoogleCredentials.fromStream(keyFile)
     }
 }

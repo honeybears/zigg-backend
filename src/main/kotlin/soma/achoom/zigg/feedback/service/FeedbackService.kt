@@ -4,13 +4,14 @@ package soma.achoom.zigg.feedback.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.feedback.dto.FeedbackRequestDto
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
 
 import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.feedback.exception.FeedbackNotFoundException
 import soma.achoom.zigg.feedback.repository.FeedbackRepository
-import soma.achoom.zigg.global.ResponseDtoGenerator
+import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
@@ -30,9 +31,9 @@ class FeedbackService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
     private val spaceService: SpaceService,
     private val userService: UserService,
-    private val responseDtoGenerator: ResponseDtoGenerator
+    private val responseDtoManager: ResponseDtoManager
 ) {
-
+    @Transactional(readOnly = true)
     fun getFeedbacks(
         authentication: Authentication, spaceId: UUID, historyId: UUID
     ): List<FeedbackResponseDto> {
@@ -45,11 +46,11 @@ class FeedbackService @Autowired constructor(
         val feedbacks = history.feedbacks.toMutableSet()
 
         return feedbacks.filter { !it.isDeleted }.map {
-            responseDtoGenerator.generateFeedbackResponseDto(it)
+            responseDtoManager.generateFeedbackResponseDto(it)
         }.toList()
     }
 
-
+    @Transactional(readOnly = false)
     fun createFeedback(
         authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackRequestDto: FeedbackRequestDto
     ): FeedbackResponseDto {
@@ -66,9 +67,9 @@ class FeedbackService @Autowired constructor(
 
         val feedback = feedbackRequestDto.toFeedBack(history, spaceUser, feedbackRecipient)
         feedbackRepository.save(feedback)
-        return responseDtoGenerator.generateFeedbackResponseDto(feedback)
+        return responseDtoManager.generateFeedbackResponseDto(feedback)
     }
-
+    @Transactional(readOnly = false)
     fun updateFeedback(
         authentication: Authentication,
         spaceId: UUID,
@@ -99,9 +100,9 @@ class FeedbackService @Autowired constructor(
 
         feedbackRepository.save(feedback)
 
-        return responseDtoGenerator.generateFeedbackResponseDto(feedback)
+        return responseDtoManager.generateFeedbackResponseDto(feedback)
     }
-
+    @Transactional(readOnly = false)
     fun deleteFeedback(
         authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
     ) {
@@ -117,7 +118,7 @@ class FeedbackService @Autowired constructor(
         feedback.isDeleted = true
         feedbackRepository.save(feedback)
     }
-
+    @Transactional(readOnly = true)
     fun getFeedback(
         authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
     ): FeedbackResponseDto {
@@ -130,7 +131,7 @@ class FeedbackService @Autowired constructor(
 
         historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
-        return responseDtoGenerator.generateFeedbackResponseDto(feedback)
+        return responseDtoManager.generateFeedbackResponseDto(feedback)
     }
 }
 

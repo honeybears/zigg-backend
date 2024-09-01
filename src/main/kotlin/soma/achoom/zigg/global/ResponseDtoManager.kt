@@ -10,9 +10,11 @@ import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
 import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.user.dto.UserResponseDto
+import soma.achoom.zigg.user.entity.User
 
 @Component
-class ResponseDtoGenerator(
+class ResponseDtoManager(
     private val s3Service: S3Service
 ) {
     fun generateSpaceResponseDto(space: Space): SpaceResponseDto{
@@ -85,6 +87,14 @@ class ResponseDtoGenerator(
             userNickname = spaceUser.userNickname,
             spaceRole = spaceUser.spaceRole,
             profileImageUrl = s3Service.getPreSignedGetUrl(spaceUser.profileImageUrl)
+        )
+    }
+    fun generateUserResponseDto(user: User): UserResponseDto {
+        return UserResponseDto(
+            userId = user.userId,
+            userName = user.userName,
+            userNickname = user.userNickname,
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey)
         )
     }
 

@@ -5,5 +5,4 @@ data class NotificationRequestDto(
     val body: String,
     val topic: String,
     val token: String
-) {
-}
+)
