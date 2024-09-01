@@ -1,103 +1,3 @@
-#name: CI
-#on:
-#  push:
-#    branches:
-#      - main
-#      - dev
-#
-#env:
-#  AWS_REGION: ap-northeast-2
-#  ECR_REPOSITORY: zigg_application
-#  # DEV
-#  ECS_SERVICE_DEV: zigg-spring-ecs-dev
-#  ECS_CLUSTER_DEV: zigg-backend-infra-dev
-#  ECS_TASK_DEFINITION_DEV: .aws/task-definition-dev.json
-#  CONTAINER_NAME_DEV: zigg-service
-#  # PROD
-#  ECR_REPOSITORY_PROD: zigg-service-prod
-#  ECS_SERVICE_PROD: zigg-spring-ecs-prod
-#  ECS_CLUSTER_PROD: zigg-backend-infra-prod
-#  ECS_TASK_DEFINITION_PROD: .aws/task-definition-prod.json
-#  CONTAINER_NAME_PROD: zigg-service
-#
-#jobs:
-#  CI-CD:
-#    name: Deploy
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v4
-#
-#      - name: Set environment variables based on branch
-#        run: |
-#          if [ "${{ github.ref_name }}" = "dev" ]; then
-#            echo "Dev branch"
-#            echo "ECS_TASK_DEFINITION=${{ env.ECS_TASK_DEFINITION_DEV }}" >> $GITHUB_ENV
-#            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME_DEV }}" >> $GITHUB_ENV
-#            echo "ECS_SERVICE=${{ env.ECS_SERVICE_DEV }}" >> $GITHUB_ENV
-#            echo "ECS_CLUSTER=${{ env.ECS_CLUSTER_DEV }}" >> $GITHUB_ENV
-#          elif [ "${{ github.ref_name }}" = "main" ]; then
-#            echo "Main branch"
-#            echo "ECS_TASK_DEFINITION=${{ env.ECS_TASK_DEFINITION_PROD }}" >> $GITHUB_ENV
-#            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME_PROD }}" >> $GITHUB_ENV
-#            echo "ECS_SERVICE=${{ env.ECS_SERVICE_PROD }}" >> $GITHUB_ENV
-#            echo "ECS_CLUSTER=${{ env.ECS_CLUSTER_PROD }}" >> $GITHUB_ENV
-#          fi
-#
-#      - name: Verify task definition file exists
-#        run: |
-#          if [ ! -f "${{ env.ECS_TASK_DEFINITION }}" ]; then
-#            echo "Error: Task definition file does not exist: $ECS_TASK_DEFINITION"
-#            exit 1
-#          fi
-#
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-#          aws-region: ${{ env.AWS_REGION }}
-#
-#      - name: Download file from S3
-#        run: |
-#          mkdir ./src/main/resources
-#          aws s3 cp s3://zigg-code-deploy-bucket/properties ./src/main/resources/ --recursive
-#          aws s3 cp s3://zigg-code-deploy-bucket/test/ ./src/test/resources/ --recursive
-#      - name: Login to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v1
-#
-#      - name: Build, tag, and push image to Amazon ECR
-#        id: build-image
-#        env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#          IMAGE_TAG: ${{ github.sha }}
-#        run: |
-#          if [ "${{ github.ref_name }}" = "dev" ]; then
-#            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f dev.Dockerfile .
-#            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-#          elif [ "${{ github.ref_name }}" = "main" ]; then
-#            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f prod.Dockerfile .
-#            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-#          fi
-#
-#      - name: Fill in the new image ID in the Amazon ECS task definition
-#        id: task-def
-#        uses: aws-actions/amazon-ecs-render-task-definition@v1
-#        with:
-#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-#          container-name: ${{ env.CONTAINER_NAME }}
-#          image: ${{ steps.build-image.outputs.image }}
-#
-#      - name: Deploy Amazon ECS task definition
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ${{ steps.task-def.outputs.task-definition }}
-#          service: ${{ env.ECS_SERVICE }}
-#          cluster: ${{ env.ECS_CLUSTER }}
-
 name: CI
 on:
   push:
@@ -108,30 +8,61 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: zigg_application
-  ECS_SERVICE: zigg-spring-ecs-dev
-  ECS_CLUSTER: zigg-backend-infra-dev
-  ECS_TASK_DEFINITION: .aws/task-definition-dev.json
-  CONTAINER_NAME: zigg-service
+  # DEV
+  ECS_SERVICE_DEV: zigg-spring-ecs-dev
+  ECS_CLUSTER_DEV: zigg-backend-infra-dev
+  ECS_TASK_DEFINITION_DEV: .aws/task-definition-dev.json
+  CONTAINER_NAME_DEV: zigg-service
+  # PROD
+  ECR_REPOSITORY_PROD: zigg-service-prod
+  ECS_SERVICE_PROD: zigg-spring-ecs-prod
+  ECS_CLUSTER_PROD: zigg-backend-infra-prod
+  ECS_TASK_DEFINITION_PROD: .aws/task-definition-prod.json
+  CONTAINER_NAME_PROD: zigg-service
 
 jobs:
-  build-and-deploy:
+  CI-CD:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set environment variables based on branch
+        run: |
+          if [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "Dev branch"
+            echo "ECS_TASK_DEFINITION=${{ env.ECS_TASK_DEFINITION_DEV }}" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME_DEV }}" >> $GITHUB_ENV
+            echo "ECS_SERVICE=${{ env.ECS_SERVICE_DEV }}" >> $GITHUB_ENV
+            echo "ECS_CLUSTER=${{ env.ECS_CLUSTER_DEV }}" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "Main branch"
+            echo "ECS_TASK_DEFINITION=${{ env.ECS_TASK_DEFINITION_PROD }}" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME_PROD }}" >> $GITHUB_ENV
+            echo "ECS_SERVICE=${{ env.ECS_SERVICE_PROD }}" >> $GITHUB_ENV
+            echo "ECS_CLUSTER=${{ env.ECS_CLUSTER_PROD }}" >> $GITHUB_ENV
+          fi
+
+      - name: Verify task definition file exists
+        run: |
+          if [ ! -f "${{ env.ECS_TASK_DEFINITION }}" ]; then
+            echo "Error: Task definition file does not exist: $ECS_TASK_DEFINITION"
+            exit 1
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ap-northeast-2
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Download file from S3
         run: |
           mkdir ./src/main/resources
           aws s3 cp s3://zigg-code-deploy-bucket/properties ./src/main/resources/ --recursive
-          aws s3 cp s3://zigg-code-deploy-bucket/test ./src/test/resources/ --recursive
+          aws s3 cp s3://zigg-code-deploy-bucket/test/ ./src/test/resources/ --recursive
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -142,12 +73,15 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f dev.Dockerfile .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          if [ "${{ github.ref_name }}" = "dev" ]; then
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f dev.Dockerfile .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f prod.Dockerfile .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          fi
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
@@ -163,4 +97,4 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+
