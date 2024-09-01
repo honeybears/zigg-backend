@@ -18,5 +18,16 @@ data class SpaceResponseDto(
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 ) {
-
+    override fun toString(): String {
+        return "SpaceResponseDto(\n" +
+                "spaceId=$spaceId,\n" +
+                "spaceName=$spaceName,\n" +
+                "spaceImageUrl=$spaceImageUrl,\n" +
+                "spaceUsers=${spaceUsers?.map { it.toString()}},\n" +
+                "history=${history?.map { it.toString() + "\n"}},\n" +
+                "referenceVideoUrl=$referenceVideoUrl,\n" +
+                "createdAt=$createdAt,\n" +
+                "updatedAt=$updatedAt\n" +
+                ")\n"
+    }
 }

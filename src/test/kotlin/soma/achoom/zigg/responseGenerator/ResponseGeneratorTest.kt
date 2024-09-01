@@ -1,4 +1,4 @@
-package soma.achoom.zigg
+package soma.achoom.zigg.responseGenerator
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -8,7 +8,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
-import soma.achoom.zigg.global.ResponseDtoGenerator
+import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.Space
@@ -18,15 +18,16 @@ import soma.achoom.zigg.spaceuser.entity.SpaceUserStatus
 import soma.achoom.zigg.user.entity.User
 import java.util.*
 
-class ResponseDtoGeneratorTest {
+class ResponseDtoManagerTest {
 
     @Mock
     private lateinit var s3Service: S3Service
 
     @InjectMocks
-    private lateinit var responseDtoGenerator: ResponseDtoGenerator
+    private lateinit var responseDtoManager: ResponseDtoManager
 
     private lateinit var space: Space
+
 
     companion object {
         const val SPACE_IMAGE_KEY = "space-image-key"
@@ -37,7 +38,7 @@ class ResponseDtoGeneratorTest {
 
     @BeforeEach
     fun setup() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
 
         val user = User(
             userId = UUID.randomUUID(),
@@ -80,7 +81,7 @@ class ResponseDtoGeneratorTest {
     @Test
     fun `test generateSpaceResponseDto`() {
         // Act
-        val result: SpaceResponseDto = responseDtoGenerator.generateSpaceResponseDto(space)
+        val result: SpaceResponseDto = responseDtoManager.generateSpaceResponseDto(space)
 
         println(formatSpaceResponseDtoAsJson(result))
         // Assert
@@ -88,7 +89,6 @@ class ResponseDtoGeneratorTest {
         assertEquals(SPACE_IMAGE_URL, result.spaceImageUrl)
         assertEquals(PROFILE_IMAGE_URL, result.spaceUsers?.first()?.profileImageUrl)
     }
-
 }
 
 fun formatSpaceResponseDtoAsJson(spaceResponseDto: SpaceResponseDto): String {

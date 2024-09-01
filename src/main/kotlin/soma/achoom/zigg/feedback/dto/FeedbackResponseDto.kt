@@ -19,5 +19,14 @@ data class FeedbackResponseDto(
     val creatorId: SpaceUserResponseDto?,
     val recipientId: MutableSet<SpaceUserResponseDto>?,
 ){
-
+    override fun toString(): String {
+        return "FeedbackResponseDto(" +
+                "feedbackId=$feedbackId, " +
+                "feedbackType=$feedbackType, " +
+                "feedbackTimeline=$feedbackTimeline, " +
+                "feedbackMessage=$feedbackMessage, " +
+                "creatorId=${creatorId?.toString()}, " +
+                "recipientId=${recipientId?.map { it.toString() }}" +
+                ")"
+    }
 }
