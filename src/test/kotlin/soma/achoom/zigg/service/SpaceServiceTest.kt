@@ -51,6 +51,7 @@ class SpaceServiceTest {
     @Autowired
     private lateinit var dummyDataUtil: DummyDataUtil
 
+    @Autowired
     private lateinit var responseDtoManager: ResponseDtoManager
 
     lateinit var admin: User

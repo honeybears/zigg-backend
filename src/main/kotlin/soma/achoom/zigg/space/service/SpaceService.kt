@@ -1,13 +1,14 @@
 package soma.achoom.zigg.space.service
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.firebase.dto.FCMEvent
+import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.global.ResponseDtoManager
+import soma.achoom.zigg.space.dto.InviteUsersRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
@@ -28,11 +29,52 @@ class SpaceService(
     private val spaceRepository: SpaceRepository,
     private val userService: UserService,
     private val responseDtoManager: ResponseDtoManager,
-    private val applicationEventPublisher: ApplicationEventPublisher
-
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val fcmService: FCMService
 ) {
     @Value("\${space.default.image.url}")
     private lateinit var defaultSpaceImageUrl: String
+
+    @Transactional(readOnly = false)
+    fun inviteUserToSpace(
+        authentication: Authentication,
+        spaceId: UUID,
+        inviteUsersRequestDto: InviteUsersRequestDto
+    ) : SpaceResponseDto {
+        val user = userService.authenticationToUser(authentication)
+
+        val invitedUsers = inviteUsersRequestDto.spaceUsers.map {
+            userService.findUserByNickName(it.userNickname!!)
+        }.toMutableSet()
+
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+
+        validateSpaceUser(user, space)
+
+        space.spaceUsers.addAll(
+            invitedUsers.map {
+                SpaceUser(
+                    user = it,
+                    space = space,
+                    spaceRole = SpaceRole.USER
+                )
+            }
+        )
+
+        spaceRepository.save(space)
+        fcmService.sendMessageTo(
+            FCMEvent(
+                users = invitedUsers,
+                title = "새로운 스페이스에 초대되었습니다.",
+                body = "${user.userNickname}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
+                data = mapOf("spaceId" to space.spaceId.toString()),
+                android = null,
+                apns = null
+            )
+        )
+        return responseDtoManager.generateSpaceResponseShortDto(space)
+    }
 
     @Transactional(readOnly = false)
     fun createSpace(
@@ -40,7 +82,7 @@ class SpaceService(
         spaceRequestDto: SpaceRequestDto
     ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
-        val inviteUser = spaceRequestDto.spaceUsers.map {
+        val invitedUsers = spaceRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
         val space = Space.create(
@@ -49,21 +91,24 @@ class SpaceService(
                     .joinToString("/")
             } ?: defaultSpaceImageUrl,
             spaceName = spaceRequestDto.spaceName,
-            users = inviteUser.toMutableSet(),
+            users = invitedUsers.toMutableSet(),
             admin = user
         )
 
         spaceRepository.save(space)
-        applicationEventPublisher.publishEvent(
-            FCMEvent(
-                users = inviteUser,
-                title = "새로운 공간이 생성되었습니다.",
-                body = spaceRequestDto.spaceName,
-                data = mapOf("spaceId" to space.spaceId.toString()),
-                android = null,
-                apns = null
+        invitedUsers.isNotEmpty().takeIf { it }?.let {
+            fcmService.sendMessageTo(
+                FCMEvent(
+                    users = invitedUsers,
+                    title = "새로운 스페이스에 초대되었습니다.",
+                    body = "${user.userNickname}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
+                    data = mapOf("spaceId" to space.spaceId.toString()),
+                    android = null,
+                    apns = null
+                )
             )
-        )
+        }
+
         return responseDtoManager.generateSpaceResponseShortDto(space)
     }
 

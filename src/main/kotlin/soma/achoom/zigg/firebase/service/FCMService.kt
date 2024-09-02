@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.firebase.dto.FCMEvent
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
@@ -20,9 +21,8 @@ import soma.achoom.zigg.user.service.UserService
 @Service
 class FCMService(
     private val fcmRepository: FCMRepository,
-    private val userService: UserService
 ) {
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     fun sendMessageTo(fcmEvent: FCMEvent) {
         val tokens = fcmEvent.users.map {
             fcmRepository.findFCMTokenByUser(it)?.token ?: throw RuntimeException("Token not found")
@@ -48,16 +48,18 @@ class FCMService(
 
     }
 
-    fun registerToken(authentication: Authentication, token: FCMTokenRequestDto) {
-        val user = userService.authenticationToUser(authentication)
+    fun registerToken(user:User, token: FCMTokenRequestDto) {
         val fcmToken =
             fcmRepository.findFCMTokenByUser(user) ?: fcmRepository.save(FCMToken(user = user, token = token.token))
         fcmToken.token = token.token
         fcmRepository.save(fcmToken)
     }
 
-    private fun getAccessToken() {
+    fun unregisterToken(user: User) {
 
+        val fcmToken = fcmRepository.findFCMTokenByUser(user) ?: throw RuntimeException("Token not found")
+        fcmRepository.delete(fcmToken)
     }
+
 
 }
