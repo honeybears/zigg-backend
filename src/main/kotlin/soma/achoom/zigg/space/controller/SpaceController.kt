@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*
 import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
 import soma.achoom.zigg.s3.service.S3DataType
 import soma.achoom.zigg.s3.service.S3Service
+import soma.achoom.zigg.space.dto.InviteUsersRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
@@ -43,6 +44,11 @@ class SpaceController @Autowired constructor(
     @GetMapping("/{spaceId}")
     fun getSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<SpaceResponseDto> {
         val spaceResponseDto = spaceService.getSpace(authentication, spaceId)
+        return ResponseEntity.ok(spaceResponseDto)
+    }
+    @PostMapping("/{spaceId}/invites")
+    fun inviteUserToSpace(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody inviteUsersRequestDto: InviteUsersRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val spaceResponseDto = spaceService.inviteUserToSpace(authentication, spaceId, inviteUsersRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
 

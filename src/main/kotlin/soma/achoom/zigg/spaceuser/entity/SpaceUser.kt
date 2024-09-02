@@ -26,6 +26,12 @@ data class SpaceUser(
     @JsonBackReference
     var user: User,
 
+    var userNickname: String = user.userNickname!!,
+
+    var userName: String = user.userName!!,
+
+    var profileImageUrl: String = user.profileImageKey ?: "",
+
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     var spaceRole: SpaceRole?,
@@ -39,25 +45,10 @@ data class SpaceUser(
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,
-
-
-
     ) : BaseEntity() {
     @get:JsonInclude
     val userId: UUID
         get() = user.userId
-
-    @get:JsonInclude
-    val userName: String?
-        get() = user.userName
-
-    @get: JsonInclude
-    val userNickname: String?
-        get() = user.userNickname
-
-    @get : JsonInclude
-    val profileImageUrl: String
-        get() = user.profileImageKey?:""
 
     override fun hashCode(): Int {
         return Objects.hash(spaceUserId)
