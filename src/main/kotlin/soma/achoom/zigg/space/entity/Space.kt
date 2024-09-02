@@ -17,7 +17,7 @@ import java.util.UUID
 data class Space(
     @Id
     var spaceId: UUID = UUID.randomUUID(),
-    var spaceName: String?,
+    var spaceName: String,
     var spaceImageKey: String,
 
     var referenceVideoKey: String? = null,

@@ -12,7 +12,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+		languageVersion.set(JavaLanguageVersion.of(21))
 	}
 }
 
@@ -37,6 +37,7 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 	implementation("com.google.firebase:firebase-admin:9.2.0")
 	implementation("com.fasterxml.jackson.core:jackson-core:2.16.1")
+	implementation("jakarta.persistence:jakarta.persistence-api:3.1.0") // Use jakarta.persistence-api for JPA 3.x
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -51,7 +52,12 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	runtimeOnly("com.h2database:h2")
+
 	annotationProcessor("org.projectlombok:lombok")
+	annotationProcessor("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+
 	testImplementation("io.mockk:mockk:1.13.5")
 	implementation("mysql:mysql-connector-java:8.0.33")
 
