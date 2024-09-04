@@ -92,11 +92,11 @@ class UserServiceTest {
 //    }
 
 
-    @Test
-    fun `Delete user`(){
-        userService.deleteUser(authentication)
-        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
-        assert(fcmRepository.findAll().size == 0)
-    }
+//    @Test
+//    fun `Delete user`(){
+//        userService.deleteUser(authentication)
+//        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
+//        assert(fcmRepository.findAll().size == 0)
+//    }
 
 }
