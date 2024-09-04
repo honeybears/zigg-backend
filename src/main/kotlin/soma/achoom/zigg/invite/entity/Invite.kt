@@ -20,8 +20,13 @@ data class Invite(
     @JoinColumn(name = "user_user_id")
     val user: User,
 
+    @ManyToOne
+    val inviter:User,
+
     @Enumerated(EnumType.STRING)
-    var inviteStatus: InviteStatus = InviteStatus.WAITING
+    var inviteStatus: InviteStatus = InviteStatus.WAITING,
+
+    var isExpired: Boolean = false
 ) : BaseEntity() {
     override fun toString(): String {
         return "SpaceInvite(\n" +
