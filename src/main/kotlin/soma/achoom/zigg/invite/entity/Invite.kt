@@ -21,7 +21,6 @@ data class Invite(
     val user: User,
 
     @ManyToOne
-    @JoinColumn(name = "user_user_id")
     val inviter:User,
 
     @Enumerated(EnumType.STRING)
