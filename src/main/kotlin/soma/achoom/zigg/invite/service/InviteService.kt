@@ -32,7 +32,7 @@ class InviteService(
     }
 
     @Transactional(readOnly = false)
-    fun actionInvite(authentication: Authentication, inviteId: UUID, action: InviteActionRequestDto) {
+    fun actionInvite(authentication: Authentication, inviteId: UUID, action: InviteActionRequestDto){
         val user = userService.authenticationToUser(authentication)
         val invite = inviteRepository.findById(inviteId).orElseThrow { Exception("Invite not found") }
         if (invite.user.userId != user.userId) {
