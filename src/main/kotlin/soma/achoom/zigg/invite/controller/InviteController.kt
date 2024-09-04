@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
+import soma.achoom.zigg.invite.dto.InviteListResponseDto
 import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.service.InviteService
 import java.util.*
@@ -17,7 +18,7 @@ class InviteController(
     private val inviteService: InviteService
 ) {
     @GetMapping
-    fun getInvites(authentication: Authentication) : ResponseEntity<List<InviteResponseDto>> {
+    fun getInvites(authentication: Authentication) : ResponseEntity<InviteListResponseDto>{
         return ResponseEntity.ok(inviteService.getInvites(authentication))
     }
     @PostMapping("/{inviteId}")
