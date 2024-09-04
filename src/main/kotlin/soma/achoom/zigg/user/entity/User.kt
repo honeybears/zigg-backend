@@ -33,7 +33,10 @@ data class User(
     var jwtToken: String,
 
     @Column(name = "is_deleted")
-    var isDeleted: Boolean = false
+    var isDeleted: Boolean = false,
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var deviceTokens : MutableSet<FCMToken>
 
 ) : BaseEntity(){
     override fun equals(other: Any?): Boolean {
@@ -41,7 +44,8 @@ data class User(
 
     }
     override fun hashCode(): Int {
-        return Objects.hash(userId)
+        return Objects.hash(userId, userName, userNickname, role, profileImageKey, platform, providerId, jwtToken, isDeleted)
     }
+
 
 }

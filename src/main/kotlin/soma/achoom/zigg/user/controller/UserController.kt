@@ -16,7 +16,6 @@ import soma.achoom.zigg.auth.dto.OAuth2MetaDataRequestDto
 import soma.achoom.zigg.auth.dto.OAuth2UserRequestDto
 import soma.achoom.zigg.auth.service.AuthenticationService
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
-import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.user.dto.UserExistsResponseDto
 import soma.achoom.zigg.user.dto.UserRequestDto
 import soma.achoom.zigg.user.dto.UserResponseDto
@@ -68,8 +67,8 @@ class UserController @Autowired constructor(
         return ResponseEntity.ok().build()
     }
     @DeleteMapping("/logout")
-    fun logout(authentication: Authentication): ResponseEntity<Void> {
-        userService.logoutUser(authentication)
+    fun logout(authentication: Authentication, @RequestBody fcmTokenRequestDto: FCMTokenRequestDto): ResponseEntity<Void> {
+        userService.logoutUser(authentication,fcmTokenRequestDto)
         return ResponseEntity.ok().build()
     }
 }

@@ -1,4 +1,4 @@
-package soma.achoom.zigg.spaceuser.exception
+package soma.achoom.zigg.space.exception
 
 class AlreadyExistsSpaceUserException : RuntimeException() {
     override val message: String

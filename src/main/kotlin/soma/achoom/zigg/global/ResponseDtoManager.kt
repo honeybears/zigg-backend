@@ -5,11 +5,13 @@ import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
+import soma.achoom.zigg.invite.dto.InviteResponseDto
+import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.Space
-import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
-import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.space.dto.SpaceUserResponseDto
+import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
 
@@ -29,7 +31,7 @@ class ResponseDtoManager(
             createdAt = space.createAt,
             updatedAt = space.updateAt,
             history = space.histories.map { generateHistoryResponseDto(it) }.toMutableSet(),
-
+            invites = space.invites.map { generateInviteShortResponseDto(it) }.toMutableSet()
         )
     }
     fun generateSpaceResponseShortDto(space: Space): SpaceResponseDto{
@@ -43,7 +45,8 @@ class ResponseDtoManager(
             }.toMutableSet(),
             createdAt = space.createAt,
             updatedAt = space.updateAt,
-            history = space.histories.map { generateHistoryResponseShortDto(it) }.toMutableSet()
+            history = space.histories.map { generateHistoryResponseShortDto(it) }.toMutableSet(),
+            invites = space.invites.map { generateInviteShortResponseDto(it) }.toMutableSet()
         )
     }
     fun generateHistoryResponseShortDto(history: History) : HistoryResponseDto{
@@ -80,7 +83,7 @@ class ResponseDtoManager(
             recipientId = feedback.recipients.map { generateSpaceUserResponseDto(it.recipient) }.toMutableSet()
         )
     }
-    fun generateSpaceUserResponseDto(spaceUser: SpaceUser): SpaceUserResponseDto{
+    fun generateSpaceUserResponseDto(spaceUser: SpaceUser): SpaceUserResponseDto {
         return SpaceUserResponseDto(
             spaceUserId = spaceUser.spaceUserId,
             userName = spaceUser.userName,
@@ -96,6 +99,34 @@ class ResponseDtoManager(
             userNickname = user.userNickname,
             profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey)
         )
+    }
+    fun generateInviteResponseDto(invite: Invite): InviteResponseDto {
+        return InviteResponseDto(
+            inviteId = invite.inviteId!!,
+            invitedUser = generateUserResponseDto(invite.user),
+            inviter = generateUserResponseDto(invite.user),
+            space = SpaceResponseDto(
+                spaceId = invite.space.spaceId,
+                spaceName = invite.space.spaceName,
+                spaceImageUrl = s3Service.getPreSignedGetUrl(invite.space.spaceImageKey),
+                referenceVideoUrl = invite.space.referenceVideoUrl,
+                spaceUsers = invite.space.spaceUsers.map {
+                    generateSpaceUserResponseDto(it)
+                }.toMutableSet(),
+                createdAt = invite.space.createAt,
+                updatedAt = invite.space.updateAt,
+            ),
+            createdAt = invite.createAt!!,
+
+        )
+    }
+    fun generateInviteShortResponseDto(invite:Invite): InviteResponseDto{
+        return InviteResponseDto(
+            inviteId = invite.inviteId!!,
+            invitedUser = generateUserResponseDto(invite.user),
+            inviter = generateUserResponseDto(invite.user),
+            createdAt = invite.createAt!!,
+            )
     }
 
 }

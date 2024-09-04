@@ -2,7 +2,7 @@ package soma.achoom.zigg.space.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import soma.achoom.zigg.history.dto.HistoryResponseDto
-import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
+import soma.achoom.zigg.invite.dto.InviteResponseDto
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -16,7 +16,8 @@ data class SpaceResponseDto(
     val history: MutableSet<HistoryResponseDto>? = null,
     val referenceVideoUrl:String?,
     val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
+    val invites : MutableSet<InviteResponseDto>? = null
 ) {
     override fun toString(): String {
         return "SpaceResponseDto(\n" +
@@ -26,6 +27,7 @@ data class SpaceResponseDto(
                 "spaceUsers=${spaceUsers?.map { it.toString()}},\n" +
                 "history=${history?.map { it.toString() + "\n"}},\n" +
                 "referenceVideoUrl=$referenceVideoUrl,\n" +
+                "invites=${invites?.map { it.toString() + "\n"}},\n" +
                 "createdAt=$createdAt,\n" +
                 "updatedAt=$updatedAt\n" +
                 ")\n"
