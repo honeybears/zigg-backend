@@ -6,14 +6,15 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
 import soma.achoom.zigg.invite.dto.InviteListResponseDto
-import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.service.InviteService
 import java.util.*
 
-@RestController("/api/v0/invites")
+@RestController
+@RequestMapping("/api/v0/invites")
 class InviteController(
     private val inviteService: InviteService
 ) {

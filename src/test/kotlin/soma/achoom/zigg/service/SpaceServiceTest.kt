@@ -29,6 +29,7 @@ import soma.achoom.zigg.space.dto.SpaceUserRequestDto
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
+import java.util.*
 
 @SpringBootTest(classes = [TestConfig::class])
 @ActiveProfiles("test")
@@ -73,7 +74,7 @@ class SpaceServiceTest {
         val adminAuth = dummyDataUtil.createDummyAuthentication(admin)
         val spaceRequestDto = SpaceRequestDto(
             spaceName = "testSpace",
-            spaceImageUrl = TestConfig.SPACE_IMAGE_URL,
+            spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
                     userNickname = it.userNickname,

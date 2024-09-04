@@ -27,15 +27,16 @@ class InviteService(
     fun getInvites(authentication: Authentication): InviteListResponseDto {
         val user = userService.authenticationToUser(authentication)
         val invites = inviteRepository.findAllByUser(user)
-        return InviteListResponseDto( invites.map{
-            responseDtoManager.generateInviteResponseDto(it)
-        }.toList()
+        return InviteListResponseDto(
+            invites.map {
+                responseDtoManager.generateInviteResponseDto(it)
+            }.toList()
         )
 
     }
 
     @Transactional(readOnly = false)
-    fun actionInvite(authentication: Authentication, inviteId: UUID, action: InviteActionRequestDto){
+    fun actionInvite(authentication: Authentication, inviteId: UUID, action: InviteActionRequestDto) {
         val user = userService.authenticationToUser(authentication)
         val invite = inviteRepository.findById(inviteId).orElseThrow { Exception("Invite not found") }
         if (invite.user.userId != user.userId) {
