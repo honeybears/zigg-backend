@@ -1,13 +1,8 @@
 package soma.achoom.zigg.firebase.service
 
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.MulticastMessage
 import com.google.firebase.messaging.Notification
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -16,17 +11,18 @@ import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.firebase.repository.FCMRepository
 import soma.achoom.zigg.user.entity.User
-import soma.achoom.zigg.user.service.UserService
+import soma.achoom.zigg.user.repository.UserRepository
 
 @Service
 class FCMService(
     private val fcmRepository: FCMRepository,
+    private val userRepository: UserRepository,
 ) {
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     fun sendMessageTo(fcmEvent: FCMEvent) {
         val tokens = fcmEvent.users.map {
-            fcmRepository.findFCMTokenByUser(it)?.token ?: throw RuntimeException("Token not found")
-        }
+            it.deviceTokens.map { fcmToken -> fcmToken.token }
+        }.toMutableSet().flatten()
         runCatching {
             val multicastMessage = MulticastMessage.builder()
                 .setNotification(
@@ -40,7 +36,6 @@ class FCMService(
                 //.setApnsConfig(fcmEvent.apns)
                 //.setAndroidConfig(fcmEvent.android)
                 .build()
-
             FirebaseMessaging.getInstance().sendEachForMulticastAsync(multicastMessage)
         }.onFailure {
             throw RuntimeException("Failed to send message to FCM", it)
@@ -48,18 +43,23 @@ class FCMService(
 
     }
 
-    fun registerToken(user:User, token: FCMTokenRequestDto) {
-        val fcmToken =
-            fcmRepository.findFCMTokenByUser(user) ?: fcmRepository.save(FCMToken(user = user, token = token.token))
-        fcmToken.token = token.token
-        fcmRepository.save(fcmToken)
+    @Transactional(readOnly = false)
+    fun registerToken(user: User, token: FCMTokenRequestDto) {
+        user.deviceTokens.add(
+            FCMToken(
+                token = token.token,
+                user = user
+            )
+        )
+        userRepository.save(user)
     }
 
-    fun unregisterToken(user: User) {
-
-        val fcmToken = fcmRepository.findFCMTokenByUser(user) ?: throw RuntimeException("Token not found")
-        fcmRepository.delete(fcmToken)
+    @Transactional(readOnly = false)
+    fun unregisterToken(user: User, fcmToken: FCMTokenRequestDto) {
+        val destroyToken = fcmRepository.findFCMTokenByToken(fcmToken.token)
+            ?: throw RuntimeException("Token not found")
+        user.deviceTokens.remove(destroyToken)
+        userRepository.save(user)
     }
-
 
 }

@@ -16,9 +16,9 @@ import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
-import soma.achoom.zigg.spaceuser.repository.SpaceUserRepository
+import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.space.service.SpaceService
-import soma.achoom.zigg.spaceuser.exception.SpaceUserNotFoundInSpaceException
+import soma.achoom.zigg.space.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.user.service.UserService
 
 import java.util.UUID

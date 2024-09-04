@@ -1,24 +1,23 @@
 package soma.achoom.zigg.space.service
 
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.firebase.dto.FCMEvent
 import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.global.ResponseDtoManager
+import soma.achoom.zigg.invite.entity.InviteStatus
+import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.space.dto.InviteUsersRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
-import soma.achoom.zigg.space.entity.Space
+import soma.achoom.zigg.space.entity.*
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
-import soma.achoom.zigg.spaceuser.entity.SpaceRole
-import soma.achoom.zigg.spaceuser.entity.SpaceUser
-import soma.achoom.zigg.spaceuser.exception.LowSpacePermissionException
-import soma.achoom.zigg.spaceuser.exception.SpaceUserNotFoundInSpaceException
+import soma.achoom.zigg.space.exception.LowSpacePermissionException
+import soma.achoom.zigg.space.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.service.UserService
 import java.util.UUID
@@ -29,7 +28,6 @@ class SpaceService(
     private val spaceRepository: SpaceRepository,
     private val userService: UserService,
     private val responseDtoManager: ResponseDtoManager,
-    private val applicationEventPublisher: ApplicationEventPublisher,
     private val fcmService: FCMService
 ) {
     @Value("\${space.default.image.url}")
@@ -40,7 +38,7 @@ class SpaceService(
         authentication: Authentication,
         spaceId: UUID,
         inviteUsersRequestDto: InviteUsersRequestDto
-    ) : SpaceResponseDto {
+    ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val invitedUsers = inviteUsersRequestDto.spaceUsers.map {
@@ -52,12 +50,12 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.spaceUsers.addAll(
+        space.invites.addAll(
             invitedUsers.map {
-                SpaceUser(
+                Invite(
                     user = it,
                     space = space,
-                    spaceRole = SpaceRole.USER
+                    inviteStatus = InviteStatus.WAITING
                 )
             }
         )
@@ -85,16 +83,32 @@ class SpaceService(
         val invitedUsers = spaceRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
-        val space = Space.create(
-            spaceImageUrl = spaceRequestDto.spaceImageUrl?.let {
+        val space = Space(
+            spaceName = spaceRequestDto.spaceName,
+            spaceImageKey = spaceRequestDto.spaceImageUrl?.let {
                 it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
                     .joinToString("/")
             } ?: defaultSpaceImageUrl,
-            spaceName = spaceRequestDto.spaceName,
-            users = invitedUsers.toMutableSet(),
-            admin = user
+            spaceUsers = mutableSetOf(),
+            invites = mutableSetOf(),
         )
 
+        space.spaceUsers.add(
+            SpaceUser(
+                user = user,
+                space = space,
+                spaceRole = SpaceRole.ADMIN,
+            )
+        )
+        space.invites.addAll(
+            invitedUsers.map {
+                Invite(
+                    user = it,
+                    space = space,
+                    inviteStatus = InviteStatus.WAITING
+                )
+            }
+        )
         spaceRepository.save(space)
         invitedUsers.isNotEmpty().takeIf { it }?.let {
             fcmService.sendMessageTo(
@@ -115,7 +129,7 @@ class SpaceService(
     @Transactional(readOnly = true)
     fun getSpaces(authentication: Authentication): List<SpaceResponseDto> {
         val user = userService.authenticationToUser(authentication)
-        val spaceList = spaceRepository.findSpaceByUserAndAccepted(user)
+        val spaceList = spaceRepository.findSpacesByUser(user)
         return spaceList.map {
             responseDtoManager.generateSpaceResponseShortDto(it)
         }

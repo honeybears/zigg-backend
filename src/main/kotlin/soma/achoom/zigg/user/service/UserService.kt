@@ -8,7 +8,7 @@ import soma.achoom.zigg.auth.filter.CustomUserDetails
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.global.ResponseDtoManager
-import soma.achoom.zigg.spaceuser.repository.SpaceUserRepository
+import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.dto.UserRequestDto
 import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
@@ -76,19 +76,17 @@ class UserService(
             it.userName = "알 수 없음"
             spaceUserRepository.save(it)
         }
-        fcmService.unregisterToken(user)
         userRepository.delete(user)
     }
     @Transactional(readOnly = false)
-    fun logoutUser(authentication: Authentication) {
+    fun logoutUser(authentication: Authentication, token: FCMTokenRequestDto) {
         val user = authenticationToUser(authentication)
-        fcmService.unregisterToken(user)
-
+        fcmService.unregisterToken(user,token)
     }
     @Transactional(readOnly = false)
     fun registerToken(authentication: Authentication, token: FCMTokenRequestDto) {
         val user = authenticationToUser(authentication)
-        fcmService.registerToken(user, token)
+        fcmService.registerToken(user,token)
     }
 
 }
