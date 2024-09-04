@@ -2,10 +2,7 @@ package soma.achoom.zigg.feedback.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
-import soma.achoom.zigg.feedback.entity.Feedback
-import soma.achoom.zigg.feedback.entity.FeedbackRecipient
-import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
-import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.space.dto.SpaceUserResponseDto
 
 import java.util.UUID
 
@@ -19,5 +16,14 @@ data class FeedbackResponseDto(
     val creatorId: SpaceUserResponseDto?,
     val recipientId: MutableSet<SpaceUserResponseDto>?,
 ){
-
+    override fun toString(): String {
+        return "FeedbackResponseDto(" +
+                "feedbackId=$feedbackId, " +
+                "feedbackType=$feedbackType, " +
+                "feedbackTimeline=$feedbackTimeline, " +
+                "feedbackMessage=$feedbackMessage, " +
+                "creatorId=${creatorId?.toString()}, " +
+                "recipientId=${recipientId?.map { it.toString() }}" +
+                ")"
+    }
 }

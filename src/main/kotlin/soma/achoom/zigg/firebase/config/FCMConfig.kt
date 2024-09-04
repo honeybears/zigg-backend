@@ -31,4 +31,11 @@ class FCMConfig(
     fun firebaseApp(): FirebaseApp {
         return FirebaseApp.getInstance()
     }
+    @Bean
+    fun googleCredentials(): GoogleCredentials {
+        val keyFile = this.javaClass.classLoader.getResourceAsStream(keyFileName)
+            ?: throw IllegalArgumentException("Firebase key file not found: $keyFileName")
+
+        return GoogleCredentials.fromStream(keyFile)
+    }
 }

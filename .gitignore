@@ -41,3 +41,5 @@ out/
 
 *.sh
 /src/main/resources/**
+
+/src/test/resources/**
