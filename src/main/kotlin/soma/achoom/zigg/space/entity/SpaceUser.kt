@@ -1,12 +1,10 @@
-package soma.achoom.zigg.spaceuser.entity
+package soma.achoom.zigg.space.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.feedback.entity.FeedbackRecipient
-import soma.achoom.zigg.space.entity.Space
-import soma.achoom.zigg.spaceuser.dto.SpaceUserResponseDto
 import soma.achoom.zigg.user.entity.User
 import java.util.*
 
@@ -40,8 +38,6 @@ data class SpaceUser(
     @JsonBackReference
     var feedbackRecipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
-    @Enumerated(EnumType.STRING)
-    var inviteStatus: SpaceUserStatus = SpaceUserStatus.WAITING,
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,

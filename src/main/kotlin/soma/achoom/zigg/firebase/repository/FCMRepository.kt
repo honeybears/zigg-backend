@@ -7,5 +7,7 @@ import soma.achoom.zigg.user.entity.User
 
 interface FCMRepository : JpaRepository<FCMToken, Long> {
     fun findByToken(token: String): FCMToken?
+    fun findFCMTokenByUserAndToken(user: User, token: String): FCMToken?
     fun findFCMTokenByUser(user: User): FCMToken?
+    fun findFCMTokenByToken(token: String): FCMToken?
 }

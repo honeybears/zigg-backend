@@ -1,10 +1,9 @@
-package soma.achoom.zigg.spaceuser.repository
+package soma.achoom.zigg.space.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import soma.achoom.zigg.space.entity.Space
-import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.user.entity.User
 import java.util.UUID
 

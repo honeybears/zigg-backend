@@ -1,5 +1,6 @@
 package soma.achoom.zigg.service
 
+import io.mockk.InternalPlatformDsl.toArray
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -9,7 +10,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import org.mockito.Mockito
-import org.springframework.context.annotation.DependsOn
 import soma.achoom.zigg.TestConfig
 import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_KEY
 import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_THUMBNAIL_KEY
@@ -24,17 +24,13 @@ import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
-import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.space.service.SpaceService
-import soma.achoom.zigg.spaceuser.dto.SpaceUserRequestDto
-import soma.achoom.zigg.spaceuser.entity.SpaceRole
+import soma.achoom.zigg.space.dto.SpaceUserRequestDto
+import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
-import soma.achoom.zigg.user.service.UserService
-import kotlin.test.assertNull
 
-@SpringBootTest
-@Import(TestConfig::class)
+@SpringBootTest(classes = [TestConfig::class])
 @ActiveProfiles("test")
 @Transactional
 class SpaceServiceTest {
@@ -51,15 +47,12 @@ class SpaceServiceTest {
     @Autowired
     private lateinit var dummyDataUtil: DummyDataUtil
 
-    @Autowired
-    private lateinit var responseDtoManager: ResponseDtoManager
 
     lateinit var admin: User
-    lateinit var userList: List<User>
+    val userList: MutableSet<User> = mutableSetOf()
 
     @BeforeEach
     fun setup() {
-        responseDtoManager = ResponseDtoManager(s3Service)
 
         // Mocking S3Service behavior
         Mockito.`when`(s3Service.getPreSignedGetUrl(SPACE_IMAGE_KEY)).thenReturn(SPACE_IMAGE_URL)
@@ -67,7 +60,9 @@ class SpaceServiceTest {
         Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_KEY)).thenReturn(HISTORY_VIDEO_URL)
         Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_THUMBNAIL_KEY)).thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
         admin = dummyDataUtil.createDummyUser()
-        userList = dummyDataUtil.createDummyUserList(10)
+        for (i in 0 until 10){
+            userList.add( dummyDataUtil.createDummyUserWithMultiFCMToken(3))
+        }
         userRepository.saveAll(userList)
         userRepository.save(admin)
     }
@@ -100,7 +95,7 @@ class SpaceServiceTest {
         val adminAuth = dummyDataUtil.createDummyAuthentication(admin)
         val spaceRequestDto = SpaceRequestDto(
             spaceName = "testSpace",
-            spaceImageUrl = TestConfig.SPACE_IMAGE_URL,
+            spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
                     userNickname = it.userNickname,
@@ -113,7 +108,7 @@ class SpaceServiceTest {
         val response = spaceService.createSpace(adminAuth, spaceRequestDto)
         val updateSpaceRequestDto = SpaceRequestDto(
             spaceName = "updateSpace",
-            spaceImageUrl = TestConfig.SPACE_IMAGE_URL,
+            spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
                     userNickname = it.userNickname,
