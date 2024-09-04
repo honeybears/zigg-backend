@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
+import soma.achoom.zigg.invite.dto.InviteListResponseDto
 import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.repository.InviteRepository
@@ -23,12 +24,14 @@ class InviteService(
 
     ) {
     @Transactional(readOnly = true)
-    fun getInvites(authentication: Authentication): List<InviteResponseDto> {
+    fun getInvites(authentication: Authentication): InviteListResponseDto {
         val user = userService.authenticationToUser(authentication)
         val invites = inviteRepository.findAllByUser(user)
-        return invites.map{
+        return InviteListResponseDto( invites.map{
             responseDtoManager.generateInviteResponseDto(it)
         }.toList()
+        )
+
     }
 
     @Transactional(readOnly = false)
