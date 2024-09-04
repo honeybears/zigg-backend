@@ -25,6 +25,7 @@ import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_KEY
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
+import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.user.entity.User
 import java.nio.charset.Charset
@@ -38,8 +39,6 @@ class DummyDataUtil {
 
     private val key by lazy { Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)) }
 
-
-
     fun createDummyUser(): User {
         val user = User(
             userId = UUID.randomUUID(),
@@ -48,8 +47,23 @@ class DummyDataUtil {
             profileImageKey = PROFILE_IMAGE_KEY,
             jwtToken = "",
             providerId = UUID.randomUUID().toString(),
-            platform = OAuthProviderEnum.TEST
+            platform = OAuthProviderEnum.TEST,
+            deviceTokens = mutableSetOf(),
         )
+        return user
+    }
+
+    fun createDummyUserWithMultiFCMToken(size: Int): User {
+        val user = createDummyUser()
+        user.deviceTokens = mutableSetOf()
+        for (i in 0 until size) {
+            user.deviceTokens.add(
+                FCMToken(
+                    token = UUID.randomUUID().toString(),
+                    user = user
+                )
+            )
+        }
         return user
     }
 
@@ -79,13 +93,6 @@ class DummyDataUtil {
         return users.map {
             createDummyAuthentication(it)
         }
-    }
-
-    fun setupMockS3Service(s3Service: S3Service) {
-        Mockito.`when`(s3Service.getPreSignedGetUrl(SPACE_IMAGE_KEY)).thenReturn(SPACE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(PROFILE_IMAGE_KEY)).thenReturn(PROFILE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_KEY)).thenReturn(HISTORY_VIDEO_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_THUMBNAIL_KEY)).thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
     }
 
     private fun createTestJwt(user: User): String {

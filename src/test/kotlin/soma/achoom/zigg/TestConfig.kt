@@ -1,33 +1,34 @@
 package soma.achoom.zigg
 
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Order
-import org.mockito.Mockito
+
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
-import soma.achoom.zigg.firebase.config.FCMConfig
 import soma.achoom.zigg.firebase.service.FCMService
+
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.s3.service.S3Service
-import kotlin.test.BeforeTest
+import soma.achoom.zigg.space.repository.SpaceUserRepository
+import soma.achoom.zigg.user.repository.UserRepository
+import soma.achoom.zigg.user.service.UserService
+
 
 @TestConfiguration
 class TestConfig {
-
     @MockBean
-    lateinit var s3Service: S3Service
+    private lateinit var s3Service: S3Service
 
-    @MockBean
-    lateinit var fcmService: FCMService
+    @Autowired
+    private lateinit var spaceUserRepository: SpaceUserRepository
 
-    @MockBean
-    lateinit var fcmConfig: FCMConfig
 
-    lateinit var responseDtoManager: ResponseDtoManager
+    @Autowired
+    private lateinit var userRepository: UserRepository
 
     @Bean
-    fun responseDtoManager(s3Service: S3Service): ResponseDtoManager {
+    fun responseDtoManager(): ResponseDtoManager {
         return ResponseDtoManager(s3Service)
     }
 

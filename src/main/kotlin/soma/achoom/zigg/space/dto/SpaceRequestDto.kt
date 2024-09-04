@@ -1,6 +1,5 @@
 package soma.achoom.zigg.space.dto
 
-import soma.achoom.zigg.spaceuser.dto.SpaceUserRequestDto
 import java.util.UUID
 
 data class SpaceRequestDto(
