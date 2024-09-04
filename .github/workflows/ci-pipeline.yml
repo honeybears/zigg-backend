@@ -7,12 +7,13 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: zigg_application
+
   # DEV
   ECS_SERVICE_DEV: zigg-spring-ecs-dev
   ECS_CLUSTER_DEV: zigg-backend-infra-dev
   ECS_TASK_DEFINITION_DEV: .aws/task-definition-dev.json
   CONTAINER_NAME_DEV: zigg-service
+  ECR_REPOSITORY_DEV: zigg_application
   # PROD
   ECR_REPOSITORY_PROD: zigg-service-prod
   ECS_SERVICE_PROD: zigg-spring-ecs-prod
@@ -75,12 +76,12 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" = "dev" ]; then
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f dev.Dockerfile .
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY_DEV:$IMAGE_TAG
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_DEV:$IMAGE_TAG" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref_name }}" = "main" ]; then
-            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f prod.Dockerfile .
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_PROD:$IMAGE_TAG -f prod.Dockerfile .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY_PROD:$IMAGE_TAG
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_PROD:$IMAGE_TAG" >> $GITHUB_OUTPUT
           fi
 
       - name: Fill in the new image ID in the Amazon ECS task definition
