@@ -6,10 +6,7 @@ import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 
 import soma.achoom.zigg.history.entity.History
-import soma.achoom.zigg.spaceuser.entity.SpaceRole
-import soma.achoom.zigg.spaceuser.entity.SpaceUser
-import soma.achoom.zigg.spaceuser.entity.SpaceUserStatus
-import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.invite.entity.Invite
 import java.util.UUID
 
 @Entity
@@ -17,7 +14,7 @@ import java.util.UUID
 data class Space(
     @Id
     var spaceId: UUID = UUID.randomUUID(),
-    var spaceName: String?,
+    var spaceName: String,
     var spaceImageKey: String,
 
     var referenceVideoKey: String? = null,
@@ -30,36 +27,20 @@ data class Space(
     @OneToMany(mappedBy = "space",cascade = [CascadeType.ALL], orphanRemoval = true) // history 엔티티와의 관계 설정
     var histories: MutableSet<History> = mutableSetOf(),
 
-    @Column(name = "is_deleted")
-    var isDeleted: Boolean = false
+    @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var invites: MutableSet<Invite> = mutableSetOf(),
 
 
-) : BaseEntity() {
-    companion object{
-        fun create(spaceName:String, spaceImageUrl: String, users:MutableSet<User>, admin: User): soma.achoom.zigg.space.entity.Space {
-            val space = Space(
-                spaceName = spaceName,
-                spaceImageKey = spaceImageUrl,
-            )
-            space.spaceUsers.add(
-                SpaceUser(
-                    space = space,
-                    user = admin,
-                    inviteStatus = SpaceUserStatus.ACCEPTED,
-                    spaceRole = SpaceRole.ADMIN
-                )
-            )
-            users.forEach {
-                space.spaceUsers.add(
-                    SpaceUser(
-                        space = space,
-                        user = it,
-                        inviteStatus = SpaceUserStatus.ACCEPTED,
-                        spaceRole = SpaceRole.USER
-                    )
-                )
-            }
-            return space
-        }
+    ) : BaseEntity() {
+
+    override fun hashCode(): Int {
+        return spaceId.hashCode()+spaceName.hashCode()+spaceImageKey.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val space = other as Space
+        return spaceId == space.spaceId && spaceName == space.spaceName && spaceImageKey == space.spaceImageKey
     }
 }

@@ -7,7 +7,8 @@ import soma.achoom.zigg.global.annotation.AuthenticationValidate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import soma.achoom.zigg.global.ResponseDtoGenerator
+import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
@@ -16,8 +17,8 @@ import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
-import soma.achoom.zigg.spaceuser.entity.SpaceRole
-import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.space.entity.SpaceRole
+import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.user.repository.UserRepository
 import soma.achoom.zigg.user.service.UserService
 import java.util.UUID
@@ -28,10 +29,11 @@ class HistoryService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
     private val userService: UserService,
     private val userRepository: UserRepository,
-    private val responseDtoGenerator: ResponseDtoGenerator,
+    private val responseDtoManager: ResponseDtoManager,
 ) {
 
     @AuthenticationValidate
+    @Transactional(readOnly = false)
     fun createHistory(
         authentication: Authentication,
         spaceId: UUID,
@@ -52,28 +54,29 @@ class HistoryService @Autowired constructor(
         )
 
         historyRepository.save(history)
-        return responseDtoGenerator.generateHistoryResponseShortDto(history)
+        return responseDtoManager.generateHistoryResponseShortDto(history)
     }
-
+    @AuthenticationValidate
+    @Transactional(readOnly = true)
     fun getHistories(authentication: Authentication, spaceId: UUID): List<HistoryResponseDto> {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         val histories = historyRepository.findHistoriesBySpace(space)
         return histories.filter { !it.isDeleted }.map {
-            responseDtoGenerator.generateHistoryResponseShortDto(it)
+            responseDtoManager.generateHistoryResponseShortDto(it)
         }.toList()
     }
-
+    @Transactional(readOnly = true)
     fun getHistory(authentication: Authentication, spaceId: UUID, historyId: UUID): HistoryResponseDto {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw SpaceNotFoundException()
-        return responseDtoGenerator.generateHistoryResponseDto(history)
+        return responseDtoManager.generateHistoryResponseDto(history)
     }
-
+    @Transactional(readOnly = false)
     fun updateHistory(
         authentication: Authentication,
         spaceId: UUID,
@@ -88,9 +91,9 @@ class HistoryService @Autowired constructor(
 
         history.historyName = historyRequestDto.historyName
         historyRepository.save(history)
-        return responseDtoGenerator.generateHistoryResponseDto(history)
+        return responseDtoManager.generateHistoryResponseDto(history)
     }
-
+    @Transactional(readOnly = false)
     fun inviteUserInSpace(authentication: Authentication, spaceId: UUID, userId: List<UUID>): SpaceResponseDto {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -107,9 +110,9 @@ class HistoryService @Autowired constructor(
             space.spaceUsers.add(spaceUser)
         }
         spaceRepository.save(space)
-        return responseDtoGenerator.generateSpaceResponseShortDto(space)
+        return responseDtoManager.generateSpaceResponseShortDto(space)
     }
-
+    @Transactional(readOnly = false)
     fun deleteHistory(authentication: Authentication, spaceId: UUID, historyId: UUID) {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)

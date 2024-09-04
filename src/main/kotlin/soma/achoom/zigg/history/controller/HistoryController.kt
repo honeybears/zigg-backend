@@ -29,16 +29,17 @@ class HistoryController @Autowired constructor(
 ) {
     @PostMapping("/pre-signed-url/{value}")
     fun getPreSignedUrl(@RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto,@PathVariable value:String) : ResponseEntity<String> {
-        if (value == "video"){
+        if (value.trim() == "video"){
             val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_VIDEO,UUID.randomUUID(), uploadContentTypeRequestDto)
             return ResponseEntity.ok(preSignedUrl)
 
         }
-        if (value == "thumbnail"){
+        else if (value.trim() == "thumbnail"){
             val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_THUMBNAIL,UUID.randomUUID(), uploadContentTypeRequestDto)
             return ResponseEntity.ok(preSignedUrl)
         }
-        return ResponseEntity.badRequest().build()
+        else
+            return ResponseEntity.badRequest().build()
     }
 
 
