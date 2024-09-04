@@ -19,7 +19,7 @@ env:
   ECS_SERVICE_PROD: zigg-spring-ecs-prod
   ECS_CLUSTER_PROD: zigg-backend-infra-prod
   ECS_TASK_DEFINITION_PROD: .aws/task-definition-prod.json
-  CONTAINER_NAME_PROD: zigg-service
+  CONTAINER_NAME_PROD: zigg-service-prod
 
 jobs:
   CI-CD:
