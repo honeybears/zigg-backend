@@ -28,7 +28,9 @@ class InviteService(
         val user = userService.authenticationToUser(authentication)
         val invites = inviteRepository.findAllByUser(user)
         return InviteListResponseDto(
-            invites.map {
+            invites.filter{
+                it.isExpired.not()
+            }.map {
                 responseDtoManager.generateInviteResponseDto(it)
             }.toList()
         )
@@ -58,6 +60,7 @@ class InviteService(
                 invite.inviteStatus = InviteStatus.DENIED
             }
         }
+        invite.isExpired = true
         inviteRepository.save(invite)
         spaceRepository.save(space)
     }

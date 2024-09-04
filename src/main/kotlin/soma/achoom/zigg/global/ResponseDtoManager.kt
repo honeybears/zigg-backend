@@ -104,7 +104,7 @@ class ResponseDtoManager(
         return InviteResponseDto(
             inviteId = invite.inviteId,
             invitedUser = generateUserResponseDto(invite.user),
-            inviter = generateUserResponseDto(invite.user),
+            inviter = generateUserResponseDto(invite.inviter),
             space = SpaceResponseDto(
                 spaceId = invite.space.spaceId,
                 spaceName = invite.space.spaceName,
@@ -124,7 +124,7 @@ class ResponseDtoManager(
         return InviteResponseDto(
             inviteId = invite.inviteId,
             invitedUser = generateUserResponseDto(invite.user),
-            inviter = generateUserResponseDto(invite.user),
+            inviter = generateUserResponseDto(invite.inviter),
             createdAt = invite.createAt!!,
             )
     }

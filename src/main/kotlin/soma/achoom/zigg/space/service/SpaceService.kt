@@ -55,6 +55,7 @@ class SpaceService(
                 Invite(
                     user = it,
                     space = space,
+                    inviter = user,
                     inviteStatus = InviteStatus.WAITING
                 )
             }
@@ -105,6 +106,7 @@ class SpaceService(
                 Invite(
                     user = it,
                     space = space,
+                    inviter = user,
                     inviteStatus = InviteStatus.WAITING
                 )
             }
