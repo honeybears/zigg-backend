@@ -153,7 +153,8 @@ class AuthenticationService @Autowired constructor(
             platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
             jwtToken = "",
             profileImageKey = defaultProfileImages.random(),
-            deviceTokens = mutableSetOf()
+            deviceTokens = mutableSetOf(),
+            spaces = mutableSetOf()
         )
 
         return userRepository.save(user)

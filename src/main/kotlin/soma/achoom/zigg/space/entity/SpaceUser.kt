@@ -22,13 +22,13 @@ data class SpaceUser(
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
-    var user: User,
+    var user: User?,
 
-    var userNickname: String = user.userNickname!!,
+    var userNickname: String = user?.userNickname!!,
 
-    var userName: String = user.userName!!,
+    var userName: String = user?.userName!!,
 
-    var profileImageUrl: String = user.profileImageKey ?: "",
+    var profileImageUrl: String = user?.profileImageKey ?: "",
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
@@ -43,8 +43,8 @@ data class SpaceUser(
     var isDeleted: Boolean = false,
     ) : BaseEntity() {
     @get:JsonInclude
-    val userId: UUID
-        get() = user.userId
+    val userId: UUID?
+        get() = user?.userId
 
     override fun hashCode(): Int {
         return Objects.hash(spaceUserId)
