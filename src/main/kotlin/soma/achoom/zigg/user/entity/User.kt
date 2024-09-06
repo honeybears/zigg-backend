@@ -43,6 +43,7 @@ data class User(
     var spaces : MutableSet<SpaceUser>
 
 ) : BaseEntity(){
+
     override fun equals(other: Any?): Boolean {
         return providerId == (other as User).providerId
 
@@ -51,5 +52,8 @@ data class User(
         return Objects.hash(userId, userName, userNickname, role, profileImageKey, platform, providerId, jwtToken, isDeleted)
     }
 
+    override fun toString(): String {
+        return "User(userId=$userId, userName=$userName, userNickname=$userNickname, role=$role, profileImageKey='$profileImageKey', platform=$platform, providerId='$providerId', jwt token='$jwtToken', isDeleted=$isDeleted)"
+    }
 
 }
