@@ -32,7 +32,6 @@ import java.util.UUID
 import kotlin.test.Test
 
 @SpringBootTest(classes = [TestConfig::class])
-@Import(TestConfig::class)
 @ActiveProfiles("test")
 @Transactional
 class UserServiceTest {
@@ -44,6 +43,7 @@ class UserServiceTest {
 
     @Autowired
     private lateinit var userService: UserService
+
     @Autowired
     private lateinit var dummyDataUtil: DummyDataUtil
     private lateinit var userWithFCM : User
@@ -65,38 +65,38 @@ class UserServiceTest {
         authentication = dummyDataUtil.createDummyAuthentication(userWithFCM)
         userRepository.save(userWithFCM)
     }
-//    @Test
-//    fun `Multi fcm token user` (){
-//        userService.registerToken(authentication, FCMTokenRequestDto(UUID.randomUUID().toString()))
-//        println(userWithFCM.deviceTokens.size)
-//        assert(userWithFCM.deviceTokens.size == 4)
-//    }
-//
-//    @Test
-//    fun `Logout user`() {
-//        val fcmToken = userWithFCM.deviceTokens.first()
-//        println("Delete token: ${fcmToken.token}")
-//
-//        // Logout 호출
-//        userService.logoutUser(authentication, FCMTokenRequestDto(fcmToken.token))
-//
-//        // 로그아웃 후 User 엔티티를 다시 로드합니다.
-//        fcmRepository.findAll().forEach {
-//            println("Token: ${it.token}")
-//        }
-//        // Repository에서 다시 가져온 후의 상태를 확인합니다.
-//        println("After logout: ${userWithFCM.deviceTokens.size}")
-//
-//        // 업데이트된 User의 상태를 확인합니다.
-//        assert(userWithFCM.deviceTokens.size == 2)
-//    }
+    @Test
+    fun `Multi fcm token user` (){
+        userService.registerToken(authentication, FCMTokenRequestDto(UUID.randomUUID().toString()))
+        println(userWithFCM.deviceTokens.size)
+        assert(userWithFCM.deviceTokens.size == 4)
+    }
+
+    @Test
+    fun `Logout user`() {
+        val fcmToken = userWithFCM.deviceTokens.first()
+        println("Delete token: ${fcmToken.token}")
+
+        // Logout 호출
+        userService.logoutUser(authentication, FCMTokenRequestDto(fcmToken.token))
+
+        // 로그아웃 후 User 엔티티를 다시 로드합니다.
+        fcmRepository.findAll().forEach {
+            println("Token: ${it.token}")
+        }
+        // Repository에서 다시 가져온 후의 상태를 확인합니다.
+        println("After logout: ${userWithFCM.deviceTokens.size}")
+
+        // 업데이트된 User의 상태를 확인합니다.
+        assert(userWithFCM.deviceTokens.size == 2)
+    }
 
 
-//    @Test
-//    fun `Delete user`(){
-//        userService.deleteUser(authentication)
-//        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
-//        assert(fcmRepository.findAll().size == 0)
-//    }
+    @Test
+    fun `Delete user`(){
+        userService.deleteUser(authentication)
+        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
+        assert(fcmRepository.findAll().size == 0)
+    }
 
 }
