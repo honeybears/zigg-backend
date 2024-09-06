@@ -8,6 +8,8 @@ import soma.achoom.zigg.invite.dto.InviteActionRequestDto
 import soma.achoom.zigg.invite.dto.InviteListResponseDto
 import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.entity.InviteStatus
+import soma.achoom.zigg.invite.exception.InviteNotFoundException
+import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
 import soma.achoom.zigg.invite.repository.InviteRepository
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
@@ -40,10 +42,16 @@ class InviteService(
     @Transactional(readOnly = false)
     fun actionInvite(authentication: Authentication, inviteId: UUID, action: InviteActionRequestDto) {
         val user = userService.authenticationToUser(authentication)
-        val invite = inviteRepository.findById(inviteId).orElseThrow { Exception("Invite not found") }
+        val invite = inviteRepository.findById(inviteId).orElseThrow { InviteNotFoundException() }
+
         if (invite.user.userId != user.userId) {
-            throw Exception("You are not the invitee")
+            throw InvitedUserMissMatchException()
         }
+        if (invite.isExpired) {
+            throw InviteNotFoundException()
+        }
+
+
         val space = invite.space
         when (action.accept) {
             true -> {
