@@ -49,6 +49,7 @@ class DummyDataUtil {
             providerId = UUID.randomUUID().toString(),
             platform = OAuthProviderEnum.TEST,
             deviceTokens = mutableSetOf(),
+            spaces = mutableSetOf()
         )
         return user
     }
