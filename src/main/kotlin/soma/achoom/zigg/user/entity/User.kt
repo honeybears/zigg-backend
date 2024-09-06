@@ -5,6 +5,7 @@ import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.firebase.entity.FCMToken
+import soma.achoom.zigg.space.entity.SpaceUser
 import java.util.*
 
 
@@ -36,7 +37,10 @@ data class User(
     var isDeleted: Boolean = false,
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var deviceTokens : MutableSet<FCMToken>
+    var deviceTokens : MutableSet<FCMToken>,
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var spaces : MutableSet<SpaceUser>
 
 ) : BaseEntity(){
     override fun equals(other: Any?): Boolean {

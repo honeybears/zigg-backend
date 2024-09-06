@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.firebase.dto.FCMEvent
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.entity.FCMToken
+import soma.achoom.zigg.firebase.exception.FCMMessagingFailException
 import soma.achoom.zigg.firebase.repository.FCMRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
@@ -23,7 +24,8 @@ class FCMService(
         val tokens = fcmEvent.users.map {
             it.deviceTokens.map { fcmToken -> fcmToken.token }
         }.toMutableSet().flatten()
-        runCatching {
+
+        if (tokens.isNotEmpty()) {
             val multicastMessage = MulticastMessage.builder()
                 .setNotification(
                     Notification.builder()
@@ -35,12 +37,9 @@ class FCMService(
                 //.putAllData(fcmEvent.data)
                 //.setApnsConfig(fcmEvent.apns)
                 //.setAndroidConfig(fcmEvent.android)
-                .build()
+                .build() ?: throw FCMMessagingFailException()
             FirebaseMessaging.getInstance().sendEachForMulticastAsync(multicastMessage)
-        }.onFailure {
-            throw RuntimeException("Failed to send message to FCM", it)
         }
-
     }
 
     @Transactional(readOnly = false)
