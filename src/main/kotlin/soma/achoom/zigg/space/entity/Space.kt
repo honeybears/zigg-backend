@@ -16,9 +16,7 @@ data class Space(
     var spaceId: UUID = UUID.randomUUID(),
     var spaceName: String,
     var spaceImageKey: String,
-
     var referenceVideoKey: String? = null,
-
     var referenceVideoUrl: String? = null,
 
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
