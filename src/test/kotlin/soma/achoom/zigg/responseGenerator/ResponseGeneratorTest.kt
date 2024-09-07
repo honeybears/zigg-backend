@@ -49,7 +49,8 @@ class ResponseDtoManagerTest {
             providerId = "1234",
             platform = OAuthProviderEnum.TEST,
             deviceTokens = mutableSetOf(),
-            spaces = mutableSetOf()
+            spaces = mutableSetOf(),
+            invites = mutableSetOf(),
         )
 
         val spaceUser = SpaceUser(
