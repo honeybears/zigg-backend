@@ -103,7 +103,7 @@ class ResponseDtoManager(
     fun generateInviteResponseDto(invite: Invite): InviteResponseDto {
         return InviteResponseDto(
             inviteId = invite.inviteId,
-            invitedUser = generateUserResponseDto(invite.user),
+            invitedUser = generateUserResponseDto(invite.invitee),
             inviter = generateUserResponseDto(invite.inviter),
             space = SpaceResponseDto(
                 spaceId = invite.space.spaceId,
@@ -123,7 +123,7 @@ class ResponseDtoManager(
     fun generateInviteShortResponseDto(invite:Invite): InviteResponseDto{
         return InviteResponseDto(
             inviteId = invite.inviteId,
-            invitedUser = generateUserResponseDto(invite.user),
+            invitedUser = generateUserResponseDto(invite.invitee),
             inviter = generateUserResponseDto(invite.inviter),
             createdAt = invite.createAt!!,
             )

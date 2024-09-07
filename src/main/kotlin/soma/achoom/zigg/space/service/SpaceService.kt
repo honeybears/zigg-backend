@@ -53,7 +53,7 @@ class SpaceService(
         space.invites.addAll(
             invitedUsers.map {
                 Invite(
-                    user = it,
+                    invitee = it,
                     space = space,
                     inviter = user,
                     inviteStatus = InviteStatus.WAITING
@@ -104,7 +104,7 @@ class SpaceService(
         space.invites.addAll(
             invitedUsers.map {
                 Invite(
-                    user = it,
+                    invitee = it,
                     space = space,
                     inviter = user,
                     inviteStatus = InviteStatus.WAITING

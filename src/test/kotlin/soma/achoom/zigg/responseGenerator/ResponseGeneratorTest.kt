@@ -51,6 +51,7 @@ class ResponseDtoManagerTest {
             deviceTokens = mutableSetOf(),
             spaces = mutableSetOf(),
             invites = mutableSetOf(),
+            invited = mutableSetOf()
         )
 
         val spaceUser = SpaceUser(
