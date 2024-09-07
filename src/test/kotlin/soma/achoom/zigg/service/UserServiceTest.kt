@@ -89,11 +89,11 @@ class UserServiceTest {
 
     @Test
     fun `Delete user without spaceUser`(){
-//        val space = dummyDataUtil.createDummySpace()
-//        spaceRepository.save(space)
-//        val spaceUser = dummyDataUtil.createDummySpaceUser(space, userWithFCM)
-//        userWithFCM.spaces.add(spaceUser)
-//        userWithFCM = userRepository.save(userWithFCM)
+        val space = dummyDataUtil.createDummySpace()
+        spaceRepository.save(space)
+        val spaceUser = dummyDataUtil.createDummySpaceUser(space, userWithFCM)
+        userWithFCM.spaces.add(spaceUser)
+        userWithFCM = userRepository.save(userWithFCM)
 
         userService.deleteUser(authentication)
         assert(userRepository.findUserByUserId(userWithFCM.userId) == null)

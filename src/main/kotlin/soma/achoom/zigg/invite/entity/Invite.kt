@@ -13,14 +13,15 @@ data class Invite(
     val inviteId: UUID = UUID.randomUUID(),
 
     @ManyToOne
-    @JoinColumn(name = "space_space_id")
+    @JoinColumn(name = "space")
     val space: Space,
 
     @ManyToOne
-    @JoinColumn(name = "user_user_id")
-    val user: User,
+    @JoinColumn(name = "invitee")
+    val invitee: User,
 
     @ManyToOne
+    @JoinColumn(name = "inviter")
     val inviter:User,
 
     @Enumerated(EnumType.STRING)
@@ -32,19 +33,19 @@ data class Invite(
         return "SpaceInvite(\n" +
                 "id=$inviteId,\n" +
                 "space=$space,\n" +
-                "user=$user\n" +
+                "user=$invitee\n" +
                 "inviteStatus=${inviteStatus.name}\n" +
                 ")\n"
     }
 
     override fun hashCode(): Int {
-        return inviteId.hashCode() + space.hashCode() + user.hashCode() + inviteStatus.hashCode()
+        return inviteId.hashCode() + space.hashCode() + invitee.hashCode() + inviteStatus.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
         val invite = other as Invite
-        return inviteId == invite.inviteId && space == invite.space && user == invite.user && inviteStatus == invite.inviteStatus
+        return inviteId == invite.inviteId && space == invite.space && invitee == invite.invitee && inviteStatus == invite.inviteStatus
     }
 }

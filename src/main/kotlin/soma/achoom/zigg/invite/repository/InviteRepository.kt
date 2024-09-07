@@ -6,5 +6,5 @@ import soma.achoom.zigg.user.entity.User
 import java.util.UUID
 
 interface InviteRepository : JpaRepository<Invite,UUID>{
-    fun findAllByUser(user:User):List<Invite>
+    fun findAllByInvitee(user:User):List<Invite>
 }
