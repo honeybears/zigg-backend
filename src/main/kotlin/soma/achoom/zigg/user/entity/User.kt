@@ -5,6 +5,7 @@ import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.firebase.entity.FCMToken
+import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.space.entity.SpaceUser
 import java.util.*
 
@@ -40,7 +41,10 @@ data class User(
     var deviceTokens : MutableSet<FCMToken>,
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var spaces : MutableSet<SpaceUser>
+    var spaces : MutableSet<SpaceUser>,
+
+    @OneToMany(mappedBy = "inviter", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var invites : MutableSet<Invite>
 
 ) : BaseEntity(){
 
