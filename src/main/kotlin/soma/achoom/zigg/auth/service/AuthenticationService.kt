@@ -154,7 +154,8 @@ class AuthenticationService @Autowired constructor(
             jwtToken = "",
             profileImageKey = defaultProfileImages.random(),
             deviceTokens = mutableSetOf(),
-            spaces = mutableSetOf()
+            spaces = mutableSetOf(),
+            invites = mutableSetOf()
         )
 
         return userRepository.save(user)
