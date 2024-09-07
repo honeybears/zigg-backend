@@ -1,11 +1,9 @@
 package soma.achoom.zigg.data
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -13,25 +11,18 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
-import org.springframework.test.context.ActiveProfiles
 import soma.achoom.zigg.TestConfig
-import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_KEY
-import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_THUMBNAIL_KEY
-import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_THUMBNAIL_URL
 import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_URL
 import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_KEY
-import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_URL
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_KEY
-import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
 import soma.achoom.zigg.firebase.entity.FCMToken
-import soma.achoom.zigg.s3.service.S3Service
+import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.user.entity.User
-import java.nio.charset.Charset
 import java.util.*
 
 @Component
@@ -54,6 +45,7 @@ class DummyDataUtil {
             deviceTokens = mutableSetOf(),
             spaces = mutableSetOf(),
             invites = mutableSetOf(),
+            invited = mutableSetOf(),
         )
         return user
     }
@@ -73,6 +65,7 @@ class DummyDataUtil {
     }
 
     fun createDummySpace(): Space {
+
         return Space(
             spaceId = UUID.randomUUID(),
             spaceName = createRandomString(10),
@@ -91,6 +84,14 @@ class DummyDataUtil {
         return spaceUser
     }
 
+    fun creatDummyInvite(user: User,inviter: User,space: Space):Invite{
+        return Invite(
+            inviteId = UUID.randomUUID(),
+            invitee = user,
+            inviter = inviter,
+            space = space,
+        )
+    }
 
     fun createDummyUserList(size: Int): List<User> {
         return (0 until size).map { createDummyUser() }

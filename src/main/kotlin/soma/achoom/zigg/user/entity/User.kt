@@ -44,7 +44,9 @@ data class User(
     var spaces : MutableSet<SpaceUser>,
 
     @OneToMany(mappedBy = "inviter", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var invites : MutableSet<Invite>
+    var invites : MutableSet<Invite>,
+    @OneToMany(mappedBy = "invitee", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var invited : MutableSet<Invite>
 
 ) : BaseEntity(){
 
