@@ -27,6 +27,9 @@ import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
 import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.s3.service.S3Service
+import soma.achoom.zigg.space.entity.Space
+import soma.achoom.zigg.space.entity.SpaceRole
+import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.user.entity.User
 import java.nio.charset.Charset
 import java.util.*
@@ -66,6 +69,25 @@ class DummyDataUtil {
             )
         }
         return user
+    }
+
+    fun createDummySpace(): Space {
+        return Space(
+            spaceId = UUID.randomUUID(),
+            spaceName = createRandomString(10),
+            spaceImageKey = SPACE_IMAGE_KEY,
+            spaceUsers = mutableSetOf(),
+            referenceVideoUrl = HISTORY_VIDEO_URL,
+        )
+    }
+    fun createDummySpaceUser(space: Space,user: User):SpaceUser{
+        val spaceUser =  SpaceUser(
+            spaceUserId = UUID.randomUUID(),
+            space = space,
+            user = user,
+            spaceRole = SpaceRole.USER
+        )
+        return spaceUser
     }
 
 
