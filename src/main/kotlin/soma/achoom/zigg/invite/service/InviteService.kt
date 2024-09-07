@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
 import soma.achoom.zigg.invite.dto.InviteListResponseDto
-import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
@@ -28,7 +27,7 @@ class InviteService(
     @Transactional(readOnly = true)
     fun getInvites(authentication: Authentication): InviteListResponseDto {
         val user = userService.authenticationToUser(authentication)
-        val invites = inviteRepository.findAllByUser(user)
+        val invites = inviteRepository.findAllByInvitee(user)
         return InviteListResponseDto(
             invites.filter{
                 it.isExpired.not()
@@ -44,7 +43,7 @@ class InviteService(
         val user = userService.authenticationToUser(authentication)
         val invite = inviteRepository.findById(inviteId).orElseThrow { InviteNotFoundException() }
 
-        if (invite.user.userId != user.userId) {
+        if (invite.invitee.userId != user.userId) {
             throw InvitedUserMissMatchException()
         }
         if (invite.isExpired) {
