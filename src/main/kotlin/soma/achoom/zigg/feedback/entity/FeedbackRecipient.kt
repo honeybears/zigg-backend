@@ -2,6 +2,7 @@ package soma.achoom.zigg.feedback.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
+import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.space.entity.SpaceUser
 import java.util.*
 
@@ -20,5 +21,4 @@ class FeedbackRecipient(
     @JoinColumn(name = "recipient_id")
     var recipient: SpaceUser
 
-){
-}
+):BaseEntity()

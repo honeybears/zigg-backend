@@ -31,5 +31,4 @@ class Feedback(
     var recipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
 
-) : BaseEntity() {
-}
+) : BaseEntity()
