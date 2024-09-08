@@ -21,7 +21,7 @@ class FCMService(
 ) {
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     fun sendMessageTo(fcmEvent: FCMEvent) {
-        val tokens = fcmEvent.users.filterNotNull().map {
+        val tokens = fcmEvent.users.map {
             it.deviceTokens.map { fcmToken -> fcmToken.token }
         }.toMutableSet().flatten()
 

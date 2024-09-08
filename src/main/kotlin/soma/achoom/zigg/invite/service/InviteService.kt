@@ -73,13 +73,6 @@ class InviteService(
         invite.isExpired = true
         inviteRepository.save(invite)
         spaceRepository.save(space)
-        fcmService.sendMessageTo(
-                FCMEvent(
-                    users = space.spaceUsers.filter { it.user?.userId != user.userId }.map { it.user }.toMutableSet(),
-                    data =
-                )
-            }
-        )
     }
 
 }
