@@ -16,18 +16,38 @@ import soma.achoom.zigg.auth.dto.OAuth2MetaDataRequestDto
 import soma.achoom.zigg.auth.dto.OAuth2UserRequestDto
 import soma.achoom.zigg.auth.service.AuthenticationService
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
+import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
+import soma.achoom.zigg.s3.service.S3DataType
+import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.user.dto.UserExistsResponseDto
 import soma.achoom.zigg.user.dto.UserRequestDto
 import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.service.UserService
+import java.util.*
 
 
 @RestController
 @RequestMapping("/api/v0/users")
 class UserController @Autowired constructor(
     private val userService: UserService,
-    private val authenticationService: AuthenticationService
+    private val authenticationService: AuthenticationService,
+    private val s3Service: S3Service
 ) {
+    @PostMapping("/pre-signed-url/{value}")
+    fun getPreSignUrl(@RequestBody uploadContentTypeRequestDto:UploadContentTypeRequestDto, @PathVariable value:String) : ResponseEntity<String> {
+        if (value.trim() == "profile"){
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.USER_PROFILE_IMAGE,UUID.randomUUID(), uploadContentTypeRequestDto)
+            return ResponseEntity.ok(preSignedUrl)
+
+        }
+        else if (value.trim() == "banner"){
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.USER_BANNER_IMAGE,UUID.randomUUID(), uploadContentTypeRequestDto)
+            return ResponseEntity.ok(preSignedUrl)
+        }
+        else
+            return ResponseEntity.badRequest().build()
+    }
+
     @PostMapping("/fcm")
     fun registerToken(authentication: Authentication,@RequestBody token: FCMTokenRequestDto) : ResponseEntity<Void> {
         userService.registerToken(authentication,token)

@@ -63,7 +63,7 @@ class HistoryService @Autowired constructor(
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         val histories = historyRepository.findHistoriesBySpace(space)
-        return histories.filter { !it.isDeleted }.map {
+        return histories.map {
             responseDtoManager.generateHistoryResponseShortDto(it)
         }.toList()
     }

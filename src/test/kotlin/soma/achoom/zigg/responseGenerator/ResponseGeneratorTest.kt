@@ -14,7 +14,6 @@ import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.space.entity.SpaceRole
-import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.user.entity.User
 import java.util.*
 
@@ -51,7 +50,8 @@ class ResponseDtoManagerTest {
             deviceTokens = mutableSetOf(),
             spaces = mutableSetOf(),
             invites = mutableSetOf(),
-            invited = mutableSetOf()
+            invited = mutableSetOf(),
+            profileBannerImageKey = null
         )
 
         val spaceUser = SpaceUser(

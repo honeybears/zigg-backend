@@ -45,7 +45,7 @@ class FeedbackService @Autowired constructor(
         val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedbacks = history.feedbacks.toMutableSet()
 
-        return feedbacks.filter { !it.isDeleted }.map {
+        return feedbacks.map {
             responseDtoManager.generateFeedbackResponseDto(it)
         }.toList()
     }
@@ -115,7 +115,6 @@ class FeedbackService @Autowired constructor(
         historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
 
-        feedback.isDeleted = true
         feedbackRepository.save(feedback)
     }
     @Transactional(readOnly = true)

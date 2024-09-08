@@ -6,5 +6,6 @@ data class UserRequestDto (
     val userId:UUID?,
     val userName:String?,
     val userNickname:String?,
-    val email:String?
+    val profileImageUrl:String?,
+    val profileBannerImageUrl:String?
 )

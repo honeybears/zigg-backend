@@ -5,7 +5,7 @@ import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
 @Entity
-data class FCMToken(
+class FCMToken(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val fcmId: Long? = null,

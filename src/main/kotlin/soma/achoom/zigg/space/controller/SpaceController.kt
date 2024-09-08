@@ -51,6 +51,11 @@ class SpaceController @Autowired constructor(
         val spaceResponseDto = spaceService.inviteUserToSpace(authentication, spaceId, inviteUsersRequestDto)
         return ResponseEntity.ok(spaceResponseDto)
     }
+    @DeleteMapping("/withdraw/{spaceId}")
+    fun withdrawSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<Void> {
+        spaceService.withdrawSpace(authentication, spaceId)
+        return ResponseEntity.ok().build()
+    }
 
     @PatchMapping("/{spaceId}")
     fun updateSpace(authentication:Authentication,@PathVariable spaceId:UUID, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
@@ -67,6 +72,11 @@ class SpaceController @Autowired constructor(
     @PostMapping("/reference/{spaceId}")
     fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
         val spaceResponseDto = spaceService.addReferenceUrl(authentication, spaceId, spaceReferenceUrlRequestDto)
+        return ResponseEntity.ok(spaceResponseDto)
+    }
+    @DeleteMapping("/reference/{spaceId}")
+    fun deleteReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<SpaceResponseDto> {
+        val spaceResponseDto = spaceService.deleteReferenceUrl(authentication, spaceId)
         return ResponseEntity.ok(spaceResponseDto)
     }
 }

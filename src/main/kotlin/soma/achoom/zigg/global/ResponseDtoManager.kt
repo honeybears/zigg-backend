@@ -97,7 +97,8 @@ class ResponseDtoManager(
             userId = user.userId,
             userName = user.userName,
             userNickname = user.userNickname,
-            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey)
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey),
+            profileBannerImageUrl = user.profileBannerImageKey?.let { s3Service.getPreSignedGetUrl(it) },
         )
     }
     fun generateInviteResponseDto(invite: Invite): InviteResponseDto {

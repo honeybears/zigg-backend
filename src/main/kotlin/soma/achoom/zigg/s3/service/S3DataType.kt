@@ -5,6 +5,7 @@ enum class S3DataType(val path:String) {
     HISTORY_VIDEO("video/history/"),
     SPACE_IMAGE("image/space/"),
     SPACE_REFERENCE_VIDEO("reference/"),
+    USER_BANNER_IMAGE("banner/"),
     USER_PROFILE_IMAGE("profile/");
 
     fun getBucketName():String{

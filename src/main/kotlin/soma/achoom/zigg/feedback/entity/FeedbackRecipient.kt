@@ -6,7 +6,7 @@ import soma.achoom.zigg.space.entity.SpaceUser
 import java.util.*
 
 @Entity
-data class FeedbackRecipient(
+class FeedbackRecipient(
     @Id
     @JsonBackReference
     var id: UUID = UUID.randomUUID(),
@@ -21,14 +21,4 @@ data class FeedbackRecipient(
     var recipient: SpaceUser
 
 ){
-    override fun hashCode(): Int {
-        return Objects.hash(id)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val feedbackRecipient = other as FeedbackRecipient
-        return id == feedbackRecipient.id && feedback == feedbackRecipient.feedback && recipient == feedbackRecipient.recipient
-    }
 }

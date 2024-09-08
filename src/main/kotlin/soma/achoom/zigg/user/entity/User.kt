@@ -12,7 +12,7 @@ import java.util.*
 
 @Entity
 @Table(name = "`user`")
-data class User(
+class User(
     @Id
     var userId: UUID = UUID.randomUUID(),
 
@@ -24,6 +24,8 @@ data class User(
     var role: UserRole = UserRole.USER,
 
     var profileImageKey: String,
+
+    var profileBannerImageKey:String?,
 
     @Enumerated(EnumType.STRING)
     var platform: OAuthProviderEnum,
@@ -50,16 +52,5 @@ data class User(
 
 ) : BaseEntity(){
 
-    override fun equals(other: Any?): Boolean {
-        return providerId == (other as User).providerId
-
-    }
-    override fun hashCode(): Int {
-        return Objects.hash(userId, userName, userNickname, role, profileImageKey, platform, providerId, jwtToken, isDeleted)
-    }
-
-    override fun toString(): String {
-        return "User(userId=$userId, userName=$userName, userNickname=$userNickname, role=$role, profileImageKey='$profileImageKey', platform=$platform, providerId='$providerId', jwt token='$jwtToken', isDeleted=$isDeleted)"
-    }
 
 }
