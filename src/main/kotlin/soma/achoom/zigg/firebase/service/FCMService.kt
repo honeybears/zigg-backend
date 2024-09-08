@@ -21,25 +21,32 @@ class FCMService(
 ) {
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     fun sendMessageTo(fcmEvent: FCMEvent) {
-        val tokens = fcmEvent.users.map {
+        val tokens = fcmEvent.users.filterNotNull().map {
             it.deviceTokens.map { fcmToken -> fcmToken.token }
         }.toMutableSet().flatten()
 
-        if (tokens.isNotEmpty()) {
-            val multicastMessage = MulticastMessage.builder()
-                .setNotification(
-                    Notification.builder()
-                        .setTitle(fcmEvent.title)
-                        .setBody(fcmEvent.body)
-                        .build()
-                )
-                .addAllTokens(tokens)
-                //.putAllData(fcmEvent.data)
-                //.setApnsConfig(fcmEvent.apns)
-                //.setAndroidConfig(fcmEvent.android)
-                .build() ?: throw FCMMessagingFailException()
-            FirebaseMessaging.getInstance().sendEachForMulticastAsync(multicastMessage)
+        try{
+            if (tokens.isNotEmpty()) {
+                val multicastMessage = MulticastMessage.builder()
+                    .setNotification(
+                        Notification.builder()
+                            .setTitle(fcmEvent.title)
+                            .setBody(fcmEvent.body)
+                            .build()
+                    )
+                    .addAllTokens(tokens)
+                    //.putAllData(fcmEvent.data)
+                    //.setApnsConfig(fcmEvent.apns)
+                    //.setAndroidConfig(fcmEvent.android)
+                    .build() ?: throw FCMMessagingFailException()
+                FirebaseMessaging.getInstance().sendEachForMulticastAsync(multicastMessage)
+            }
         }
+        catch (e: Exception){
+            e.printStackTrace()
+        }
+
+
     }
 
     @Transactional(readOnly = false)

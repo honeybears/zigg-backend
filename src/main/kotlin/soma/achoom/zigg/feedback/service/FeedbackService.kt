@@ -115,7 +115,7 @@ class FeedbackService @Autowired constructor(
         historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
 
-        feedbackRepository.save(feedback)
+        feedbackRepository.delete(feedback)
     }
     @Transactional(readOnly = true)
     fun getFeedback(

@@ -3,6 +3,8 @@ package soma.achoom.zigg.invite.service
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.firebase.dto.FCMEvent
+import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
 import soma.achoom.zigg.invite.dto.InviteListResponseDto
@@ -21,6 +23,7 @@ class InviteService(
     private val userService: UserService,
     private val spaceRepository: SpaceRepository,
     private val inviteRepository: InviteRepository,
+    private val fcmService: FCMService,
     private val responseDtoManager: ResponseDtoManager,
 
     ) {
@@ -70,6 +73,13 @@ class InviteService(
         invite.isExpired = true
         inviteRepository.save(invite)
         spaceRepository.save(space)
+        fcmService.sendMessageTo(
+                FCMEvent(
+                    users = space.spaceUsers.filter { it.user?.userId != user.userId }.map { it.user }.toMutableSet(),
+                    data =
+                )
+            }
+        )
     }
 
 }
