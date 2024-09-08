@@ -156,7 +156,8 @@ class AuthenticationService @Autowired constructor(
             deviceTokens = mutableSetOf(),
             spaces = mutableSetOf(),
             invites = mutableSetOf(),
-            invited = mutableSetOf()
+            invited = mutableSetOf(),
+            profileBannerImageKey = null
         )
 
         return userRepository.save(user)

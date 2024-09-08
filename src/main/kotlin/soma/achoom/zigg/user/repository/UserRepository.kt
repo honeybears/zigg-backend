@@ -18,4 +18,6 @@ interface UserRepository : JpaRepository<User, UUID> {
     fun findUserByUserId(userId:UUID): User?
     @Query("SELECT u FROM User u WHERE u.userNickname LIKE :nickname%")
     fun findUsersByUserNicknameLike(nickname:String, pageable: Pageable): List<User>
+    @Query("SELECT u FROM User u WHERE u.userName LIKE :userName%")
+    fun findUsersByUserNameLike(userName:String, pageable: Pageable): List<User>
 }

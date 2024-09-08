@@ -8,7 +8,7 @@ import soma.achoom.zigg.space.entity.SpaceUser
 import java.util.*
 
 @Entity
-data class Feedback(
+class Feedback(
     @Id
     var feedbackId: UUID = UUID.randomUUID(),
 
@@ -30,26 +30,6 @@ data class Feedback(
     @OneToMany(mappedBy = "feedback", cascade = [CascadeType.ALL], orphanRemoval = true)
     var recipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
-    @Column(name = "is_deleted")
-    var isDeleted: Boolean = false
 
 ) : BaseEntity() {
-    override fun hashCode(): Int {
-        return Objects.hash(feedbackId)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val feedback = other as Feedback
-        return feedbackId == feedback.feedbackId
-                && feedbackType == feedback.feedbackType
-                && feedbackTimeline == feedback.feedbackTimeline
-                && feedbackMessage == feedback.feedbackMessage
-                && feedbackCreator == feedback.feedbackCreator
-                && createAt == feedback.createAt
-                && updateAt == feedback.updateAt
-                && isDeleted == feedback.isDeleted
-    }
-
 }

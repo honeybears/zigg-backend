@@ -19,6 +19,7 @@ import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.space.exception.LowSpacePermissionException
 import soma.achoom.zigg.space.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.repository.UserRepository
 import soma.achoom.zigg.user.service.UserService
 import java.util.UUID
 
@@ -28,7 +29,8 @@ class SpaceService(
     private val spaceRepository: SpaceRepository,
     private val userService: UserService,
     private val responseDtoManager: ResponseDtoManager,
-    private val fcmService: FCMService
+    private val fcmService: FCMService,
+    private val userRepository: UserRepository
 ) {
     @Value("\${space.default.image.url}")
     private lateinit var defaultSpaceImageUrl: String
@@ -127,6 +129,24 @@ class SpaceService(
 
         return responseDtoManager.generateSpaceResponseShortDto(space)
     }
+    @Transactional(readOnly = false)
+    fun withdrawSpace(authentication: Authentication, spaceId: UUID) {
+        val user = userService.authenticationToUser(authentication)
+
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+
+        validateSpaceUser(user, space)
+
+        space.spaceUsers.removeIf {
+            it.user == user
+        }
+        user.spaces.removeIf {
+            it.space == space
+        }
+        userRepository.save(user)
+        spaceRepository.save(space)
+    }
 
     @Transactional(readOnly = true)
     fun getSpaces(authentication: Authentication): List<SpaceResponseDto> {
@@ -160,8 +180,6 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUserRoleIsAdmin(user, space)
-
-
         spaceRepository.save(space)
         space.spaceName = spaceRequestDto.spaceName
         spaceRequestDto.spaceImageUrl?.let {
@@ -198,6 +216,19 @@ class SpaceService(
 
         spaceRepository.save(space)
 
+        return responseDtoManager.generateSpaceResponseShortDto(space)
+    }
+    @Transactional(readOnly = false)
+    fun deleteReferenceUrl(authentication: Authentication, spaceId: UUID) : SpaceResponseDto{
+        val user = userService.authenticationToUser(authentication)
+
+        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+
+        validateSpaceUser(user, space)
+        space.referenceVideoUrl = null
+
+        spaceRepository.save(space)
         return responseDtoManager.generateSpaceResponseShortDto(space)
     }
 

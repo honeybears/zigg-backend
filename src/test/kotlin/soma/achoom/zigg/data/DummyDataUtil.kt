@@ -46,6 +46,7 @@ class DummyDataUtil {
             spaces = mutableSetOf(),
             invites = mutableSetOf(),
             invited = mutableSetOf(),
+            profileBannerImageKey = null
         )
         return user
     }

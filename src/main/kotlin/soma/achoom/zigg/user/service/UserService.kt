@@ -26,8 +26,7 @@ class UserService(
 ) {
     @Transactional(readOnly = true)
     fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
-        val users = userRepository.findUsersByUserNicknameLike(nickname,PageRequest.of(0,5))
-
+        val users = userRepository.findUsersByUserNameLike(nickname,PageRequest.of(0,10))
         return users
             .filter { it.userNickname != authenticationToUser(authentication).userNickname }.map {
             responseDtoManager.generateUserResponseDto(it)
@@ -49,6 +48,15 @@ class UserService(
         val user = authenticationToUser(authentication)
         user.userName = userRequestDto.userName
         user.userNickname = userRequestDto.userNickname
+        user.profileImageKey = userRequestDto.profileImageUrl?.let {
+            it.split("?")[0].split("/").subList(3, userRequestDto.profileImageUrl.split("?")[0].split("/").size)
+                .joinToString("/")
+                } ?: user.profileImageKey
+        user.profileBannerImageKey = userRequestDto.profileBannerImageUrl?.let {
+            it.split("?")[0].split("/").subList(3, userRequestDto.profileBannerImageUrl.split("?")[0].split("/").size)
+                .joinToString("/")
+        } ?: user.profileBannerImageKey
+
         userRepository.save(user)
         return responseDtoManager.generateUserResponseDto(user)
     }

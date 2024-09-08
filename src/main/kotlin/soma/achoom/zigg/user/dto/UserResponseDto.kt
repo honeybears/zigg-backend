@@ -9,7 +9,9 @@ data class UserResponseDto(
     val userId: UUID?,
     val userName: String?,
     val userNickname: String?,
-    val profileImageUrl: String?
+    val profileImageUrl: String?,
+    val profileBannerImageUrl:String?
+
 )  {
     companion object {
         fun from(user: User): UserResponseDto {
@@ -17,7 +19,8 @@ data class UserResponseDto(
                 userId = user.userId,
                 userNickname = user.userNickname,
                 userName = user.userName,
-                profileImageUrl = user.profileImageKey
+                profileImageUrl = user.profileImageKey,
+                profileBannerImageUrl = user.profileBannerImageKey
             )
         }
     }

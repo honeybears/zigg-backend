@@ -11,7 +11,7 @@ import java.util.UUID
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "spaceId")
-data class Space(
+class Space(
     @Id
     var spaceId: UUID = UUID.randomUUID(),
     var spaceName: String,
@@ -31,14 +31,4 @@ data class Space(
 
     ) : BaseEntity() {
 
-    override fun hashCode(): Int {
-        return spaceId.hashCode()+spaceName.hashCode()+spaceImageKey.hashCode()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val space = other as Space
-        return spaceId == space.spaceId && spaceName == space.spaceName && spaceImageKey == space.spaceImageKey
-    }
 }

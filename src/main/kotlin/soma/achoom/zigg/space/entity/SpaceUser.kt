@@ -10,7 +10,7 @@ import java.util.*
 
 @Entity
 @Table(name = "space_user")
-data class SpaceUser(
+class SpaceUser(
     @Id
     var spaceUserId: UUID = UUID.randomUUID(),
 
@@ -45,17 +45,6 @@ data class SpaceUser(
     @get:JsonInclude
     val userId: UUID?
         get() = user?.userId
-
-    override fun hashCode(): Int {
-        return Objects.hash(spaceUserId)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val spaceUser = other as SpaceUser
-        return spaceUserId == spaceUser.spaceUserId && space == spaceUser.space && user == spaceUser.user
-    }
 
 }
 
