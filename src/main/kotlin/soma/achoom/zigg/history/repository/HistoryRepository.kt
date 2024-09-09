@@ -9,5 +9,5 @@ import java.util.UUID
 
 interface HistoryRepository : JpaRepository<History, UUID> {
     fun findHistoryByHistoryId(historyId: UUID): History?
-    fun findHistoriesBySpace(space: soma.achoom.zigg.space.entity.Space): List<History>
+//    fun findHistoriesBySpace(space: soma.achoom.zigg.space.entity.Space): List<History>
 }

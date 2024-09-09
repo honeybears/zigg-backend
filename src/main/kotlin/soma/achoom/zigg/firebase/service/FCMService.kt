@@ -54,7 +54,7 @@ class FCMService(
         user.deviceTokens.add(
             FCMToken(
                 token = token.token,
-                user = user
+//                user = user
             )
         )
         userRepository.save(user)
@@ -62,9 +62,7 @@ class FCMService(
 
     @Transactional(readOnly = false)
     fun unregisterToken(user: User, fcmToken: FCMTokenRequestDto) {
-        val destroyToken = fcmRepository.findFCMTokenByToken(fcmToken.token)
-            ?: throw RuntimeException("Token not found")
-        user.deviceTokens.remove(destroyToken)
+        user.deviceTokens.removeIf { it.token == fcmToken.token }
         userRepository.save(user)
     }
 

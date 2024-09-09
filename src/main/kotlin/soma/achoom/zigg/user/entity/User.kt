@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
+import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.space.entity.SpaceUser
@@ -36,11 +37,8 @@ class User(
     @JsonBackReference
     var jwtToken: String,
 
-    @Column(name = "is_deleted")
-    var isDeleted: Boolean = false,
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var deviceTokens : MutableSet<FCMToken>,
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var deviceTokens : MutableSet<FCMToken> = mutableSetOf(),
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     var spaces : MutableSet<SpaceUser>,
@@ -48,9 +46,9 @@ class User(
     @OneToMany(mappedBy = "inviter", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     var invites : MutableSet<Invite>,
     @OneToMany(mappedBy = "invitee", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var invited : MutableSet<Invite>
+    var invited : MutableSet<Invite>,
 
-) : BaseEntity(){
+    ) : BaseEntity(){
 
 
 }

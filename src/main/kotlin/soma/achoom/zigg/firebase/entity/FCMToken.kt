@@ -11,7 +11,4 @@ class FCMToken(
     val fcmId: Long? = null,
     var token: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    val user: User
 ) : BaseEntity()

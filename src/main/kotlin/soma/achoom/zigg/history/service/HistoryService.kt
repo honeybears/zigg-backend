@@ -48,7 +48,7 @@ class HistoryService @Autowired constructor(
             historyId = UUID.fromString(historyRequestDto.historyVideoUrl.split("?")[0].split("/").last().split(".")[0]),
             historyVideoKey = historyRequestDto.historyVideoUrl.split("?")[0].split("/").subList(3, historyRequestDto.historyVideoUrl.split("?")[0].split("/").size).joinToString("/"),
             historyName = historyRequestDto.historyName,
-            space = space,
+//            space = space,
             videoDuration = historyRequestDto.videoDuration,
             historyVideoThumbnailUrl = historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").subList(3, historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").size).joinToString("/")
         )
@@ -62,7 +62,7 @@ class HistoryService @Autowired constructor(
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
-        val histories = historyRepository.findHistoriesBySpace(space)
+        val histories = space.histories
         return histories.map {
             responseDtoManager.generateHistoryResponseShortDto(it)
         }.toList()

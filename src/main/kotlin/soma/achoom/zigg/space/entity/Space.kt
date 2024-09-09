@@ -22,7 +22,7 @@ class Space(
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
-    @OneToMany(mappedBy = "space",cascade = [CascadeType.ALL], orphanRemoval = true) // history 엔티티와의 관계 설정
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true) // history 엔티티와의 관계 설정
     var histories: MutableSet<History> = mutableSetOf(),
 
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true)

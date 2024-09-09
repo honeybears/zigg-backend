@@ -22,7 +22,7 @@ data class FeedbackRequestDto(
             feedbackMessage = feedbackMessage,
             feedbackCreator = creator,
             recipients = mutableSetOf(),
-            history = history
+//            history = history
         )
 
         val feedbackRecipient = recipients.map {
