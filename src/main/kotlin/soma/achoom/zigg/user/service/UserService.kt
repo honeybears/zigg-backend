@@ -43,14 +43,9 @@ class UserService(
     }
     @Transactional(readOnly = false)
     fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): UserResponseDto {
-        userRequestDto.userNickname?.let {
-            userRepository.findUserByUserNickname(it)?.let {
-                throw UserAlreadyExistsException()
-            }
-        }
         val user = authenticationToUser(authentication)
         user.userName = userRequestDto.userName
-        user.userNickname = userRequestDto.userNickname
+//        user.userNickname = userRequestDto.userNickname
         user.profileImageKey = userRequestDto.profileImageUrl?.let {
             it.split("?")[0].split("/").subList(3, userRequestDto.profileImageUrl.split("?")[0].split("/").size)
                 .joinToString("/")
