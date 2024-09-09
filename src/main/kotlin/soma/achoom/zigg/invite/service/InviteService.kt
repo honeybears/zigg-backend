@@ -11,7 +11,6 @@ import soma.achoom.zigg.invite.dto.InviteListResponseDto
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
-import soma.achoom.zigg.invite.exception.UserAlreadyInSpaceException
 import soma.achoom.zigg.invite.repository.InviteRepository
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
@@ -24,7 +23,6 @@ class InviteService(
     private val userService: UserService,
     private val spaceRepository: SpaceRepository,
     private val inviteRepository: InviteRepository,
-    private val fcmService: FCMService,
     private val responseDtoManager: ResponseDtoManager,
 
     ) {
