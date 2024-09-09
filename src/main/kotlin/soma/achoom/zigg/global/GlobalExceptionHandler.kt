@@ -10,6 +10,7 @@ import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.invite.exception.InviteExpiredException
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
+import soma.achoom.zigg.invite.exception.UserAlreadyInSpaceException
 import soma.achoom.zigg.space.exception.AlreadyExistsSpaceUserException
 import soma.achoom.zigg.space.exception.LowSpacePermissionException
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
@@ -79,5 +80,9 @@ class GlobalExceptionHandler {
     @ExceptionHandler(InviteExpiredException::class)
     fun handleInviteExpired(e: InviteExpiredException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
+    }
+    @ExceptionHandler(UserAlreadyInSpaceException::class)
+    fun handleUserAlreadyInSpace(e: UserAlreadyInSpaceException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.message)
     }
 }
