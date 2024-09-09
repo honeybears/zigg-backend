@@ -19,15 +19,15 @@ class Feedback(
 
     var feedbackMessage: String?,
 
-    @ManyToOne
-    @JoinColumn(name = "history_id")
-    var history: History?,
+//    @ManyToOne
+//    @JoinColumn(name = "history_id")
+//    var history: History?,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", unique = false)
     var feedbackCreator: SpaceUser,
 
-    @OneToMany(mappedBy = "feedback", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "feedback", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var recipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
 
 

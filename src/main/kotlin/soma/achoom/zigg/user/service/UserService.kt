@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
+import soma.achoom.zigg.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
+import soma.achoom.zigg.firebase.repository.FCMRepository
 import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.space.repository.SpaceUserRepository
@@ -22,7 +24,8 @@ class UserService(
     private val userRepository: UserRepository,
     private val responseDtoManager: ResponseDtoManager,
     private val fcmService: FCMService,
-    private val spaceUserRepository: SpaceUserRepository
+    private val spaceUserRepository: SpaceUserRepository,
+    private val feedbackRepository: FeedbackRepository,
 ) {
     @Transactional(readOnly = true)
     fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
@@ -85,6 +88,8 @@ class UserService(
             it.user = null
             spaceUserRepository.save(it)
         }
+        spaceUsers.map { feedbackRepository.deleteAllByFeedbackCreator(it) }
+        user.deviceTokens.clear()
         userRepository.delete(user)
     }
     @Transactional(readOnly = false)
