@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.feedback.dto.FeedbackRequestDto
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
+import soma.achoom.zigg.feedback.entity.Feedback
 
 import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.feedback.exception.FeedbackNotFoundException
@@ -65,8 +66,21 @@ class FeedbackService @Autowired constructor(
             spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw SpaceUserNotFoundInSpaceException()
         }.toMutableSet()
 
-        val feedback = feedbackRequestDto.toFeedBack(history, spaceUser, feedbackRecipient)
-        feedbackRepository.save(feedback)
+        val feedback = Feedback(
+            feedbackTimeline = feedbackRequestDto.feedbackTimeline,
+            feedbackMessage = feedbackRequestDto.feedbackMessage,
+            feedbackCreator = spaceUser,
+        )
+        feedback.recipients.addAll(
+            feedbackRecipient.map {
+                FeedbackRecipient(
+                    feedback = feedback,
+                    recipient = it
+                )
+            }
+        )
+        history.feedbacks.add(feedback)
+        historyRepository.save(history)
         return responseDtoManager.generateFeedbackResponseDto(feedback)
     }
     @Transactional(readOnly = false)
@@ -110,7 +124,6 @@ class FeedbackService @Autowired constructor(
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         spaceService.validateSpaceUser(user, space)
-
 
         historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()

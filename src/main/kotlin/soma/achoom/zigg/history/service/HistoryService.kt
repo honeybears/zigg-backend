@@ -52,8 +52,8 @@ class HistoryService @Autowired constructor(
             videoDuration = historyRequestDto.videoDuration,
             historyVideoThumbnailUrl = historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").subList(3, historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").size).joinToString("/")
         )
-
-        historyRepository.save(history)
+        space.histories.add(history)
+        spaceRepository.save(space)
         return responseDtoManager.generateHistoryResponseShortDto(history)
     }
     @AuthenticationValidate
@@ -94,25 +94,6 @@ class HistoryService @Autowired constructor(
         return responseDtoManager.generateHistoryResponseDto(history)
     }
     @Transactional(readOnly = false)
-    fun inviteUserInSpace(authentication: Authentication, spaceId: UUID, userId: List<UUID>): SpaceResponseDto {
-        userService.authenticationToUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
-
-        val user = userRepository.findAllById(userId)
-
-        user.forEach {
-            val spaceUser = SpaceUser(
-                space = space,
-                user = it,
-                spaceRole = SpaceRole.USER,
-            )
-            space.spaceUsers.add(spaceUser)
-        }
-        spaceRepository.save(space)
-        return responseDtoManager.generateSpaceResponseShortDto(space)
-    }
-    @Transactional(readOnly = false)
     fun deleteHistory(authentication: Authentication, spaceId: UUID, historyId: UUID) {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -120,8 +101,8 @@ class HistoryService @Autowired constructor(
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw SpaceNotFoundException()
 
-        historyRepository.delete(history)
-
+        space.histories.remove(history)
+        spaceRepository.save(space)
     }
 
 }

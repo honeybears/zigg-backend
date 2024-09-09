@@ -11,6 +11,7 @@ import soma.achoom.zigg.invite.dto.InviteListResponseDto
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
+import soma.achoom.zigg.invite.exception.UserAlreadyInSpaceException
 import soma.achoom.zigg.invite.repository.InviteRepository
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
@@ -57,6 +58,10 @@ class InviteService(
         val space = invite.space
         when (action.accept) {
             true -> {
+                if (space.spaceUsers.any { it.user== user}) {
+                    throw UserAlreadyInSpaceException()
+                }
+
                 space.spaceUsers.add(
                     SpaceUser(
                         user = user,
