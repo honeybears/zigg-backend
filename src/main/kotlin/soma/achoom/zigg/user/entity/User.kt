@@ -17,8 +17,10 @@ class User(
     @Id
     var userId: UUID = UUID.randomUUID(),
 
+    // 활동명
     var userName: String? = null,
 
+    // 고유한 닉네임
     var userNickname: String? = null,
 
     @Enumerated(EnumType.STRING)

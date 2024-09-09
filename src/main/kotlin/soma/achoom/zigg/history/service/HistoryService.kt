@@ -73,7 +73,7 @@ class HistoryService @Autowired constructor(
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         val history = historyRepository.findHistoryByHistoryId(historyId)
-            ?: throw SpaceNotFoundException()
+            ?: throw HistoryNotFoundException()
         return responseDtoManager.generateHistoryResponseDto(history)
     }
     @Transactional(readOnly = false)
