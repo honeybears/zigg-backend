@@ -24,7 +24,6 @@ class InviteService(
     private val userService: UserService,
     private val spaceRepository: SpaceRepository,
     private val inviteRepository: InviteRepository,
-    private val fcmService: FCMService,
     private val responseDtoManager: ResponseDtoManager,
 
     ) {
@@ -50,15 +49,15 @@ class InviteService(
         if (invite.invitee.userId != user.userId) {
             throw InvitedUserMissMatchException()
         }
+
         if (invite.isExpired) {
             throw InviteNotFoundException()
         }
 
-
         val space = invite.space
         when (action.accept) {
             true -> {
-                if (space.spaceUsers.any { it.user== user}) {
+                if (space.spaceUsers.any { it.user == user}) {
                     throw UserAlreadyInSpaceException()
                 }
 
