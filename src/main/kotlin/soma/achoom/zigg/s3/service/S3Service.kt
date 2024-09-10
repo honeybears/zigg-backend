@@ -16,7 +16,10 @@ class S3Service (
     private val bucket: String
 ) {
     @Transactional(readOnly = true)
-    fun getPreSignedGetUrl(objectName: String): String {
+    fun getPreSignedGetUrl(objectName: String?): String {
+        if (objectName == null) {
+            return ""
+        }
         return amazonS3Client.generatePresignedUrl(bucket, objectName,DateTime.now().plusMinutes(10).toDate(),HttpMethod.GET).toString()
     }
     @Transactional(readOnly = true)
