@@ -33,7 +33,7 @@ class InviteService(
         val invites = inviteRepository.findAllByInvitee(user)
         return InviteListResponseDto(
             invites.filter{
-                it.isExpired.not()
+                it.isExpired.not().and(it.inviteStatus == InviteStatus.WAITING)
             }.map {
                 responseDtoManager.generateInviteResponseDto(it)
             }.toList()
@@ -71,6 +71,7 @@ class InviteService(
             }
             false -> {
                 invite.inviteStatus = InviteStatus.DENIED
+                invite.isExpired = true
             }
         }
         invite.isExpired = true
