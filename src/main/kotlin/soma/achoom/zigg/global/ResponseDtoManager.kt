@@ -80,7 +80,7 @@ class ResponseDtoManager(
             feedbackType = feedback.feedbackType,
             feedbackMessage = feedback.feedbackMessage,
             creatorId = generateSpaceUserResponseDto(feedback.feedbackCreator),
-            recipientId = feedback.recipients.map { generateSpaceUserResponseDto(it.recipient) }.toMutableSet()
+            recipientId = feedback.recipients.map { generateSpaceUserResponseDto(it) }.toMutableSet()
         )
     }
     fun generateSpaceUserResponseDto(spaceUser: SpaceUser): SpaceUserResponseDto {

@@ -17,7 +17,6 @@ import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_URL
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_KEY
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.data.DummyDataUtil
-import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.repository.FCMRepository

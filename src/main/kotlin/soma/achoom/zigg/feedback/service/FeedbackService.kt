@@ -9,7 +9,6 @@ import soma.achoom.zigg.feedback.dto.FeedbackRequestDto
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.feedback.entity.Feedback
 
-import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.feedback.exception.FeedbackNotFoundException
 import soma.achoom.zigg.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.global.ResponseDtoManager
@@ -71,18 +70,12 @@ class FeedbackService @Autowired constructor(
             feedbackMessage = feedbackRequestDto.feedbackMessage,
             feedbackCreator = spaceUser,
         )
-        feedback.recipients.addAll(
-            feedbackRecipient.map {
-                FeedbackRecipient(
-                    feedback = feedback,
-                    recipient = it
-                )
-            }
-        )
+        feedback.recipients.addAll(feedbackRecipient)
         history.feedbacks.add(feedback)
         historyRepository.save(history)
         return responseDtoManager.generateFeedbackResponseDto(feedback)
     }
+
     @Transactional(readOnly = false)
     fun updateFeedback(
         authentication: Authentication,
@@ -101,12 +94,8 @@ class FeedbackService @Autowired constructor(
 
         feedback.recipients.addAll(
             feedbackRequestDto.recipientId.map {
-                val spaceUser =
-                    spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw SpaceUserNotFoundInSpaceException()
-                FeedbackRecipient(
-                    feedback = feedback,
-                    recipient = spaceUser
-                )
+
+                spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw SpaceUserNotFoundInSpaceException()
             }
         )
         feedback.feedbackTimeline = feedbackRequestDto.feedbackTimeline
@@ -116,6 +105,7 @@ class FeedbackService @Autowired constructor(
 
         return responseDtoManager.generateFeedbackResponseDto(feedback)
     }
+
     @Transactional(readOnly = false)
     fun deleteFeedback(
         authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
@@ -130,6 +120,7 @@ class FeedbackService @Autowired constructor(
 
         feedbackRepository.delete(feedback)
     }
+
     @Transactional(readOnly = true)
     fun getFeedback(
         authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID

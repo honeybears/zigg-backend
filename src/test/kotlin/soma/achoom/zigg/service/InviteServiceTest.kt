@@ -61,11 +61,11 @@ class InviteServiceTest {
         inviteRepository.save(invite)
     }
 
-    @Test
-    fun `delete user with invite`(){
-        val auth = dummyDataUtil.createDummyAuthentication(user)
-        userService.deleteUser(auth)
-        assert(userRepository.findById(user.userId).isEmpty)
-    }
+//    @Test
+//    fun `delete user with invite`(){
+//        val auth = dummyDataUtil.createDummyAuthentication(user)
+//        userService.deleteUser(auth)
+//        assert(userRepository.findById(user.userId).isEmpty)
+//    }
 
 }

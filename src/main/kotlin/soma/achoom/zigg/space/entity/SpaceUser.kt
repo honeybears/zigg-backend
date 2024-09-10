@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.global.BaseEntity
-import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.user.entity.User
 import java.util.*
 
@@ -35,11 +34,11 @@ class SpaceUser(
     @Enumerated(EnumType.STRING)
     var spaceRole: SpaceRole?,
 
-    @OneToMany(mappedBy = "recipient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "recipients", fetch = FetchType.LAZY)
     @JsonBackReference
-    var feedbackRecipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
+    var feedbackRecipients: MutableList<Feedback> = mutableListOf(),
 
-    @OneToMany(mappedBy = "feedbackCreator", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "feedbackCreator", orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonBackReference
     var feedbackCreator: MutableSet<Feedback> = mutableSetOf(),
     ) : BaseEntity() {
