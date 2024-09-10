@@ -23,7 +23,7 @@ class Feedback(
     @JoinColumn(name = "creator_id", unique = false)
     var feedbackCreator: SpaceUser,
 
-    @ManyToMany( cascade = [CascadeType.ALL],  fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     var recipients: MutableList<SpaceUser> = mutableListOf(),
 
 
