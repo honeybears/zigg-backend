@@ -52,8 +52,12 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        invitedUsers.removeIf{space.spaceUsers.map { it.user }.contains(it)}
-        invitedUsers.removeIf{space.invites.map { it.invitee }.contains(it)}
+        space.invites.find { invitedUsers.contains(it.invitee).and(it.inviteStatus != InviteStatus.DENIED) }?.let {
+            invitedUsers.remove(it.invitee)
+        }
+        space.spaceUsers.find { invitedUsers.contains(it.user) }?.let {
+            invitedUsers.remove(it.user)
+        }
 
         space.invites.addAll(
             invitedUsers.map {
