@@ -60,7 +60,6 @@ class InviteService(
                 if (space.spaceUsers.any { it.user == user}) {
                     throw UserAlreadyInSpaceException()
                 }
-
                 space.spaceUsers.add(
                     SpaceUser(
                         user = user,
