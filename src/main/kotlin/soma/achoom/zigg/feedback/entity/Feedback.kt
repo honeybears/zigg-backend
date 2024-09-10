@@ -23,8 +23,8 @@ class Feedback(
     @JoinColumn(name = "creator_id", unique = false)
     var feedbackCreator: SpaceUser,
 
-    @OneToMany(mappedBy = "feedback", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var recipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
+    @ManyToMany( cascade = [CascadeType.ALL],  fetch = FetchType.LAZY)
+    var recipients: MutableList<SpaceUser> = mutableListOf(),
 
 
-) : BaseEntity()
+    ) : BaseEntity()

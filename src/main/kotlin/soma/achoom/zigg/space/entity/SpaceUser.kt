@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.global.BaseEntity
-import soma.achoom.zigg.feedback.entity.FeedbackRecipient
 import soma.achoom.zigg.user.entity.User
 import java.util.*
 
@@ -17,30 +16,21 @@ class SpaceUser(
 
     @ManyToOne
     @JoinColumn(name = "space_id")
-    @JsonBackReference
     var space: Space,
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
     var user: User?,
-
-    var userNickname: String = user?.userNickname!!,
-
-    var userName: String = user?.userName!!,
-
-    var profileImageUrl: String = user?.profileImageKey ?: "",
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     var spaceRole: SpaceRole?,
 
-    @OneToMany(mappedBy = "recipient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonBackReference
-    var feedbackRecipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
+    @ManyToMany(mappedBy = "recipients", fetch = FetchType.LAZY)
+    var feedbackRecipients: MutableList<Feedback> = mutableListOf(),
 
-    @OneToMany(mappedBy = "feedbackCreator", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonBackReference
+    @OneToMany(mappedBy = "feedbackCreator", orphanRemoval = true, fetch = FetchType.LAZY)
+
     var feedbackCreator: MutableSet<Feedback> = mutableSetOf(),
     ) : BaseEntity() {
 

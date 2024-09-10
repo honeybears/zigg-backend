@@ -80,16 +80,16 @@ class ResponseDtoManager(
             feedbackType = feedback.feedbackType,
             feedbackMessage = feedback.feedbackMessage,
             creatorId = generateSpaceUserResponseDto(feedback.feedbackCreator),
-            recipientId = feedback.recipients.map { generateSpaceUserResponseDto(it.recipient) }.toMutableSet()
+            recipientId = feedback.recipients.map { generateSpaceUserResponseDto(it) }.toMutableSet()
         )
     }
     fun generateSpaceUserResponseDto(spaceUser: SpaceUser): SpaceUserResponseDto {
         return SpaceUserResponseDto(
             spaceUserId = spaceUser.spaceUserId,
-            userName = spaceUser.userName,
-            userNickname = spaceUser.userNickname,
+            userName = spaceUser.user?.userName,
+            userNickname = spaceUser.user?.userNickname,
             spaceRole = spaceUser.spaceRole,
-            profileImageUrl = s3Service.getPreSignedGetUrl(spaceUser.profileImageUrl)
+            profileImageUrl = s3Service.getPreSignedGetUrl(spaceUser.user?.profileImageKey)
         )
     }
     fun generateUserResponseDto(user: User): UserResponseDto {
