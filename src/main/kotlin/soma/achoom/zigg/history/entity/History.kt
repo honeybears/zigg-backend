@@ -15,15 +15,11 @@ class History(
 
     var historyVideoKey: String,
 
-//    @ManyToOne
-//    @JoinColumn(name = "space_id")
-//    @JsonBackReference
-//    var space: soma.achoom.zigg.space.entity.Space,
-
     var historyVideoThumbnailUrl: String,
 
     var videoDuration: String? = null,
-    @OneToMany( cascade = [CascadeType.ALL], orphanRemoval = true)
+
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     var feedbacks: MutableSet<Feedback> = mutableSetOf(),
 
 ) : BaseEntity() {

@@ -19,10 +19,6 @@ class Feedback(
 
     var feedbackMessage: String?,
 
-//    @ManyToOne
-//    @JoinColumn(name = "history_id")
-//    var history: History?,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", unique = false)
     var feedbackCreator: SpaceUser,
