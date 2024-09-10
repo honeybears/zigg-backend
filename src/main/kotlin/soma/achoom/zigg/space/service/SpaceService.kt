@@ -52,7 +52,7 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.invites.find { invitedUsers.contains(it.invitee) }?.let {
+        space.invites.find { invitedUsers.contains(it.invitee).and(it.inviteStatus != InviteStatus.DENIED) }?.let {
             invitedUsers.remove(it.invitee)
         }
         space.spaceUsers.find { invitedUsers.contains(it.user) }?.let {
