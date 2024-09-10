@@ -30,7 +30,6 @@ class SpaceUser(
     var feedbackRecipients: MutableList<Feedback> = mutableListOf(),
 
     @OneToMany(mappedBy = "feedbackCreator", orphanRemoval = true, fetch = FetchType.LAZY)
-
     var feedbackCreator: MutableSet<Feedback> = mutableSetOf(),
     ) : BaseEntity() {
 
