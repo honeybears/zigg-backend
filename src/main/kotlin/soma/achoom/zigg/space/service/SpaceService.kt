@@ -185,7 +185,10 @@ class SpaceService(
         spaceRepository.save(space)
         space.spaceName = spaceRequestDto.spaceName
         spaceRequestDto.spaceImageUrl?.let {
-            space.spaceImageKey = it
+            space.spaceImageKey = it.let {
+                it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
+                    .joinToString("/")
+            }
         }
         return responseDtoManager.generateSpaceResponseShortDto(space)
     }
