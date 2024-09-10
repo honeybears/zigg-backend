@@ -13,4 +13,5 @@ interface SpaceUserRepository : JpaRepository<SpaceUser, UUID> {
     fun findSpaceUserBySpaceUserId(spaceUserId: UUID): SpaceUser?
     @Query("SELECT CASE WHEN EXISTS(SELECT SU FROM SpaceUser SU WHERE SU.space = :space AND SU.user.userName = :userName) THEN true ELSE false END")
     fun existsSpaceUserBySpaceAndUserName(space: Space, userName: String): Boolean
+    fun deleteSpaceUserBySpaceAndUser(space: Space, user: User)
 }
