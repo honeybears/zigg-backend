@@ -78,8 +78,6 @@ class UserService(
         val user = authenticationToUser(authentication)
         val spaceUsers = spaceUserRepository.findSpaceUsersByUser(user)
         spaceUsers.forEach {
-            it.userNickname = "알 수 없음"
-            it.userName = "알 수 없음"
             it.user = null
             spaceUserRepository.save(it)
         }

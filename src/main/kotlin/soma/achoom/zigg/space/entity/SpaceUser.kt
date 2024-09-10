@@ -16,30 +16,21 @@ class SpaceUser(
 
     @ManyToOne
     @JoinColumn(name = "space_id")
-    @JsonBackReference
     var space: Space,
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
     var user: User?,
-
-    var userNickname: String = user?.userNickname!!,
-
-    var userName: String = user?.userName!!,
-
-    var profileImageUrl: String = user?.profileImageKey ?: "",
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     var spaceRole: SpaceRole?,
 
     @ManyToMany(mappedBy = "recipients", fetch = FetchType.LAZY)
-    @JsonBackReference
     var feedbackRecipients: MutableList<Feedback> = mutableListOf(),
 
     @OneToMany(mappedBy = "feedbackCreator", orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonBackReference
+
     var feedbackCreator: MutableSet<Feedback> = mutableSetOf(),
     ) : BaseEntity() {
 
