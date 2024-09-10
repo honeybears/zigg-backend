@@ -1,12 +1,10 @@
 package soma.achoom.zigg.service
 
-import io.mockk.InternalPlatformDsl.toArray
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import org.mockito.Mockito
@@ -20,7 +18,6 @@ import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_URL
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_KEY
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.data.DummyDataUtil
-import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
@@ -29,7 +26,6 @@ import soma.achoom.zigg.space.dto.SpaceUserRequestDto
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
-import java.util.*
 
 @SpringBootTest(classes = [TestConfig::class])
 @ActiveProfiles("test")
