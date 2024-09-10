@@ -76,14 +76,13 @@ class UserService(
     @Transactional(readOnly = false)
     fun deleteUser(authentication: Authentication) {
         val user = authenticationToUser(authentication)
-        val spaceUsers = spaceUserRepository.findSpaceUsersByUser(user)
-        spaceUsers.forEach {
-            it.user = null
-            spaceUserRepository.save(it)
-        }
+        user.userName = "알 수 없음"
+        user.userNickname = "알 수 없음"
+        user.providerId = "알 수 없음"
         user.deviceTokens.clear()
         user.invites.clear()
-        userRepository.delete(user)
+        user.invited.clear()
+        userRepository.save(user)
     }
     @Transactional(readOnly = false)
     fun logoutUser(authentication: Authentication, token: FCMTokenRequestDto) {
