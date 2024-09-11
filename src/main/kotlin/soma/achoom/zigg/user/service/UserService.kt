@@ -76,15 +76,7 @@ class UserService(
     @Transactional(readOnly = false)
     fun deleteUser(authentication: Authentication) {
         val user = authenticationToUser(authentication)
-        user.userName = "알 수 없음"
-        user.userNickname = "알 수 없음"
-        user.providerId = "알 수 없음"
-        user.profileImageKey = "알 수 없음"
-        user.profileBannerImageKey = "알 수 없음"
-        user.deviceTokens.clear()
-        user.invites.clear()
-        user.invited.clear()
-        userRepository.save(user)
+        userRepository.delete(user)
     }
     @Transactional(readOnly = false)
     fun logoutUser(authentication: Authentication, token: FCMTokenRequestDto) {
