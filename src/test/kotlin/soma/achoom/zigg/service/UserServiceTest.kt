@@ -119,7 +119,7 @@ class UserServiceTest {
     @Test
     fun `Delete user`() {
         userService.deleteUser(authentication)
-        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
+        assert(userRepository.findUserByUserId(userWithFCM.userId)?.userNickname == "알 수 없음")
         assert(fcmRepository.findAll().size == 0)
     }
 
