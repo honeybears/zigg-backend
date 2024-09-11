@@ -86,7 +86,7 @@ class FeedbackService @Autowired constructor(
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
-        spaceService.validateSpaceUserRoleIsAdmin(user, space)
+        spaceService.validateSpaceUser(user, space)
 
         historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
