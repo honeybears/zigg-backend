@@ -217,7 +217,7 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-        space.referenceVideoUrl = spaceReferenceUrlRequestDto.referenceUrl
+        space.referenceVideoKey = spaceReferenceUrlRequestDto.referenceUrl
 
         spaceRepository.save(space)
 
@@ -231,7 +231,7 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-        space.referenceVideoUrl = null
+        space.referenceVideoKey = null
 
         spaceRepository.save(space)
         return responseDtoManager.generateSpaceResponseShortDto(space)
