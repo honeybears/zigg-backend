@@ -27,7 +27,6 @@ import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.space.repository.SpaceRepository
-import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
 import java.util.*
@@ -79,13 +78,14 @@ class DummyDataUtil(
     }
 
     fun createDummySpace(): Space {
-        return Space(
+        val space =  Space(
             spaceId = UUID.randomUUID(),
             spaceName = createRandomString(10),
             spaceImageKey = SPACE_IMAGE_KEY,
             spaceUsers = mutableSetOf(),
-            referenceVideoUrl = HISTORY_VIDEO_URL,
+            referenceVideoKey = HISTORY_VIDEO_URL,
         )
+        return spaceRepository.save(space)
     }
 
     fun createDummySpaceUser(space: Space, user: User): SpaceUser {
@@ -103,14 +103,15 @@ class DummyDataUtil(
     }
 
     fun creatDummyInvite(user: User, inviter: User, space: Space): Invite {
-        return inviteRepository.save(
-            Invite(
-                inviteId = UUID.randomUUID(),
-                invitee = user,
-                inviter = inviter,
-                space = space,
-            )
+        val invite = Invite(
+            inviteId = UUID.randomUUID(),
+            invitee = user,
+            inviter = inviter,
+            space = space,
         )
+        space.invites.add(invite)
+        spaceRepository.save(space)
+        return invite
     }
 
     fun createDummyUserList(size: Int): List<User> {
@@ -473,26 +474,30 @@ class DummyDataUtil(
         return firstName.random() + lastName.random() + lastName.random()
     }
 
-    fun createDummyFeedback(history: History,user: SpaceUser,recipients : MutableList<SpaceUser>): Feedback {
-        return Feedback(
+    fun createDummyFeedback(history: History, user: SpaceUser, recipients: MutableList<SpaceUser>): Feedback {
+        val feedback =  Feedback(
             feedbackId = UUID.randomUUID(),
             feedbackTimeline = "00:00:00",
             feedbackMessage = "피드백 내용",
             feedbackCreator = user,
             recipients = recipients,
         )
+        history.feedbacks.add(feedback)
+        historyRepository.save(history)
+        return feedback
 
     }
 
     fun createDummyHistory(space: Space): History {
-        return historyRepository.save(
-            History(
-                historyId = UUID.randomUUID(),
+        val history = History(
+            historyId = UUID.randomUUID(),
 //            space = space,
-                historyName = "히스토리 이름",
-                historyVideoKey = HISTORY_VIDEO_URL,
-                historyVideoThumbnailUrl = HISTORY_VIDEO_URL,
-            )
+            historyName = "히스토리 이름",
+            historyVideoKey = HISTORY_VIDEO_URL,
+            historyVideoThumbnailUrl = HISTORY_VIDEO_URL,
         )
+        space.histories.add(history)
+        spaceRepository.save(space)
+        return history
     }
 }

@@ -17,12 +17,11 @@ class Space(
     var spaceName: String,
     var spaceImageKey: String,
     var referenceVideoKey: String? = null,
-    var referenceVideoUrl: String? = null,
 
-    @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true) // SpaceUser 엔티티와의 관계 설정
+    @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true)
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true) // history 엔티티와의 관계 설정
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     var histories: MutableSet<History> = mutableSetOf(),
 
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true)
