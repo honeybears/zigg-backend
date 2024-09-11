@@ -115,10 +115,13 @@ class FeedbackService @Autowired constructor(
 
         spaceService.validateSpaceUser(user, space)
 
-        historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
+        val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
 
-        feedbackRepository.delete(feedback)
+        history.feedbacks.remove(feedback)
+
+        historyRepository.save(history)
+
     }
 
     @Transactional(readOnly = true)
