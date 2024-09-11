@@ -180,8 +180,8 @@ class SpaceService(
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
-
-        validateSpaceUserRoleIsAdmin(user, space)
+        validateSpaceUser(user, space)
+//        validateSpaceUserRoleIsAdmin(user, space)
         spaceRepository.save(space)
         space.spaceName = spaceRequestDto.spaceName
         spaceRequestDto.spaceImageUrl?.let {
@@ -200,7 +200,7 @@ class SpaceService(
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
 
-        validateSpaceUserRoleIsAdmin(user, space)
+        validateSpaceUser(user, space)
 
         spaceRepository.delete(space)
     }
@@ -237,15 +237,15 @@ class SpaceService(
         return responseDtoManager.generateSpaceResponseShortDto(space)
     }
 
-    @Transactional(readOnly = false)
-    fun validateSpaceUserRoleIsAdmin(user: User, space: Space): SpaceUser {
-        space.spaceUsers.find {
-            it.user == user && it.spaceRole == SpaceRole.ADMIN
-        }?.let {
-            return it
-        }
-        throw LowSpacePermissionException()
-    }
+//    @Transactional(readOnly = false)
+//    fun validateSpaceUserRoleIsAdmin(user: User, space: Space): SpaceUser {
+//        space.spaceUsers.find {
+//            it.user == user && it.spaceRole == SpaceRole.ADMIN
+//        }?.let {
+//            return it
+//        }
+//        throw LowSpacePermissionException()
+//    }
 
     @Transactional(readOnly = false)
     fun validateSpaceUser(user: User, space: Space): SpaceUser {
