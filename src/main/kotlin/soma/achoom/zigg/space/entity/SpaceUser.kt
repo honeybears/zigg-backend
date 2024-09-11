@@ -26,11 +26,7 @@ class SpaceUser(
     @Enumerated(EnumType.STRING)
     var spaceRole: SpaceRole?,
 
-    @ManyToMany(mappedBy = "recipients", fetch = FetchType.LAZY)
-    var feedbackRecipients: MutableList<Feedback> = mutableListOf(),
 
-    @OneToMany(mappedBy = "feedbackCreator", orphanRemoval = true, fetch = FetchType.LAZY)
-    var feedbackCreator: MutableSet<Feedback> = mutableSetOf(),
     ) : BaseEntity() {
 
     @get:JsonInclude
