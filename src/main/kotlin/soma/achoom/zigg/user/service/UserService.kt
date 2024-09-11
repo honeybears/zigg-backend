@@ -79,6 +79,8 @@ class UserService(
         user.userName = "알 수 없음"
         user.userNickname = "알 수 없음"
         user.providerId = "알 수 없음"
+        user.profileImageKey = "알 수 없음"
+        user.profileBannerImageKey = "알 수 없음"
         user.deviceTokens.clear()
         user.invites.clear()
         user.invited.clear()
