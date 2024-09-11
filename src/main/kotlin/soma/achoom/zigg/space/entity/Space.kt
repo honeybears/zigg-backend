@@ -27,7 +27,6 @@ class Space(
     @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true)
     var invites: MutableSet<Invite> = mutableSetOf(),
 
-
     ) : BaseEntity() {
 
 }
