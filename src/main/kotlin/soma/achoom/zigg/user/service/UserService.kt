@@ -76,6 +76,9 @@ class UserService(
     @Transactional(readOnly = false)
     fun deleteUser(authentication: Authentication) {
         val user = authenticationToUser(authentication)
+        user.invites.clear()
+        user.invited.clear()
+        user.spaces.clear()
         userRepository.delete(user)
     }
     @Transactional(readOnly = false)

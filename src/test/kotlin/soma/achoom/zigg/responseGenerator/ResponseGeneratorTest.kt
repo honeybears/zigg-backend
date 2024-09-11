@@ -62,7 +62,7 @@ class ResponseDtoManagerTest {
                 spaceId = UUID.randomUUID(),
                 spaceName = "Test Space",
                 spaceImageKey = SPACE_IMAGE_KEY,
-                referenceVideoUrl = "http://example.com/video",
+                referenceVideoKey = "http://example.com/video",
                 spaceUsers = mutableSetOf(),
                 histories = mutableSetOf()
             )
@@ -72,7 +72,7 @@ class ResponseDtoManagerTest {
             spaceId = UUID.randomUUID(),
             spaceName = "Test Space",
             spaceImageKey = SPACE_IMAGE_KEY,
-            referenceVideoUrl = "http://example.com/video",
+            referenceVideoKey = "http://example.com/video",
             spaceUsers = mutableSetOf(spaceUser),
             histories = mutableSetOf()
         )
