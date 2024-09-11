@@ -23,14 +23,31 @@ class UserRepositoryTest {
 
     @Test
     fun `delete user with spaceUser`() {
-        val user = dummyDataUtil.createDummyUserWithMultiFCMToken(1)
-        val space = dummyDataUtil.createDummySpace()
-        val spaceUser = dummyDataUtil.createDummySpaceUser(space, user)
+        val user1 = dummyDataUtil.createDummyUserWithMultiFCMToken(1)
+        val user2 = dummyDataUtil.createDummyUserWithMultiFCMToken(1)
 
-        val history = dummyDataUtil.createDummyHistory(space)
+        val space1 = dummyDataUtil.createDummySpace()
+        val space2 = dummyDataUtil.createDummySpace()
 
+        val spaceUser1 = dummyDataUtil.createDummySpaceUser(space1, user1)
 
+        val spaceUser2 = dummyDataUtil.createDummySpaceUser(space1, user2)
 
-        userRepository.delete(user)
+        val spaceUser3 = dummyDataUtil.createDummySpaceUser(space2, user2)
+
+        val history1 = dummyDataUtil.createDummyHistory(space1)
+
+        val history2 = dummyDataUtil.createDummyHistory(space2)
+
+        val feedback1 = dummyDataUtil.createDummyFeedback(history1, spaceUser1, mutableListOf(spaceUser2))
+
+        val feedback2 = dummyDataUtil.createDummyFeedback(history1, spaceUser2, mutableListOf(spaceUser1))
+
+        val invite = dummyDataUtil.creatDummyInvite(user1, user2, space2)
+
+        userRepository.delete(user1)
+        userRepository.delete(user2)
+
+        assert(userRepository.findById(user1.userId).isEmpty)
     }
 }
