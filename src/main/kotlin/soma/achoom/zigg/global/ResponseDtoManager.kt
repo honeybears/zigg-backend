@@ -17,6 +17,7 @@ import soma.achoom.zigg.user.entity.User
 
 @Component
 class ResponseDtoManager(
+
     private val s3Service: S3Service
 ) {
     fun generateSpaceResponseDto(space: Space): SpaceResponseDto{
