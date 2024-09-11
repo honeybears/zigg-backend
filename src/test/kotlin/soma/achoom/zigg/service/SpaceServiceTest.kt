@@ -127,7 +127,7 @@ class SpaceServiceTest {
         val adminAuth = dummyDataUtil.createDummyAuthentication(admin)
         val spaceRequestDto = SpaceRequestDto(
             spaceName = "testSpace",
-            spaceImageUrl = TestConfig.SPACE_IMAGE_URL,
+            spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
                     userNickname = it.userNickname,
