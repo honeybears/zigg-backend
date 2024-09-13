@@ -57,7 +57,7 @@ class SpaceService(
         space.invites.find { invitedUsers.contains(it.invitee).and(it.inviteStatus != InviteStatus.DENIED) }?.let {
             invitedUsers.remove(it.invitee)
         }
-        space.spaceUsers.find { invitedUsers.contains(it.user) }?.let {
+        space.spaceUsers.find { invitedUsers.contains(it.user).and(it.withdraw.not()) }?.let {
             invitedUsers.remove(it.user)
         }
 
@@ -147,13 +147,9 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.spaceUsers.removeIf {
-            it.user == user
+        space.spaceUsers.find{it.user == user}?.let {
+            it.withdraw = true
         }
-        user.spaces.removeIf {
-            it.space == space
-        }
-        userRepository.save(user)
         spaceRepository.save(space)
     }
 
@@ -188,7 +184,6 @@ class SpaceService(
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         validateSpaceUser(user, space)
-//        validateSpaceUserRoleIsAdmin(user, space)
         spaceRepository.save(space)
         space.spaceName = spaceRequestDto.spaceName
         spaceRequestDto.spaceImageUrl?.let {
@@ -244,20 +239,11 @@ class SpaceService(
         return responseDtoManager.generateSpaceResponseShortDto(space)
     }
 
-//    @Transactional(readOnly = false)
-//    fun validateSpaceUserRoleIsAdmin(user: User, space: Space): SpaceUser {
-//        space.spaceUsers.find {
-//            it.user == user && it.spaceRole == SpaceRole.ADMIN
-//        }?.let {
-//            return it
-//        }
-//        throw LowSpacePermissionException()
-//    }
 
     @Transactional(readOnly = false)
     fun validateSpaceUser(user: User, space: Space): SpaceUser {
         space.spaceUsers.find {
-            it.user == user
+            it.user == user && it.withdraw.not()
         }?.let {
             return it
         }
