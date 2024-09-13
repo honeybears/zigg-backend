@@ -147,7 +147,14 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        spaceUserRepository.deleteSpaceUserBySpaceAndUser(space, user)
+        space.spaceUsers.removeIf {
+            it.user == user
+        }
+        user.spaces.removeIf {
+            it.space == space
+        }
+        userRepository.save(user)
+        spaceRepository.save(space)
     }
 
     @Transactional(readOnly = true)
