@@ -24,13 +24,18 @@ import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.service.SpaceService
 import soma.achoom.zigg.space.dto.SpaceUserRequestDto
 import soma.achoom.zigg.space.entity.SpaceRole
+import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
+import java.util.*
 
 @SpringBootTest(classes = [TestConfig::class])
 @ActiveProfiles("test")
 @Transactional
 class SpaceServiceTest {
+
+    @Autowired
+    private lateinit var spaceRepository: SpaceRepository
 
     @Autowired
     private lateinit var s3Service: S3Service
@@ -146,5 +151,30 @@ class SpaceServiceTest {
         ) {
             spaceService.getSpace(adminAuth,response.spaceId!!)
         }
+    }
+    @Test
+    fun `withdraw Space Test`(){
+        // given
+        val adminAuth = dummyDataUtil.createDummyAuthentication(admin)
+        val spaceRequestDto = SpaceRequestDto(
+            spaceName = "testSpace",
+            spaceImageUrl = SPACE_IMAGE_URL,
+            spaceUsers = userList.map {
+                SpaceUserRequestDto(
+                    userNickname = it.userNickname,
+                    spaceRole = SpaceRole.USER,
+                    spaceUserId = UUID.randomUUID()
+                )
+            },
+            spaceId = UUID.randomUUID()
+        )
+        val response = spaceService.createSpace(adminAuth, spaceRequestDto)
+        // when
+        spaceService.withdrawSpace(adminAuth, response.spaceId!!)
+
+        val spaces = spaceService.getSpaces(adminAuth)
+        // then
+        assert(spaceRepository.findSpaceBySpaceId(response.spaceId!!)?.spaceUsers?.find { it.user == admin }?.withdraw == true)
+        assert(spaces.isEmpty())
     }
 }
