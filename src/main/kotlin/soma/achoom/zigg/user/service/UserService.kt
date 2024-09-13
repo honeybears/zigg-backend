@@ -24,8 +24,6 @@ class UserService(
     private val responseDtoManager: ResponseDtoManager,
     private val fcmService: FCMService,
     private val spaceUserRepository: SpaceUserRepository,
-    private val feedbackRepository: FeedbackRepository,
-    private val historyRepository: HistoryRepository,
 ) {
     @Transactional(readOnly = true)
     fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
