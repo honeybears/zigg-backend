@@ -76,15 +76,15 @@ class UserService(
     @Transactional(readOnly = false)
     fun deleteUser(authentication: Authentication) {
         val user = authenticationToUser(authentication)
-        user.spaces.forEach{ it ->
-            it.space.histories.forEach{
-                it.feedbacks.removeIf { feedback -> feedback.feedbackCreator.userId == user.userId }
-                it.feedbacks.forEach{ feedback -> feedback.recipients.removeIf{ user -> user.userId == user.userId }}
-                historyRepository.save(it)
-            }
-            it.space.spaceUsers.remove(it)
-        }
-        user.spaces.clear()
+//        user.spaces.forEach{ it ->
+//            it.space.histories.forEach{
+//                it.feedbacks.removeIf { feedback -> feedback.feedbackCreator.userId == user.userId }
+//                it.feedbacks.forEach{ feedback -> feedback.recipients.removeIf{ user -> user.userId == user.userId }}
+//                historyRepository.save(it)
+//            }
+//            it.space.spaceUsers.remove(it)
+//        }
+//        user.spaces.clear()
         user.invited.clear()
         user.invites.clear()
         userRepository.delete(user)

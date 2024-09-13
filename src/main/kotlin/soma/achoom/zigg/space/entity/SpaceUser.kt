@@ -26,6 +26,7 @@ class SpaceUser(
     @Enumerated(EnumType.STRING)
     var spaceRole: SpaceRole?,
 
+    var withdraw : Boolean = false,
 
     ) : BaseEntity() {
 
