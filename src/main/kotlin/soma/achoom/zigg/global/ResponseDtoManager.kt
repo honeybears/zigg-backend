@@ -26,7 +26,7 @@ class ResponseDtoManager(
             spaceName = space.spaceName,
             spaceImageUrl = s3Service.getPreSignedGetUrl(space.spaceImageKey),
             referenceVideoUrl = space.referenceVideoKey,
-            spaceUsers = space.spaceUsers.map {
+            spaceUsers = space.spaceUsers.filter{it.withdraw.not()}.map {
                 generateSpaceUserResponseDto(it)
             }.toMutableSet(),
             createdAt = space.createAt,
@@ -41,7 +41,7 @@ class ResponseDtoManager(
             spaceName = space.spaceName,
             spaceImageUrl = s3Service.getPreSignedGetUrl(space.spaceImageKey),
             referenceVideoUrl = space.referenceVideoKey,
-            spaceUsers = space.spaceUsers.map {
+            spaceUsers = space.spaceUsers.filter{it.withdraw.not()}.map {
                 generateSpaceUserResponseDto(it)
             }.toMutableSet(),
             createdAt = space.createAt,
@@ -112,7 +112,7 @@ class ResponseDtoManager(
                 spaceName = invite.space.spaceName,
                 spaceImageUrl = s3Service.getPreSignedGetUrl(invite.space.spaceImageKey),
                 referenceVideoUrl = invite.space.referenceVideoKey,
-                spaceUsers = invite.space.spaceUsers.map {
+                spaceUsers = invite.space.spaceUsers.filter{it.withdraw.not()}.map {
                     generateSpaceUserResponseDto(it)
                 }.toMutableSet(),
                 createdAt = invite.space.createAt,
