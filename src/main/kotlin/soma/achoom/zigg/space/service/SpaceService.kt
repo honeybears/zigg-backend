@@ -45,7 +45,7 @@ class SpaceService(
     ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
-        val invitedUsers = inviteUsersRequestDto.spaceUsers.map {
+        val invitedUsers : MutableSet<User> = inviteUsersRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
 
@@ -53,16 +53,28 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-
-        space.invites.find { invitedUsers.contains(it.invitee).and(it.inviteStatus != InviteStatus.DENIED) }?.let {
-            invitedUsers.remove(it.invitee)
+        invitedUsers.removeIf{
+            invited ->
+            // 이미 초대되었고 나가지 않은 경우
+            space.spaceUsers.any { spaceUser -> spaceUser.user == invited && !spaceUser.withdraw }.and(
+                // 이미 초대되었고 거절하지 않은 경우
+                space.invites.any { invite -> invite.invitee == invited && invite.inviteStatus != InviteStatus.DENIED }.and(
+                    //이미 들어온 경우
+                    space.spaceUsers.any { spaceUser -> spaceUser.user == invited }
+                )
+            )
         }
-        space.spaceUsers.find { invitedUsers.contains(it.user).and(it.withdraw.not()) }?.let {
-            invitedUsers.remove(it.user)
-        }
-
+//        //이미 초대 되었지만 거절한 경우
+//        space.invites.find { invitedUsers.contains(it.invitee) && it.inviteStatus != InviteStatus.DENIED }?.let {
+//            invitedUsers.remove(it.invitee)
+//        }
+//        //이미 초대 되었지만 수락한 경우
+//        space.spaceUsers.find { invitedUsers.contains(it.user).and(it.withdraw.not()) }?.let {
+//            invitedUsers.remove(it.user)
+//        }
         space.invites.addAll(
             invitedUsers.map {
+
                 Invite(
                     invitee = it,
                     space = space,

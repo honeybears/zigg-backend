@@ -86,8 +86,8 @@ class ResponseDtoManager(
     fun generateSpaceUserResponseDto(spaceUser: SpaceUser): SpaceUserResponseDto {
         return SpaceUserResponseDto(
             spaceUserId = spaceUser.spaceUserId,
-            userName = spaceUser.user?.userName ?: "알 수 없음",
-            userNickname = spaceUser.user?.userNickname ?: "알 수 없음",
+            userName = spaceUser.user?.userName ?: "알수없음",
+            userNickname = spaceUser.user?.userNickname ?: "알수없음",
             spaceRole = spaceUser.spaceRole,
             profileImageUrl = s3Service.getPreSignedGetUrl(spaceUser.user?.profileImageKey)
         )
