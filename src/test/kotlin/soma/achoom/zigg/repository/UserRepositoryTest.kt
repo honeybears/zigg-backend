@@ -7,11 +7,10 @@ import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.TestConfig
 import soma.achoom.zigg.data.DummyDataUtil
 import soma.achoom.zigg.user.repository.UserRepository
+import java.util.*
 import kotlin.test.Test
 
-@SpringBootTest(
-    classes = [TestConfig::class]
-)
+@SpringBootTest(classes = [TestConfig::class])
 @ActiveProfiles("test")
 @Transactional
 class UserRepositoryTest {
@@ -49,5 +48,11 @@ class UserRepositoryTest {
         userRepository.delete(user2)
 
         assert(userRepository.findById(user1.userId).isEmpty)
+    }
+
+    @Test
+    fun `delete user without spaceUser`() {
+
+
     }
 }
