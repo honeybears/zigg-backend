@@ -24,15 +24,10 @@ class SpaceUser(
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    var spaceRole: SpaceRole?,
+    var spaceRole: SpaceRole = SpaceRole.USER,
 
     var withdraw : Boolean = false,
 
     ) : BaseEntity() {
-
-    @get:JsonInclude
-    val userId: UUID?
-        get() = user?.userId
-
 }
 

@@ -85,6 +85,10 @@ class UserService(
 //            it.space.spaceUsers.remove(it)
 //        }
 //        user.spaces.clear()
+        user.spaces.forEach {
+            spaceUser -> spaceUser.user = null
+            spaceUserRepository.save(spaceUser)
+        }
         user.invited.clear()
         user.invites.clear()
         userRepository.delete(user)
