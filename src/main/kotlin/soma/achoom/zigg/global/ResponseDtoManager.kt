@@ -17,7 +17,6 @@ import soma.achoom.zigg.user.entity.User
 
 @Component
 class ResponseDtoManager(
-
     private val s3Service: S3Service
 ) {
     fun generateSpaceResponseDto(space: Space): SpaceResponseDto{
@@ -87,8 +86,8 @@ class ResponseDtoManager(
     fun generateSpaceUserResponseDto(spaceUser: SpaceUser): SpaceUserResponseDto {
         return SpaceUserResponseDto(
             spaceUserId = spaceUser.spaceUserId,
-            userName = spaceUser.user?.userName,
-            userNickname = spaceUser.user?.userNickname,
+            userName = spaceUser.user?.userName ?: "알 수 없음",
+            userNickname = spaceUser.user?.userNickname ?: "알 수 없음",
             spaceRole = spaceUser.spaceRole,
             profileImageUrl = s3Service.getPreSignedGetUrl(spaceUser.user?.profileImageKey)
         )
