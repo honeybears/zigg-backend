@@ -8,6 +8,7 @@ import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
 import soma.achoom.zigg.invite.dto.InviteListResponseDto
+import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
@@ -28,17 +29,10 @@ class InviteService(
 
     ) {
     @Transactional(readOnly = true)
-    fun getInvites(authentication: Authentication): InviteListResponseDto {
+    fun getInvites(authentication: Authentication): List<Invite> {
         val user = userService.authenticationToUser(authentication)
         val invites = inviteRepository.findAllByInvitee(user)
-        return InviteListResponseDto(
-            invites.filter{
-                it.isExpired.not().and(it.inviteStatus == InviteStatus.WAITING)
-            }.map {
-                responseDtoManager.generateInviteResponseDto(it)
-            }.toList()
-        )
-
+        return invites
     }
 
     @Transactional(readOnly = false)

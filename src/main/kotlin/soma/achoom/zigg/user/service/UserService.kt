@@ -26,21 +26,17 @@ class UserService(
     private val spaceUserRepository: SpaceUserRepository,
 ) {
     @Transactional(readOnly = true)
-    fun searchUser(authentication: Authentication, nickname: String): MutableSet<UserResponseDto> {
+    fun searchUser(authentication: Authentication, nickname: String): List<User> {
         val users = userRepository.findUsersByUserNameLike(nickname,PageRequest.of(0,10))
-        return users
-            .filter { it.userNickname != authenticationToUser(authentication).userNickname }.map {
-            responseDtoManager.generateUserResponseDto(it)
-        }.toMutableSet()
+        return users.filter { it.userNickname != authenticationToUser(authentication).userNickname }
     }
     @Transactional(readOnly = true)
-    fun getUserInfo(authentication: Authentication): UserResponseDto {
+    fun getUserInfo(authentication: Authentication): User {
         val user = authenticationToUser(authentication)
-        return responseDtoManager.generateUserResponseDto(user)
-
+        return user
     }
     @Transactional(readOnly = false)
-    fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): UserResponseDto {
+    fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): User {
         val user = authenticationToUser(authentication)
         checkGuestUserUpdateProfileLimit(user)
         user.userName = userRequestDto.userName
@@ -55,8 +51,7 @@ class UserService(
                 .joinToString("/")
         } ?: user.profileBannerImageKey
 
-        userRepository.save(user)
-        return responseDtoManager.generateUserResponseDto(user)
+        return userRepository.save(user)
     }
     @Transactional(readOnly = true)
     fun authenticationToUser(authentication: Authentication): User {
@@ -74,21 +69,10 @@ class UserService(
     @Transactional(readOnly = false)
     fun deleteUser(authentication: Authentication) {
         val user = authenticationToUser(authentication)
-//        user.spaces.forEach{ it ->
-//            it.space.histories.forEach{
-//                it.feedbacks.removeIf { feedback -> feedback.feedbackCreator.userId == user.userId }
-//                it.feedbacks.forEach{ feedback -> feedback.recipients.removeIf{ user -> user.userId == user.userId }}
-//                historyRepository.save(it)
-//            }
-//            it.space.spaceUsers.remove(it)
-//        }
-//        user.spaces.clear()
         user.spaces.forEach {
             spaceUser -> spaceUser.user = null
             spaceUserRepository.save(spaceUser)
         }
-        user.invited.clear()
-        user.invites.clear()
         userRepository.delete(user)
     }
     @Transactional(readOnly = false)

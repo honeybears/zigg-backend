@@ -25,17 +25,17 @@ class AuthenticationService @Autowired constructor(
     private val userRepository: UserRepository
 )  {
     @Transactional(readOnly = true)
-    fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): UserExistsResponseDto {
+    fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): Boolean {
 
         runCatching {
             userRepository.findUserByPlatformAndProviderId(
                 OAuthProviderEnum.valueOf(oAuth2MetaDataRequestDto.platform), oAuth2MetaDataRequestDto.providerId
-            ) ?: return UserExistsResponseDto(false)
+            ) ?: return false
         }.onFailure {
-            println(it.message)
-            return UserExistsResponseDto(false)
+
+            return false
         }
-        return UserExistsResponseDto(true)
+        return true
     }
     @Transactional(readOnly = true)
     fun checkNickname(nicknameRequestDto:NicknameValidRequestDto): NicknameValidResponseDto {
@@ -50,8 +50,7 @@ class AuthenticationService @Autowired constructor(
         header.set("Authorization", accessToken)
         header.set("platform", oAuth2UserRequestDto.platform)
         user.jwtToken = accessToken
-
-            userRepository.save(user)
+        userRepository.save(user)
 
         return header
     }
