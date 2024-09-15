@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Aspect
 @Component
 class AuthenticationAspect {
-    @Pointcut("@annotation(soma.achoom.zigg.global.annotation.AuthenticationValidate)")
+    @Pointcut("@annotation(soma.achoom.zigg.auth.annotation.AuthenticationValidation)")
     fun authenticationValidate(joinPoint: JoinPoint) {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication == null || !authentication.isAuthenticated) {

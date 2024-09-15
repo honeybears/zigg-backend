@@ -1,6 +1,6 @@
 package soma.achoom.zigg.history.service
 
-import soma.achoom.zigg.global.annotation.AuthenticationValidate
+import soma.achoom.zigg.auth.annotation.AuthenticationValidation
 
 
 
@@ -12,13 +12,14 @@ import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
+import soma.achoom.zigg.history.exception.GuestHistoryCreateLimitationException
 import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.history.repository.HistoryRepository
-import soma.achoom.zigg.space.dto.SpaceResponseDto
+import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
-import soma.achoom.zigg.space.entity.SpaceRole
-import soma.achoom.zigg.space.entity.SpaceUser
+import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.repository.UserRepository
 import soma.achoom.zigg.user.service.UserService
 import java.util.UUID
@@ -32,7 +33,7 @@ class HistoryService @Autowired constructor(
     private val responseDtoManager: ResponseDtoManager,
 ) {
 
-    @AuthenticationValidate
+    @AuthenticationValidation
     @Transactional(readOnly = false)
     fun createHistory(
         authentication: Authentication,
@@ -56,7 +57,7 @@ class HistoryService @Autowired constructor(
         spaceRepository.save(space)
         return responseDtoManager.generateHistoryResponseShortDto(history)
     }
-    @AuthenticationValidate
+    @AuthenticationValidation
     @Transactional(readOnly = true)
     fun getHistories(authentication: Authentication, spaceId: UUID): List<HistoryResponseDto> {
         userService.authenticationToUser(authentication)
@@ -104,5 +105,9 @@ class HistoryService @Autowired constructor(
         space.histories.remove(history)
         spaceRepository.save(space)
     }
-
+    private fun checkGuestHistoryLimit(user:User, space: Space) {
+        if (user.role == UserRole.GUEST && space.histories.size == 3) {
+            throw GuestHistoryCreateLimitationException()
+        }
+    }
 }

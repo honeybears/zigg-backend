@@ -4,5 +4,6 @@ enum class OAuthProviderEnum {
     GOOGLE,
     KAKAO,
     APPLE,
+    GUEST,
     TEST
 }
