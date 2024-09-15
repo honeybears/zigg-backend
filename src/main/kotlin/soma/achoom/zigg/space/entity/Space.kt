@@ -18,7 +18,7 @@ class Space(
     var spaceImageKey: String,
     var referenceVideoKey: String? = null,
 
-    @OneToMany(mappedBy = "space", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "space", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)

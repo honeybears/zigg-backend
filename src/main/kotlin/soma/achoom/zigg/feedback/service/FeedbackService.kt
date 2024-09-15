@@ -35,24 +35,20 @@ class FeedbackService @Autowired constructor(
     @Transactional(readOnly = true)
     fun getFeedbacks(
         authentication: Authentication, spaceId: UUID, historyId: UUID
-    ): List<FeedbackResponseDto> {
+    ): List<Feedback> {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         spaceService.validateSpaceUser(user, space)
 
         val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
-        val feedbacks = history.feedbacks.toMutableSet()
-
-        return feedbacks.map {
-            responseDtoManager.generateFeedbackResponseDto(it)
-        }.toList()
+        return history.feedbacks.toList()
     }
 
     @Transactional(readOnly = false)
     fun createFeedback(
         authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackRequestDto: FeedbackRequestDto
-    ): FeedbackResponseDto {
+    ): Feedback {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -72,7 +68,7 @@ class FeedbackService @Autowired constructor(
         feedback.recipients.addAll(feedbackRecipient)
         history.feedbacks.add(feedback)
         historyRepository.save(history)
-        return responseDtoManager.generateFeedbackResponseDto(feedback)
+        return feedback
     }
 
     @Transactional(readOnly = false)
@@ -82,7 +78,7 @@ class FeedbackService @Autowired constructor(
         historyId: UUID,
         feedbackId: UUID,
         feedbackRequestDto: FeedbackRequestDto
-    ): FeedbackResponseDto {
+    ): Feedback {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -102,7 +98,7 @@ class FeedbackService @Autowired constructor(
 
         feedbackRepository.save(feedback)
 
-        return responseDtoManager.generateFeedbackResponseDto(feedback)
+        return feedback
     }
 
     @Transactional(readOnly = false)
