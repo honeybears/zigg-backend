@@ -20,7 +20,7 @@ class JwtTokenProvider {
     lateinit var secretKey: String
     private val key by lazy { Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)) }
 
-    fun createTokenWithUserInfo(user: User, userInfo: Map<String, Any>): String {
+    fun createTokenWithUserInfo(user: User): String {
 
         val userId = user.providerId
         val authorities = user.role
@@ -44,7 +44,7 @@ class JwtTokenProvider {
             .parseClaimsJws(token)
             .body
         val auth = claims["auth"] ?: throw RuntimeException("잘못된 토큰입니다.")
-        val oauthProvider = claims["provider"] as String // Extract the OAuth provider
+        val oauthProvider = claims["provider"] as String
         val authorities: Collection<GrantedAuthority> = (auth as String)
             .split(",")
             .map { SimpleGrantedAuthority(it) }

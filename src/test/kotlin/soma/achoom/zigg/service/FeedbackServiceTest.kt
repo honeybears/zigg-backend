@@ -7,9 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.TestConfig
 import soma.achoom.zigg.feedback.service.FeedbackService
 
-@SpringBootTest(
-    classes = [TestConfig::class]
-)
+@SpringBootTest(classes = [TestConfig::class])
 @ActiveProfiles("test")
 @Transactional
 class FeedbackServiceTest {

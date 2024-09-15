@@ -24,6 +24,7 @@ import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.service.SpaceService
 import soma.achoom.zigg.space.dto.SpaceUserRequestDto
 import soma.achoom.zigg.space.entity.SpaceRole
+import soma.achoom.zigg.space.exception.GuestSpaceCreateLimitationException
 import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
@@ -176,5 +177,44 @@ class SpaceServiceTest {
         // then
         assert(spaceRepository.findSpaceBySpaceId(response.spaceId!!)?.spaceUsers?.find { it.user == admin }?.withdraw == true)
         assert(spaces.isEmpty())
+    }
+
+    @Test
+    fun `guest limit with space create test`(){
+        //given
+        val guest = dummyDataUtil.createDummyGuestUser()
+        val guestAuth = dummyDataUtil.createDummyAuthentication(guest)
+        val spaceRequestDto1 = SpaceRequestDto(
+            spaceName = "testSpace1",
+            spaceImageUrl = SPACE_IMAGE_URL,
+            spaceUsers = userList.map {
+                SpaceUserRequestDto(
+                    userNickname = it.userNickname,
+                    spaceRole = SpaceRole.USER,
+                    spaceUserId = null
+                )
+            },
+            spaceId = null
+        )
+        val spaceRequestDto2 = SpaceRequestDto(
+            spaceName = "testSpace2",
+            spaceImageUrl = SPACE_IMAGE_URL,
+            spaceUsers = userList.map {
+                SpaceUserRequestDto(
+                    userNickname = it.userNickname,
+                    spaceRole = SpaceRole.USER,
+                    spaceUserId = null
+                )
+            },
+            spaceId = null
+        )
+
+        //when
+        spaceService.createSpace(guestAuth, spaceRequestDto1)
+        assert(spaceService.getSpaces(guestAuth).size == 1)
+        //then
+        assertThrows<GuestSpaceCreateLimitationException> {
+            spaceService.createSpace(guestAuth, spaceRequestDto2)
+        }
     }
 }
