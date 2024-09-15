@@ -14,12 +14,14 @@ import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.*
+import soma.achoom.zigg.space.exception.GuestSpaceCreateLimitationException
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.space.exception.LowSpacePermissionException
 import soma.achoom.zigg.space.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.repository.UserRepository
 import soma.achoom.zigg.user.service.UserService
 import java.util.UUID
@@ -58,10 +60,7 @@ class SpaceService(
             // 이미 초대되었고 나가지 않은 경우
             space.spaceUsers.any { spaceUser -> spaceUser.user == invited && !spaceUser.withdraw }.and(
                 // 이미 초대되었고 거절하지 않은 경우
-                space.invites.any { invite -> invite.invitee == invited && invite.inviteStatus != InviteStatus.DENIED }.and(
-                    //이미 들어온 경우
-                    space.spaceUsers.any { spaceUser -> spaceUser.user == invited }
-                )
+                space.invites.any { invite -> invite.invitee == invited && invite.inviteStatus != InviteStatus.DENIED }
             )
         }
 //        //이미 초대 되었지만 거절한 경우
@@ -104,9 +103,13 @@ class SpaceService(
         spaceRequestDto: SpaceRequestDto
     ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
+
+        checkGuestSpaceLimit(user)
+
         val invitedUsers = spaceRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
+
         val space = Space(
             spaceName = spaceRequestDto.spaceName,
             spaceImageKey = spaceRequestDto.spaceImageUrl?.let {
@@ -116,14 +119,13 @@ class SpaceService(
             spaceUsers = mutableSetOf(),
             invites = mutableSetOf(),
         )
-
-        space.spaceUsers.add(
-            SpaceUser(
-                user = user,
-                space = space,
-                spaceRole = SpaceRole.ADMIN,
-            )
+        val admin = SpaceUser(
+            user = user,
+            space = space,
+            spaceRole = SpaceRole.ADMIN,
         )
+        space.spaceUsers.add(admin)
+        user.spaces.add(admin)
         space.invites.addAll(
             invitedUsers.map {
                 Invite(
@@ -135,6 +137,7 @@ class SpaceService(
             }
         )
         spaceRepository.save(space)
+        userRepository.save(user)
         invitedUsers.isNotEmpty().takeIf { it }?.let {
             fcmService.sendMessageTo(
                 FCMEvent(
@@ -260,5 +263,12 @@ class SpaceService(
             return it
         }
         throw SpaceUserNotFoundInSpaceException()
+    }
+    private fun checkGuestSpaceLimit(user:User){
+        println(user.role)
+        println(user.spaces.size)
+        if(user.role == UserRole.GUEST && user.spaces.size >= 1){
+            throw GuestSpaceCreateLimitationException()
+        }
     }
 }

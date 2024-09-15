@@ -13,6 +13,7 @@ import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.repository.UserRepository
 import soma.achoom.zigg.user.service.UserService
+import java.util.*
 
 
 @TestConfiguration
@@ -38,8 +39,8 @@ class TestConfig {
         const val SPACE_IMAGE_URL = "http://example.com/space-image"
         const val PROFILE_IMAGE_URL = "http://example.com/profile-image"
         const val HISTORY_VIDEO_KEY = "history-video-key"
-        const val HISTORY_VIDEO_URL = "http://example.com/history-video"
+        const val HISTORY_VIDEO_URL = "https://your-bucket-name.s3.amazonaws.com/123e4567-e89b-12d3-a456-426614174000?AWSAccessKeyId=ASIAxxxxxxxxxxxx&Expires=1648585600&Signature=abcd1234efgh5678ijkl9012mnop3456\n"
         const val HISTORY_VIDEO_THUMBNAIL_KEY = "history-video-thumbnail-key"
-        const val HISTORY_VIDEO_THUMBNAIL_URL = "http://example.com/history-video-thumbnail"
+        const val HISTORY_VIDEO_THUMBNAIL_URL = "https://your-bucket-name.s3.amazonaws.com/123e4567-e89b-12d3-a456-426614174000?AWSAccessKeyId=ASIAxxxxxxxxxxxx&Expires=1648585600&Signature=abcd1234efgh5678ijkl9012mnop3456\n"
     }
 }

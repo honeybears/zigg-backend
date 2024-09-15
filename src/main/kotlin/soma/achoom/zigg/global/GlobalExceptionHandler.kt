@@ -6,15 +6,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import soma.achoom.zigg.feedback.exception.FeedbackNotFoundException
 import soma.achoom.zigg.firebase.exception.FCMMessagingFailException
+import soma.achoom.zigg.history.exception.GuestHistoryCreateLimitationException
 import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.invite.exception.InviteExpiredException
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
 import soma.achoom.zigg.invite.exception.UserAlreadyInSpaceException
-import soma.achoom.zigg.space.exception.AlreadyExistsSpaceUserException
-import soma.achoom.zigg.space.exception.LowSpacePermissionException
-import soma.achoom.zigg.space.exception.SpaceNotFoundException
-import soma.achoom.zigg.space.exception.SpaceUserNotFoundInSpaceException
+import soma.achoom.zigg.space.exception.*
+import soma.achoom.zigg.user.exception.GuestUserUpdateProfileLimitationException
 import soma.achoom.zigg.user.exception.NicknameUserNotFoundException
 import soma.achoom.zigg.user.exception.UserAlreadyExistsException
 import soma.achoom.zigg.user.exception.UserNotFoundException
@@ -84,5 +83,17 @@ class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyInSpaceException::class)
     fun handleUserAlreadyInSpace(e: UserAlreadyInSpaceException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.message)
+    }
+    @ExceptionHandler(GuestSpaceCreateLimitationException::class)
+    fun handleGuestSpaceCreateLimitation(e: GuestSpaceCreateLimitationException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
+    }
+    @ExceptionHandler(GuestHistoryCreateLimitationException::class)
+    fun handleGuestHistoryCreateLimitation(e: GuestHistoryCreateLimitationException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
+    }
+    @ExceptionHandler(GuestUserUpdateProfileLimitationException::class)
+    fun handleGuestUserUpdateProfileLimitation(e: GuestUserUpdateProfileLimitationException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
     }
 }
