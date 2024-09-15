@@ -31,7 +31,6 @@ import java.util.UUID
 class SpaceService(
     private val spaceRepository: SpaceRepository,
     private val userService: UserService,
-    private val responseDtoManager: ResponseDtoManager,
     private val fcmService: FCMService,
     private val userRepository: UserRepository,
     private val spaceUserRepository: SpaceUserRepository
@@ -44,7 +43,7 @@ class SpaceService(
         authentication: Authentication,
         spaceId: UUID,
         inviteUsersRequestDto: InviteUsersRequestDto
-    ): SpaceResponseDto {
+    ): Space {
         val user = userService.authenticationToUser(authentication)
 
         val invitedUsers : MutableSet<User> = inviteUsersRequestDto.spaceUsers.map {
@@ -94,14 +93,14 @@ class SpaceService(
                 apns = null
             )
         )
-        return responseDtoManager.generateSpaceResponseShortDto(space)
+        return space
     }
 
     @Transactional(readOnly = false)
     fun createSpace(
         authentication: Authentication,
         spaceRequestDto: SpaceRequestDto
-    ): SpaceResponseDto {
+    ): Space {
         val user = userService.authenticationToUser(authentication)
 
         checkGuestSpaceLimit(user)
@@ -124,8 +123,7 @@ class SpaceService(
             space = space,
             spaceRole = SpaceRole.ADMIN,
         )
-        space.spaceUsers.add(admin)
-        user.spaces.add(admin)
+
         space.invites.addAll(
             invitedUsers.map {
                 Invite(
@@ -137,7 +135,15 @@ class SpaceService(
             }
         )
         spaceRepository.save(space)
-        userRepository.save(user)
+        spaceUserRepository.save(admin)
+
+//        space.spaceUsers.add(admin)
+//
+//        spaceRepository.save(space)
+//
+//        user.spaces.add(admin)
+//
+//        userRepository.save(user)
         invitedUsers.isNotEmpty().takeIf { it }?.let {
             fcmService.sendMessageTo(
                 FCMEvent(
@@ -151,7 +157,7 @@ class SpaceService(
             )
         }
 
-        return responseDtoManager.generateSpaceResponseShortDto(space)
+        return space
     }
     @Transactional(readOnly = false)
     fun withdrawSpace(authentication: Authentication, spaceId: UUID) {
@@ -169,23 +175,21 @@ class SpaceService(
     }
 
     @Transactional(readOnly = true)
-    fun getSpaces(authentication: Authentication): List<SpaceResponseDto> {
+    fun getSpaces(authentication: Authentication): List<Space> {
         val user = userService.authenticationToUser(authentication)
         val spaceList = spaceRepository.findSpacesByUser(user)
-        return spaceList.map {
-            responseDtoManager.generateSpaceResponseShortDto(it)
-        }
+        return spaceList
     }
 
     @Transactional(readOnly = true)
-    fun getSpace(authentication: Authentication, spaceId: UUID): SpaceResponseDto {
+    fun getSpace(authentication: Authentication, spaceId: UUID): Space {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-        return responseDtoManager.generateSpaceResponseShortDto(space)
+        return space
     }
 
     @Transactional(readOnly = false)
@@ -193,7 +197,7 @@ class SpaceService(
         authentication: Authentication,
         spaceId: UUID,
         spaceRequestDto: SpaceRequestDto
-    ): SpaceResponseDto {
+    ): Space {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -207,7 +211,7 @@ class SpaceService(
                     .joinToString("/")
             }
         }
-        return responseDtoManager.generateSpaceResponseShortDto(space)
+        return space
     }
 
     @Transactional(readOnly = false)
@@ -218,7 +222,16 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
+//        space.spaceUsers.forEach{
+//            it.user = null
+//            it.space = null
+//            spaceUserRepository.delete(it)
+//        }
+        space.spaceUsers.clear()
+        space.histories.clear()
+        space.invites.clear()
 
+        // Delete the space
         spaceRepository.delete(space)
     }
 
@@ -227,7 +240,7 @@ class SpaceService(
         authentication: Authentication,
         spaceId: UUID,
         spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto
-    ): SpaceResponseDto {
+    ): Space {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -238,10 +251,10 @@ class SpaceService(
 
         spaceRepository.save(space)
 
-        return responseDtoManager.generateSpaceResponseShortDto(space)
+        return space
     }
     @Transactional(readOnly = false)
-    fun deleteReferenceUrl(authentication: Authentication, spaceId: UUID) : SpaceResponseDto{
+    fun deleteReferenceUrl(authentication: Authentication, spaceId: UUID) : Space{
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -251,7 +264,7 @@ class SpaceService(
         space.referenceVideoKey = null
 
         spaceRepository.save(space)
-        return responseDtoManager.generateSpaceResponseShortDto(space)
+        return space
     }
 
 

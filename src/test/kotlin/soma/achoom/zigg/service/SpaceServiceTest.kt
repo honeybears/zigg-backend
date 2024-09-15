@@ -26,6 +26,7 @@ import soma.achoom.zigg.space.dto.SpaceUserRequestDto
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.exception.GuestSpaceCreateLimitationException
 import soma.achoom.zigg.space.repository.SpaceRepository
+import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
 import java.util.*
@@ -34,6 +35,9 @@ import java.util.*
 @ActiveProfiles("test")
 @Transactional
 class SpaceServiceTest {
+
+    @Autowired
+    private lateinit var spaceUserRepository: SpaceUserRepository
 
     @Autowired
     private lateinit var spaceRepository: SpaceRepository
@@ -145,13 +149,14 @@ class SpaceServiceTest {
         )
         val response = spaceService.createSpace(adminAuth, spaceRequestDto)
         // when
-        spaceService.deleteSpace(adminAuth, response.spaceId!!)
+        spaceService.deleteSpace(adminAuth, response.spaceId)
         // then
         assertThrows<SpaceNotFoundException>(
             message = "존재하지 않는 공간입니다."
         ) {
-            spaceService.getSpace(adminAuth,response.spaceId!!)
+            spaceService.getSpace(adminAuth,response.spaceId)
         }
+        assert(spaceUserRepository.findSpaceUserBySpaceUserId(response.spaceId) == null)
     }
     @Test
     fun `withdraw Space Test`(){

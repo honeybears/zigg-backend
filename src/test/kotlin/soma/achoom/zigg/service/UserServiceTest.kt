@@ -136,7 +136,7 @@ class UserServiceTest {
         userService.deleteUser(authentication)
         assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
         assert(fcmRepository.findAll().size == 0)
-        assert(spaceUserRepository.findSpaceUsersByUser(userWithFCM).size == 0)
+        assert(spaceUserRepository.findSpaceUsersByUser(userWithFCM).isEmpty())
     }
 
 

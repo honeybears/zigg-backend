@@ -39,7 +39,7 @@ class HistoryService @Autowired constructor(
         authentication: Authentication,
         spaceId: UUID,
         historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto  {
+    ): History  {
 
         userService.authenticationToUser(authentication)
 
@@ -55,27 +55,24 @@ class HistoryService @Autowired constructor(
         )
         space.histories.add(history)
         spaceRepository.save(space)
-        return responseDtoManager.generateHistoryResponseShortDto(history)
+        return history
     }
     @AuthenticationValidation
     @Transactional(readOnly = true)
-    fun getHistories(authentication: Authentication, spaceId: UUID): List<HistoryResponseDto> {
+    fun getHistories(authentication: Authentication, spaceId: UUID): MutableSet<History> {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         val histories = space.histories
-        return histories.map {
-            responseDtoManager.generateHistoryResponseShortDto(it)
-        }.toList()
+        return histories
     }
     @Transactional(readOnly = true)
-    fun getHistory(authentication: Authentication, spaceId: UUID, historyId: UUID): HistoryResponseDto {
+    fun getHistory(authentication: Authentication, spaceId: UUID, historyId: UUID): History {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
-        val history = historyRepository.findHistoryByHistoryId(historyId)
+        return historyRepository.findHistoryByHistoryId(historyId)
             ?: throw HistoryNotFoundException()
-        return responseDtoManager.generateHistoryResponseDto(history)
     }
     @Transactional(readOnly = false)
     fun updateHistory(
@@ -83,7 +80,7 @@ class HistoryService @Autowired constructor(
         spaceId: UUID,
         historyId: UUID,
         historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto  {
+    ): History  {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
@@ -91,8 +88,7 @@ class HistoryService @Autowired constructor(
             ?: throw HistoryNotFoundException()
 
         history.historyName = historyRequestDto.historyName
-        historyRepository.save(history)
-        return responseDtoManager.generateHistoryResponseDto(history)
+        return historyRepository.save(history)
     }
     @Transactional(readOnly = false)
     fun deleteHistory(authentication: Authentication, spaceId: UUID, historyId: UUID) {
