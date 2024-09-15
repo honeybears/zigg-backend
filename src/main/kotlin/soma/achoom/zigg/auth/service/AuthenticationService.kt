@@ -6,13 +6,12 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.*
-
 import soma.achoom.zigg.auth.filter.JwtTokenProvider
 import soma.achoom.zigg.user.dto.UserExistsResponseDto
 import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.UserAlreadyExistsException
 import soma.achoom.zigg.user.repository.UserRepository
-
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -46,7 +45,7 @@ class AuthenticationService @Autowired constructor(
         val user = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
         ) ?: throw IllegalArgumentException("register first")
-        val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+        val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
         val header = HttpHeaders()
         header.set("Authorization", accessToken)
         header.set("platform", oAuth2UserRequestDto.platform)
@@ -67,7 +66,7 @@ class AuthenticationService @Autowired constructor(
                 val user = saveOrUpdate(oAuth2UserRequestDto)
 
                 if (verifyGoogleToken(oAuth2UserRequestDto.idToken)) {
-                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
@@ -83,7 +82,7 @@ class AuthenticationService @Autowired constructor(
                 if (verifyKakaoToken(oAuth2UserRequestDto.idToken)) {
                     val user = saveOrUpdate(oAuth2UserRequestDto)
 
-                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
@@ -98,13 +97,24 @@ class AuthenticationService @Autowired constructor(
             OAuthProviderEnum.APPLE.name -> {
                 val user = saveOrUpdate(oAuth2UserRequestDto)
 
-                val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+                val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
                 val header = HttpHeaders()
                 header.set("Authorization", accessToken)
                 header.set("platform", oAuth2UserRequestDto.platform)
                 user.jwtToken = accessToken
+                userRepository.save(user)
 
-                    userRepository.save(user)
+                return header
+            }
+            OAuthProviderEnum.GUEST.name -> {
+                val user = saveOrUpdate(oAuth2UserRequestDto)
+
+                val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
+                val header = HttpHeaders()
+                header.set("Authorization", accessToken)
+                header.set("platform", oAuth2UserRequestDto.platform)
+                user.jwtToken = accessToken
+                userRepository.save(user)
 
                 return header
             }
@@ -159,6 +169,9 @@ class AuthenticationService @Autowired constructor(
             profileBannerImageKey = null,
             spaces = mutableSetOf()
         )
+        if(user.platform == OAuthProviderEnum.GUEST){
+            user.role = UserRole.GUEST
+        }
 
         return userRepository.save(user)
 

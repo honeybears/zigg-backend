@@ -28,6 +28,7 @@ import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.repository.UserRepository
 import java.util.*
 
@@ -63,6 +64,25 @@ class DummyDataUtil(
         return userRepository.save(user)
     }
 
+    fun createDummyGuestUser() : User {
+        val user = User(
+            userId = UUID.randomUUID(),
+            userName = createRandomString(5),
+            userNickname = createRandomString(7),
+            profileImageKey = PROFILE_IMAGE_KEY,
+            jwtToken = "",
+            providerId = UUID.randomUUID().toString(),
+            platform = OAuthProviderEnum.GUEST,
+            role = UserRole.GUEST,
+            deviceTokens = mutableSetOf(),
+            spaces = mutableSetOf(),
+            invites = mutableSetOf(),
+            invited = mutableSetOf(),
+            profileBannerImageKey = null
+        )
+        return userRepository.save(user)
+    }
+
     fun createDummyUserWithMultiFCMToken(size: Int): User {
         val user = createDummyUser()
         user.deviceTokens = mutableSetOf()
@@ -70,7 +90,6 @@ class DummyDataUtil(
             user.deviceTokens.add(
                 FCMToken(
                     token = UUID.randomUUID().toString(),
-//                    user = user
                 )
             )
         }
