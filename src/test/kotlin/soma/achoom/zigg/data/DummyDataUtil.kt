@@ -27,6 +27,7 @@ import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.space.repository.SpaceRepository
+import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.repository.UserRepository
@@ -38,7 +39,8 @@ class DummyDataUtil(
     private val inviteRepository: InviteRepository,
     private val userRepository: UserRepository,
     private val spaceRepository: SpaceRepository,
-    private val historyRepository: HistoryRepository
+    private val historyRepository: HistoryRepository,
+    private val spaceUserRepository: SpaceUserRepository
 ) {
 
     @Value("\${jwt.secret}")
@@ -114,10 +116,7 @@ class DummyDataUtil(
             user = user,
             spaceRole = SpaceRole.USER
         )
-        space.spaceUsers.add(spaceUser)
-        spaceRepository.save(space)
-        user.spaces.add(spaceUser)
-        userRepository.save(user)
+        spaceUserRepository.save(spaceUser)
         return spaceUser
     }
 
