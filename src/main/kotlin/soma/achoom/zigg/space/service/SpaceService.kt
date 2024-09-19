@@ -136,6 +136,10 @@ class SpaceService(
         )
         spaceRepository.save(space)
         spaceUserRepository.save(admin)
+        space.spaceUsers.add(admin)
+        spaceRepository.save(space)
+        user.spaces.add(admin)
+        userRepository.save(user)
 
 //        space.spaceUsers.add(admin)
 //
