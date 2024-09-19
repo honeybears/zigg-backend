@@ -6,7 +6,7 @@ import soma.achoom.zigg.user.entity.User
 import java.util.*
 
 @Entity
-@EntityListeners(SpaceUserEntityListener::class)
+//@EntityListeners(SpaceUserEntityListener::class)
 @Table(name = "space_user")
 class SpaceUser(
     @Id
