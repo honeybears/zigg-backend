@@ -3,11 +3,8 @@ package soma.achoom.zigg.invite.service
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import soma.achoom.zigg.firebase.dto.FCMEvent
-import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
-import soma.achoom.zigg.invite.dto.InviteListResponseDto
 import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
@@ -17,6 +14,7 @@ import soma.achoom.zigg.invite.repository.InviteRepository
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.space.repository.SpaceRepository
+import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.service.UserService
 import java.util.*
 
@@ -26,6 +24,7 @@ class InviteService(
     private val spaceRepository: SpaceRepository,
     private val inviteRepository: InviteRepository,
     private val responseDtoManager: ResponseDtoManager,
+    private val spaceUserRepository: SpaceUserRepository,
 
     ) {
     @Transactional(readOnly = true)
@@ -54,13 +53,13 @@ class InviteService(
                 if (space.spaceUsers.any { it.user == user}) {
                     throw UserAlreadyInSpaceException()
                 }
-                space.spaceUsers.add(
-                    SpaceUser(
-                        user = user,
-                        space = space,
-                        spaceRole = SpaceRole.USER
-                    )
+                val spaceUser = SpaceUser(
+                    user = user,
+                    space = space,
+                    spaceRole = SpaceRole.USER
                 )
+                spaceUserRepository.save(spaceUser)
+                space.spaceUsers.add(spaceUser)
                 invite.inviteStatus = InviteStatus.ACCEPTED
             }
             false -> {
