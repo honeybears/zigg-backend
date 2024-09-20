@@ -23,10 +23,10 @@ class InviteService(
     private val userService: UserService,
     private val spaceRepository: SpaceRepository,
     private val inviteRepository: InviteRepository,
-    private val responseDtoManager: ResponseDtoManager,
     private val spaceUserRepository: SpaceUserRepository,
 
     ) {
+
     @Transactional(readOnly = true)
     fun getInvites(authentication: Authentication): List<Invite> {
         val user = userService.authenticationToUser(authentication)
