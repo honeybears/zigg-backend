@@ -87,7 +87,7 @@ class SpaceService(
             FCMEvent(
                 users = invitedUsers,
                 title = "새로운 스페이스에 초대되었습니다.",
-                body = "${user.userNickname}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
+                body = "${user.userName}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
                 data = mapOf("spaceId" to space.spaceId.toString()),
                 android = null,
                 apns = null
@@ -153,7 +153,7 @@ class SpaceService(
                 FCMEvent(
                     users = invitedUsers,
                     title = "새로운 스페이스에 초대되었습니다.",
-                    body = "${user.userNickname}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
+                    body = "${user.userName}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
                     data = mapOf("spaceId" to space.spaceId.toString()),
                     android = null,
                     apns = null

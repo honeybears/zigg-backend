@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.*
 import soma.achoom.zigg.auth.filter.JwtTokenProvider
-import soma.achoom.zigg.user.dto.UserExistsResponseDto
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.UserAlreadyExistsException
