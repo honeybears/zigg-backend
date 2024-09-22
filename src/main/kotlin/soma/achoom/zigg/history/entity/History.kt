@@ -1,7 +1,8 @@
 package soma.achoom.zigg.history.entity
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
+import soma.achoom.zigg.content.entity.Image
+import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.feedback.entity.Feedback
 import java.util.UUID
@@ -13,14 +14,14 @@ class History(
 
     var historyName: String?,
 
-    var historyVideoKey: String,
+    @OneToOne
+    var historyVideoKey: Video,
 
-    var historyVideoThumbnailUrl: String,
-
-    var videoDuration: String? = null,
+    @OneToOne
+    var historyVideoThumbnailUrl : Image,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     var feedbacks: MutableSet<Feedback> = mutableSetOf(),
 
-) : BaseEntity() {
+    ) : BaseEntity() {
 }

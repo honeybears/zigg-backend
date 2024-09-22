@@ -13,17 +13,6 @@ data class UserResponseDto(
     val profileBannerImageUrl:String?
 
 )  {
-    companion object {
-        fun from(user: User): UserResponseDto {
-            return UserResponseDto(
-                userId = user.userId,
-                userNickname = user.userNickname,
-                userName = user.userName,
-                profileImageUrl = user.profileImageKey,
-                profileBannerImageUrl = user.profileBannerImageKey
-            )
-        }
-    }
 
     override fun toString(): String {
         return "UserResponseDto(\n" +
