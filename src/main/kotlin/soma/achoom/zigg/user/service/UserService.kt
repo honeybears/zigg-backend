@@ -5,12 +5,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
+import soma.achoom.zigg.content.entity.Image
+import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.service.FCMService
-import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.dto.UserRequestDto
-import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.GuestUserUpdateProfileLimitationException
@@ -21,9 +21,9 @@ import soma.achoom.zigg.user.repository.UserRepository
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val responseDtoManager: ResponseDtoManager,
     private val fcmService: FCMService,
     private val spaceUserRepository: SpaceUserRepository,
+    private val imageRepository: ImageRepository
 ) {
     @Transactional(readOnly = true)
     fun searchUser(authentication: Authentication, nickname: String): List<User> {
@@ -40,16 +40,27 @@ class UserService(
         val user = authenticationToUser(authentication)
         checkGuestUserUpdateProfileLimit(user)
         user.userName = userRequestDto.userName
-//        user.userNickname = userRequestDto.userNickname
-        user.profileImageKey = userRequestDto.profileImageUrl?.let {
-            it.split("?")[0].split("/").subList(3, userRequestDto.profileImageUrl.split("?")[0].split("/").size)
-                .joinToString("/")
-                } ?: user.profileImageKey
 
-        user.profileBannerImageKey = userRequestDto.profileBannerImageUrl?.let {
-            it.split("?")[0].split("/").subList(3, userRequestDto.profileBannerImageUrl.split("?")[0].split("/").size)
-                .joinToString("/")
-        } ?: user.profileBannerImageKey
+        userRequestDto.profileImageUrl?.let{
+
+            user.profileImageKey = Image(
+                imageKey = it.split("?")[0].split("/").subList(3, userRequestDto.profileImageUrl.split("?")[0].split("/").size)
+                    .joinToString("/"),
+                imageUploader = user
+            )
+            imageRepository.save(user.profileImageKey)
+        }
+
+        userRequestDto.profileBannerImageUrl?.let {
+            user.profileBannerImageKey = Image(
+                imageKey = it.split("?")[0].split("/").subList(3, userRequestDto.profileBannerImageUrl.split("?")[0].split("/").size)
+                    .joinToString("/"),
+                imageUploader = user
+            )
+
+            imageRepository.save(user.profileBannerImageKey!!)
+
+        }
 
         return userRepository.save(user)
     }

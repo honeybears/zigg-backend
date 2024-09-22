@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.*
 import soma.achoom.zigg.auth.filter.JwtTokenProvider
+import soma.achoom.zigg.content.entity.Image
+import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.UserAlreadyExistsException
@@ -21,7 +23,8 @@ class AuthenticationService @Autowired constructor(
     private var jwtTokenProvider: JwtTokenProvider,
     @Value("\${user.default.profile.images}")
     private val defaultProfileImages: List<String>,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val imageRepository: ImageRepository
 )  {
     @Transactional(readOnly = true)
     fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): Boolean {
@@ -152,21 +155,27 @@ class AuthenticationService @Autowired constructor(
 
 
     private fun saveOrUpdate(oAuth2UserRequestDto: OAuth2UserRequestDto): User {
-        val user: User = userRepository.findUserByPlatformAndProviderId(
+        var user: User? = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
-        ) ?: User(
-            userNickname = oAuth2UserRequestDto.userNickname,
-            userName = oAuth2UserRequestDto.userName,
-            providerId = oAuth2UserRequestDto.providerId,
-            platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
-            jwtToken = "",
-            profileImageKey = defaultProfileImages.random(),
-            deviceTokens = mutableSetOf(),
-            invites = mutableSetOf(),
-            invited = mutableSetOf(),
-            profileBannerImageKey = null,
-            spaces = mutableSetOf()
         )
+        if(user == null) {
+            val image = imageRepository.findByImageKey(defaultProfileImages.random()) ?: throw RuntimeException("사진이 없습니다.")
+
+            user = User(
+                userNickname = oAuth2UserRequestDto.userNickname,
+                userName = oAuth2UserRequestDto.userName,
+                providerId = oAuth2UserRequestDto.providerId,
+                platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
+                jwtToken = "",
+                profileImageKey = image,
+                deviceTokens = mutableSetOf(),
+                invites = mutableSetOf(),
+                invited = mutableSetOf(),
+                profileBannerImageKey = null,
+                spaces = mutableSetOf()
+            )
+        }
+
         if(user.platform == OAuthProviderEnum.GUEST){
             user.role = UserRole.GUEST
         }
