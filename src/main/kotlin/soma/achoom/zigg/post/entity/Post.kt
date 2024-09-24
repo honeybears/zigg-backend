@@ -22,10 +22,10 @@ class Post(
 
     var postMessage: String? = null,
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var postImageContent: MutableSet<Image> = mutableSetOf(),
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var postVideoContent: MutableSet<Video> = mutableSetOf(),
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
