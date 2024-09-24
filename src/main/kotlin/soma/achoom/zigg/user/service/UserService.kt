@@ -7,6 +7,7 @@ import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.repository.ImageRepository
+import soma.achoom.zigg.content.repository.VideoRepository
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.space.repository.SpaceUserRepository
@@ -23,7 +24,8 @@ class UserService(
     private val userRepository: UserRepository,
     private val fcmService: FCMService,
     private val spaceUserRepository: SpaceUserRepository,
-    private val imageRepository: ImageRepository
+    private val imageRepository: ImageRepository,
+    private val videoRepository: VideoRepository
 ) {
     @Transactional(readOnly = true)
     fun searchUser(authentication: Authentication, nickname: String): List<User> {
@@ -83,6 +85,14 @@ class UserService(
         user.spaces.forEach {
             spaceUser -> spaceUser.user = null
             spaceUserRepository.save(spaceUser)
+        }
+        imageRepository.findImagesByImageUploader(user).forEach {
+            it.imageUploader = null
+            imageRepository.save(it)
+        }
+        videoRepository.findVideosByVideoUploader(user).forEach {
+            it.videoUploader = null
+            videoRepository.save(it)
         }
         userRepository.delete(user)
     }
