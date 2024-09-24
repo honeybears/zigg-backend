@@ -6,10 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import soma.achoom.zigg.TestConfig
 import soma.achoom.zigg.data.DummyDataUtil
-import soma.achoom.zigg.invite.entity.Invite
-import soma.achoom.zigg.invite.repository.InviteRepository
 import soma.achoom.zigg.invite.service.InviteService
-import soma.achoom.zigg.space.dto.InviteUsersRequestDto
+import soma.achoom.zigg.space.dto.InviteRequestDto
 import soma.achoom.zigg.space.dto.SpaceUserRequestDto
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.entity.SpaceRole
@@ -19,7 +17,6 @@ import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.space.service.SpaceService
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
-import soma.achoom.zigg.user.service.UserService
 import kotlin.test.Test
 
 @SpringBootTest(classes = [TestConfig::class])
@@ -80,10 +77,10 @@ class InviteServiceTest {
     @Test
     fun `invite space after withdraw`() {
         val auth = dummyDataUtil.createDummyAuthentication(inviter)
-        val result = spaceService.inviteUserToSpace(
+        val result = spaceService.inviteSpace(
             authentication = auth,
             spaceId = space.spaceId,
-            inviteUsersRequestDto = InviteUsersRequestDto(
+            inviteRequestDto = InviteRequestDto(
                 spaceUsers = listOf(
                     SpaceUserRequestDto(
                         userNickname = user.userNickname,
