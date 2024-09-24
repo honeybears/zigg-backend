@@ -46,7 +46,7 @@ class SpaceService(
     ): Space {
         val user = userService.authenticationToUser(authentication)
 
-        val invitedUsers : MutableSet<User> = inviteRequestDto.spaceUsers.map {
+        val invitedUsers: MutableSet<User> = inviteRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
 
@@ -55,13 +55,13 @@ class SpaceService(
 
         validateSpaceUser(user, space)
         space.invites.addAll(
-            invitedUsers.filter{
-                invitee ->
+            invitedUsers.filter { invitee ->
                 // 이미 초대되었고 나가지 않은 경우
-                space.spaceUsers.any { spaceUser -> spaceUser.user?.userId == invitee.userId && !spaceUser.withdraw }.and(
-                    // 이미 초대되었고 거절하지 않은 경우
-                    space.invites.any { invite -> invite.invitee.userId == invitee.userId && invite.inviteStatus != InviteStatus.DENIED && invite.isExpired.not()}
-                ).not()
+                space.spaceUsers.any { spaceUser -> spaceUser.user?.userId == invitee.userId && !spaceUser.withdraw }
+                    .and(
+                        // 이미 초대되었고 거절하지 않은 경우
+                        space.invites.any { invite -> invite.invitee.userId == invitee.userId && invite.inviteStatus != InviteStatus.DENIED && invite.isExpired.not() }
+                    ).not()
             }.map {
                 Invite(
                     invitee = it,
@@ -155,6 +155,7 @@ class SpaceService(
 
         return space
     }
+
     @Transactional(readOnly = false)
     fun withdrawSpace(authentication: Authentication, spaceId: UUID) {
         val user = userService.authenticationToUser(authentication)
@@ -164,7 +165,7 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.spaceUsers.find{it.user?.userId == user.userId}?.let {
+        space.spaceUsers.find { it.user?.userId == user.userId }?.let {
             it.withdraw = true
         }
         spaceRepository.save(space)
@@ -204,10 +205,13 @@ class SpaceService(
         space.spaceName = spaceRequestDto.spaceName
 
         spaceRequestDto.spaceImageUrl?.let {
-            space.spaceImageKey.imageKey = it.let {
-                it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
-                    .joinToString("/")
-            }
+            space.spaceImageKey = Image(
+                imageKey = it.let {
+                    it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
+                        .joinToString("/")
+                },
+                imageUploader = user
+            )
             imageRepository.save(space.spaceImageKey)
         }
 
@@ -255,8 +259,9 @@ class SpaceService(
 
         return space
     }
+
     @Transactional(readOnly = false)
-    fun deleteReferenceUrl(authentication: Authentication, spaceId: UUID) : Space{
+    fun deleteReferenceUrl(authentication: Authentication, spaceId: UUID): Space {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
@@ -279,10 +284,11 @@ class SpaceService(
         }
         throw SpaceUserNotFoundInSpaceException()
     }
-    private fun checkGuestSpaceLimit(user:User){
+
+    private fun checkGuestSpaceLimit(user: User) {
         println(user.role)
         println(user.spaces.size)
-        if(user.role == UserRole.GUEST && user.spaces.size >= 1){
+        if (user.role == UserRole.GUEST && user.spaces.size >= 1) {
             throw GuestSpaceCreateLimitationException()
         }
     }
