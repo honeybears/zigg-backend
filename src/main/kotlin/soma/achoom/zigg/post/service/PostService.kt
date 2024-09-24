@@ -20,6 +20,21 @@ class PostService(
     private val imageRepository: ImageRepository,
     private val videoRepository: VideoRepository
 ) {
+//    fun createPost(authentication: Authentication, postRequestDto: PostRequestDto): Post {
+//        val user = userService.authenticationToUser(authentication)
+//        val post = Post(
+//            postTitle = postRequestDto.postTitle,
+//            postMessage = postRequestDto.postMessage,
+//            postImageContent = postRequestDto.postImageContent.map {
+//                imageRepository.findById(it).orElseThrow { IllegalArgumentException("Image not found") }
+//            }.toMutableSet(),
+//            postVideoContent = postRequestDto.postVideoContent.map {
+//                videoRepository.findById(it).orElseThrow { IllegalArgumentException("Video not found") }
+//            }.toMutableSet(),
+//            postCreator = user
+//        )
+//        return postRepository.save(post)
+//    }
 
     fun getPosts(authentication: Authentication): Page<Post> {
         return postRepository.findAll(page = Pageable.ofSize(10))

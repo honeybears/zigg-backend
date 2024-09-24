@@ -34,18 +34,14 @@ class HistoryController @Autowired constructor(
         @PathVariable value: String
     ): ResponseEntity<String> {
         if (value.trim() == "video") {
-            val preSignedUrl =
-                s3Service.getPreSignedPutUrl(S3DataType.HISTORY_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)
             return ResponseEntity.ok(preSignedUrl)
-
-        } else if (value.trim() == "thumbnail") {
-            val preSignedUrl = s3Service.getPreSignedPutUrl(
-                S3DataType.HISTORY_THUMBNAIL,
-                UUID.randomUUID(),
-                uploadContentTypeRequestDto
-            )
+        }
+        else if (value.trim() == "thumbnail") {
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_THUMBNAIL, UUID.randomUUID(), uploadContentTypeRequestDto)
             return ResponseEntity.ok(preSignedUrl)
-        } else
+        }
+        else
             return ResponseEntity.badRequest().build()
     }
 
