@@ -17,6 +17,10 @@ import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_KEY
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_KEY
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.auth.filter.CustomUserDetails
+import soma.achoom.zigg.content.entity.Image
+import soma.achoom.zigg.content.entity.Video
+import soma.achoom.zigg.content.repository.ImageRepository
+import soma.achoom.zigg.content.repository.VideoRepository
 import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.history.entity.History
@@ -40,7 +44,9 @@ class DummyDataUtil(
     private val userRepository: UserRepository,
     private val spaceRepository: SpaceRepository,
     private val historyRepository: HistoryRepository,
-    private val spaceUserRepository: SpaceUserRepository
+    private val spaceUserRepository: SpaceUserRepository,
+    private val imageRepository: ImageRepository,
+    private val videoRepository: VideoRepository
 ) {
 
     @Value("\${jwt.secret}")
@@ -49,11 +55,16 @@ class DummyDataUtil(
     private val key by lazy { Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)) }
 
     fun createDummyUser(): User {
+        val image = Image(
+            imageKey = PROFILE_IMAGE_KEY,
+            imageUploader = null
+        )
+        imageRepository.save(image)
         val user = User(
             userId = UUID.randomUUID(),
             userName = createRandomString(5),
             userNickname = createRandomString(7),
-            profileImageKey = PROFILE_IMAGE_KEY,
+            profileImageKey = image,
             jwtToken = "",
             providerId = UUID.randomUUID().toString(),
             platform = OAuthProviderEnum.TEST,
@@ -67,11 +78,16 @@ class DummyDataUtil(
     }
 
     fun createDummyGuestUser() : User {
+        val image = Image(
+            imageKey = PROFILE_IMAGE_KEY,
+            imageUploader = null
+        )
+        imageRepository.save(image)
         val user = User(
             userId = UUID.randomUUID(),
             userName = createRandomString(5),
             userNickname = createRandomString(7),
-            profileImageKey = PROFILE_IMAGE_KEY,
+            profileImageKey = image,
             jwtToken = "",
             providerId = UUID.randomUUID().toString(),
             platform = OAuthProviderEnum.GUEST,
@@ -99,10 +115,15 @@ class DummyDataUtil(
     }
 
     fun createDummySpace(): Space {
+        val image = Image(
+            imageKey = SPACE_IMAGE_KEY,
+            imageUploader = null
+        )
+        imageRepository.save(image)
         val space =  Space(
             spaceId = UUID.randomUUID(),
             spaceName = createRandomString(10),
-            spaceImageKey = SPACE_IMAGE_KEY,
+            spaceImageKey = image,
             spaceUsers = mutableSetOf(),
             referenceVideoKey = HISTORY_VIDEO_URL,
         )
@@ -507,12 +528,23 @@ class DummyDataUtil(
     }
 
     fun createDummyHistory(space: Space): History {
+        val video = Video(
+            videoKey = HISTORY_VIDEO_URL,
+            videoUploader = null,
+            videoDuration = "00:00:00",
+        )
+        val image = Image(
+            imageUploader = null,
+            imageKey = HISTORY_VIDEO_URL
+        )
+        imageRepository.save(image)
+        videoRepository.save(video)
         val history = History(
             historyId = UUID.randomUUID(),
 //            space = space,
             historyName = "히스토리 이름",
-            historyVideoKey = HISTORY_VIDEO_URL,
-            historyVideoThumbnailUrl = HISTORY_VIDEO_URL,
+            historyVideoKey = video,
+            historyVideoThumbnailUrl = image,
         )
         space.histories.add(history)
         spaceRepository.save(space)

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
+import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.invite.entity.Invite
@@ -25,10 +26,10 @@ class User(
 
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
-
-    var profileImageKey: String,
-
-    var profileBannerImageKey:String?,
+    @OneToOne
+    var profileImageKey: Image,
+    @OneToOne
+    var profileBannerImageKey:Image? = null,
 
     @Enumerated(EnumType.STRING)
     var platform: OAuthProviderEnum,

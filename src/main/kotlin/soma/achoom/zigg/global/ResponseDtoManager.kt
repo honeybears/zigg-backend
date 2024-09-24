@@ -23,7 +23,7 @@ class ResponseDtoManager(
         return SpaceResponseDto(
             spaceId = space.spaceId,
             spaceName = space.spaceName,
-            spaceImageUrl = s3Service.getPreSignedGetUrl(space.spaceImageKey),
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.spaceImageKey.imageKey),
             referenceVideoUrl = space.referenceVideoKey,
             spaceUsers = space.spaceUsers.filter{it.withdraw.not()}.map {
                 generateSpaceUserResponseDto(it)
@@ -38,7 +38,7 @@ class ResponseDtoManager(
         return SpaceResponseDto(
             spaceId = space.spaceId,
             spaceName = space.spaceName,
-            spaceImageUrl = s3Service.getPreSignedGetUrl(space.spaceImageKey),
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.spaceImageKey.imageKey),
             referenceVideoUrl = space.referenceVideoKey,
             spaceUsers = space.spaceUsers.filter{it.withdraw.not()}.map {
                 generateSpaceUserResponseDto(it)
@@ -53,11 +53,11 @@ class ResponseDtoManager(
         return HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
-            historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoKey),
-            historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoThumbnailUrl),
+            historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoKey.videoKey),
+            historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoThumbnailUrl.imageKey),
             createdAt = history.createAt,
             feedbacks = null,
-            videoDuration = history.videoDuration,
+            videoDuration = history.historyVideoKey.videoDuration,
             feedbackCount = history.feedbacks.size
         )
     }
@@ -65,11 +65,11 @@ class ResponseDtoManager(
         return HistoryResponseDto(
             historyId = history.historyId,
             historyName = history.historyName,
-            historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoKey),
-            historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoThumbnailUrl),
+            historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoKey.videoKey),
+            historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.historyVideoThumbnailUrl.imageKey),
             createdAt = history.createAt,
             feedbacks = history.feedbacks.map { generateFeedbackResponseDto(it) }.toMutableSet(),
-            videoDuration = history.videoDuration,
+            videoDuration = history.historyVideoKey.videoDuration,
             feedbackCount = history.feedbacks.size
         )
     }
@@ -89,7 +89,7 @@ class ResponseDtoManager(
             userName = spaceUser.user?.userName ?: "알수없음",
             userNickname = spaceUser.user?.userNickname ?: "알수없음",
             spaceRole = spaceUser.spaceRole,
-            profileImageUrl = s3Service.getPreSignedGetUrl(spaceUser.user?.profileImageKey)
+            profileImageUrl = s3Service.getPreSignedGetUrl(spaceUser.user?.profileImageKey?.imageKey)
         )
     }
     fun generateUserResponseDto(user: User): UserResponseDto {
@@ -97,8 +97,8 @@ class ResponseDtoManager(
             userId = user.userId,
             userName = user.userName,
             userNickname = user.userNickname,
-            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey),
-            profileBannerImageUrl = user.profileBannerImageKey?.let { s3Service.getPreSignedGetUrl(it) },
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey.imageKey),
+            profileBannerImageUrl = user.profileBannerImageKey?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
         )
     }
     fun generateInviteResponseDto(invite: Invite): InviteResponseDto {
@@ -109,7 +109,7 @@ class ResponseDtoManager(
             space = SpaceResponseDto(
                 spaceId = invite.space.spaceId,
                 spaceName = invite.space.spaceName,
-                spaceImageUrl = s3Service.getPreSignedGetUrl(invite.space.spaceImageKey),
+                spaceImageUrl = s3Service.getPreSignedGetUrl(invite.space.spaceImageKey.imageKey),
                 referenceVideoUrl = invite.space.referenceVideoKey,
                 spaceUsers = invite.space.spaceUsers.filter{it.withdraw.not()}.map {
                     generateSpaceUserResponseDto(it)

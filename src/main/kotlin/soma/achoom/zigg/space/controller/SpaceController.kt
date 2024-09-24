@@ -8,7 +8,7 @@ import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
 import soma.achoom.zigg.s3.service.S3DataType
 import soma.achoom.zigg.s3.service.S3Service
-import soma.achoom.zigg.space.dto.InviteUsersRequestDto
+import soma.achoom.zigg.space.dto.InviteRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
@@ -51,8 +51,8 @@ class SpaceController @Autowired constructor(
         return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
     }
     @PostMapping("/{spaceId}/invites")
-    fun inviteUserToSpace(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody inviteUsersRequestDto: InviteUsersRequestDto) : ResponseEntity<SpaceResponseDto> {
-        val space = spaceService.inviteUserToSpace(authentication, spaceId, inviteUsersRequestDto)
+    fun inviteUserToSpace(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody inviteRequestDto: InviteRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val space = spaceService.inviteSpace(authentication, spaceId, inviteRequestDto)
         return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
     }
     @DeleteMapping("/withdraw/{spaceId}")
