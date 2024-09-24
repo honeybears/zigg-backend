@@ -42,9 +42,6 @@ class UserServiceTest {
     private lateinit var historyRepository: HistoryRepository
 
     @Autowired
-    private lateinit var feedbackRepository: FeedbackRepository
-
-    @Autowired
     private lateinit var spaceRepository: SpaceRepository
 
     @Autowired
@@ -101,19 +98,6 @@ class UserServiceTest {
         userWithFCM = userRepository.findUserByUserId(userWithFCM.userId)!!
         assert(userWithFCM.deviceTokens.size == 2)
     }
-
-//    @Test
-//    fun `Delete user without spaceUser`(){
-//        val space = dummyDataUtil.createDummySpace()
-//        spaceRepository.save(space)
-//        val spaceUser = dummyDataUtil.createDummySpaceUser(space, userWithFCM)
-//        userWithFCM.spaces.add(spaceUser)
-//        userWithFCM = userRepository.save(userWithFCM)
-//
-//        userService.deleteUser(authentication)
-//        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
-//        assert(fcmRepository.findAll().size == 0)
-//    }
 
 
     @Test

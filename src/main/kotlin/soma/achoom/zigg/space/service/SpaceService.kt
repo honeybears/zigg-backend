@@ -4,20 +4,19 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.content.entity.Image
+import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.firebase.dto.FCMEvent
 import soma.achoom.zigg.firebase.service.FCMService
-import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.entity.Invite
-import soma.achoom.zigg.space.dto.InviteUsersRequestDto
+import soma.achoom.zigg.space.dto.InviteRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
-import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.*
 import soma.achoom.zigg.space.exception.GuestSpaceCreateLimitationException
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
-import soma.achoom.zigg.space.exception.LowSpacePermissionException
 import soma.achoom.zigg.space.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.entity.User
@@ -33,20 +32,21 @@ class SpaceService(
     private val userService: UserService,
     private val fcmService: FCMService,
     private val userRepository: UserRepository,
-    private val spaceUserRepository: SpaceUserRepository
+    private val spaceUserRepository: SpaceUserRepository,
+    private val imageRepository: ImageRepository
 ) {
     @Value("\${space.default.image.url}")
     private lateinit var defaultSpaceImageUrl: String
 
     @Transactional(readOnly = false)
-    fun inviteUserToSpace(
+    fun inviteSpace(
         authentication: Authentication,
         spaceId: UUID,
-        inviteUsersRequestDto: InviteUsersRequestDto
+        inviteRequestDto: InviteRequestDto
     ): Space {
         val user = userService.authenticationToUser(authentication)
 
-        val invitedUsers : MutableSet<User> = inviteUsersRequestDto.spaceUsers.map {
+        val invitedUsers : MutableSet<User> = inviteRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
 
@@ -54,25 +54,15 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-        invitedUsers.removeIf{
-            invited ->
-            // 이미 초대되었고 나가지 않은 경우
-            space.spaceUsers.any { spaceUser -> spaceUser.user == invited && !spaceUser.withdraw }.and(
-                // 이미 초대되었고 거절하지 않은 경우
-                space.invites.any { invite -> invite.invitee == invited && invite.inviteStatus != InviteStatus.DENIED }
-            )
-        }
-//        //이미 초대 되었지만 거절한 경우
-//        space.invites.find { invitedUsers.contains(it.invitee) && it.inviteStatus != InviteStatus.DENIED }?.let {
-//            invitedUsers.remove(it.invitee)
-//        }
-//        //이미 초대 되었지만 수락한 경우
-//        space.spaceUsers.find { invitedUsers.contains(it.user).and(it.withdraw.not()) }?.let {
-//            invitedUsers.remove(it.user)
-//        }
         space.invites.addAll(
-            invitedUsers.map {
-
+            invitedUsers.filter{
+                invitee ->
+                // 이미 초대되었고 나가지 않은 경우
+                space.spaceUsers.any { spaceUser -> spaceUser.user?.userId == invitee.userId && !spaceUser.withdraw }.and(
+                    // 이미 초대되었고 거절하지 않은 경우
+                    space.invites.any { invite -> invite.invitee.userId == invitee.userId && invite.inviteStatus != InviteStatus.DENIED && invite.isExpired.not()}
+                ).not()
+            }.map {
                 Invite(
                     invitee = it,
                     space = space,
@@ -109,15 +99,23 @@ class SpaceService(
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
 
-        val space = Space(
-            spaceName = spaceRequestDto.spaceName,
-            spaceImageKey = spaceRequestDto.spaceImageUrl?.let {
+        val spaceBannerImage = Image(
+            imageUploader = user,
+            imageKey = spaceRequestDto.spaceImageUrl?.let {
                 it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
                     .joinToString("/")
-            } ?: defaultSpaceImageUrl,
+            } ?: defaultSpaceImageUrl
+        )
+
+        imageRepository.save(spaceBannerImage)
+
+        val space = Space(
+            spaceName = spaceRequestDto.spaceName,
+            spaceImageKey = spaceBannerImage,
             spaceUsers = mutableSetOf(),
             invites = mutableSetOf(),
         )
+
         val admin = SpaceUser(
             user = user,
             space = space,
@@ -134,6 +132,7 @@ class SpaceService(
                 )
             }
         )
+
         spaceRepository.save(space)
         spaceUserRepository.save(admin)
         space.spaceUsers.add(admin)
@@ -141,13 +140,6 @@ class SpaceService(
         user.spaces.add(admin)
         userRepository.save(user)
 
-//        space.spaceUsers.add(admin)
-//
-//        spaceRepository.save(space)
-//
-//        user.spaces.add(admin)
-//
-//        userRepository.save(user)
         invitedUsers.isNotEmpty().takeIf { it }?.let {
             fcmService.sendMessageTo(
                 FCMEvent(
@@ -172,7 +164,7 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.spaceUsers.find{it.user == user}?.let {
+        space.spaceUsers.find{it.user?.userId == user.userId}?.let {
             it.withdraw = true
         }
         spaceRepository.save(space)
@@ -206,15 +198,21 @@ class SpaceService(
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
+
         validateSpaceUser(user, space)
-        spaceRepository.save(space)
+
         space.spaceName = spaceRequestDto.spaceName
+
         spaceRequestDto.spaceImageUrl?.let {
-            space.spaceImageKey = it.let {
+            space.spaceImageKey.imageKey = it.let {
                 it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
                     .joinToString("/")
             }
+            imageRepository.save(space.spaceImageKey)
         }
+
+        spaceRepository.save(space)
+
         return space
     }
 
