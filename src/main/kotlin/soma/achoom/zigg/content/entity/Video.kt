@@ -8,16 +8,16 @@ import soma.achoom.zigg.user.entity.User
 class Video(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val videoId:Long? = null,
+    val videoId: Long? = null,
 
     @ManyToOne
-    val videoUploader : User?,
+    val videoUploader: User?,
 
-    var videoKey : String,
+    var videoKey: String,
 
-    var videoDuration : String,
+    var videoDuration: String,
 
-): BaseEntity(){
+    ) : BaseEntity() {
 
 
 }

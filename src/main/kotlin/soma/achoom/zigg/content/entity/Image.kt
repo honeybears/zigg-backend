@@ -19,6 +19,6 @@ class Image(
 
     var imageKey: String,
 
-    ): BaseEntity(){
+    ) : BaseEntity() {
 
 }

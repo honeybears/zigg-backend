@@ -10,7 +10,7 @@ import soma.achoom.zigg.firebase.dto.FCMEvent
 import soma.achoom.zigg.firebase.service.FCMService
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.entity.Invite
-import soma.achoom.zigg.space.dto.InviteUsersRequestDto
+import soma.achoom.zigg.space.dto.InviteRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.entity.*
@@ -39,14 +39,14 @@ class SpaceService(
     private lateinit var defaultSpaceImageUrl: String
 
     @Transactional(readOnly = false)
-    fun inviteUserToSpace(
+    fun inviteSpace(
         authentication: Authentication,
         spaceId: UUID,
-        inviteUsersRequestDto: InviteUsersRequestDto
+        inviteRequestDto: InviteRequestDto
     ): Space {
         val user = userService.authenticationToUser(authentication)
 
-        val invitedUsers : MutableSet<User> = inviteUsersRequestDto.spaceUsers.map {
+        val invitedUsers : MutableSet<User> = inviteRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
 
@@ -54,17 +54,15 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-        invitedUsers.removeIf{
-            invited ->
-            // 이미 초대되었고 나가지 않은 경우
-            space.spaceUsers.any { spaceUser -> spaceUser.user == invited && !spaceUser.withdraw }.and(
-                // 이미 초대되었고 거절하지 않은 경우
-                space.invites.any { invite -> invite.invitee == invited && invite.inviteStatus != InviteStatus.DENIED }
-            )
-        }
         space.invites.addAll(
-            invitedUsers.map {
-
+            invitedUsers.filter{
+                invitee ->
+                // 이미 초대되었고 나가지 않은 경우
+                space.spaceUsers.any { spaceUser -> spaceUser.user?.userId == invitee.userId && !spaceUser.withdraw }.and(
+                    // 이미 초대되었고 거절하지 않은 경우
+                    space.invites.any { invite -> invite.invitee.userId == invitee.userId && invite.inviteStatus != InviteStatus.DENIED && invite.isExpired.not()}
+                ).not()
+            }.map {
                 Invite(
                     invitee = it,
                     space = space,
@@ -117,6 +115,7 @@ class SpaceService(
             spaceUsers = mutableSetOf(),
             invites = mutableSetOf(),
         )
+
         val admin = SpaceUser(
             user = user,
             space = space,
@@ -133,6 +132,7 @@ class SpaceService(
                 )
             }
         )
+
         spaceRepository.save(space)
         spaceUserRepository.save(admin)
         space.spaceUsers.add(admin)
@@ -164,7 +164,7 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.spaceUsers.find{it.user == user}?.let {
+        space.spaceUsers.find{it.user?.userId == user.userId}?.let {
             it.withdraw = true
         }
         spaceRepository.save(space)

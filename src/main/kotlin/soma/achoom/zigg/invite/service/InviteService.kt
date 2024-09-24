@@ -50,7 +50,7 @@ class InviteService(
         val space = invite.space
         when (action.accept) {
             true -> {
-                if (space.spaceUsers.any { it.user == user}) {
+                if (space.spaceUsers.any { it.user?.userId == user.userId && !it.withdraw }) {
                     throw UserAlreadyInSpaceException()
                 }
                 val spaceUser = SpaceUser(
