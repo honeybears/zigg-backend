@@ -15,9 +15,9 @@ class Image(
     val imageId: Long? = null,
 
     @ManyToOne
-    val imageUploader: User?,
+    var imageUploader: User?,
 
-    var imageKey: String,
+    val imageKey: String,
 
     ) : BaseEntity() {
 
