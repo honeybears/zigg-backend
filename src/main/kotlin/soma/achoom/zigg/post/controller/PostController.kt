@@ -35,7 +35,6 @@ class PostController(
     @GetMapping("/{page}")
     fun getPosts(authentication: Authentication, @PathVariable page: Int) {
         val posts = postService.getPosts(authentication, page)
-        responseDtoManager.ok(posts)
     }
 
 }
