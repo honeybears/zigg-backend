@@ -15,7 +15,7 @@ class Comment(
     val commentId : Long? = null,
 
     @ManyToOne
-    val commentCreator : User,
+    var commentCreator : User,
 
     var commentMessage : String,
 
