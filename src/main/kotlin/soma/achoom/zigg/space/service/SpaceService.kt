@@ -54,23 +54,21 @@ class SpaceService(
             ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-        space.invites.addAll(
-            invitedUsers.filter { invitee ->
-                // 이미 초대되었고 나가지 않은 경우
-                space.spaceUsers.any { spaceUser -> spaceUser.user?.userId == invitee.userId && !spaceUser.withdraw }
-                    .and(
-                        // 이미 초대되었고 거절하지 않은 경우
-                        space.invites.any { invite -> invite.invitee.userId == invitee.userId && invite.inviteStatus != InviteStatus.DENIED && invite.isExpired.not() }
-                    ).not()
-            }.map {
-                Invite(
-                    invitee = it,
-                    space = space,
-                    inviter = user,
-                    inviteStatus = InviteStatus.WAITING
-                )
+
+        val filteredInvite = invitedUsers.filter { invitee ->
+            space.invites.any {
+                it.invitee.userId != invitee.userId || it.isExpired || it.inviteStatus == InviteStatus.DENIED
             }
-        )
+        }.map { invitee ->
+            Invite(
+                invitee = invitee,
+                space = space,
+                inviter = user,
+                inviteStatus = InviteStatus.WAITING
+            )
+        }.toMutableSet()
+
+        space.invites.addAll(filteredInvite)
 
         spaceRepository.save(space)
         fcmService.sendMessageTo(

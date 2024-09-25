@@ -20,16 +20,16 @@ class Post(
 
     var postTitle: String,
 
-    var postMessage: String? = null,
+    var postMessage: String,
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     var postImageContent: MutableSet<Image> = mutableSetOf(),
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     var postVideoContent: MutableSet<Video> = mutableSetOf(),
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val postComments: MutableSet<Comment> = mutableSetOf()
+    var postComments: MutableSet<Comment> = mutableSetOf()
 
 ) : BaseEntity() {
 }

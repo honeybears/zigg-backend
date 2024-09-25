@@ -1,12 +1,21 @@
 package soma.achoom.zigg.global
 
 import org.springframework.stereotype.Component
+import soma.achoom.zigg.comment.dto.CommentResponseDto
+import soma.achoom.zigg.comment.entity.Comment
+import soma.achoom.zigg.content.dto.VideoRequestDto
+import soma.achoom.zigg.content.dto.VideoResponseDto
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.feedback.entity.Feedback
+import soma.achoom.zigg.global.dto.PageInfo
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.entity.Invite
+import soma.achoom.zigg.post.dto.PostListResponseDto
+import soma.achoom.zigg.post.dto.PostRequestDto
+import soma.achoom.zigg.post.dto.PostResponseDto
+import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.Space
@@ -129,5 +138,42 @@ class ResponseDtoManager(
             createdAt = invite.createAt!!,
             )
     }
+    fun generatePostListResponseDto(posts: List<Post>,pageInfo: PageInfo): PostListResponseDto {
+        return PostListResponseDto(
+            posts = posts.map { generatePostShortResponseDto(it) }.toMutableList(),
+            pageInfo = pageInfo
+        )
+    }
+    fun generatePostResponseDto(post : Post): PostResponseDto {
+        return PostResponseDto(
+            postId = post.postId!!,
+            postTitle = post.postTitle,
+            postMessage = post.postMessage,
+            postImageContent = post.postImageContent.map { s3Service.getPreSignedGetUrl(it.imageKey) }.toList(),
+            postVideoContent = post.postVideoContent.map {
+                VideoResponseDto(
+                    videoUrl = s3Service.getPreSignedGetUrl(it.videoKey),
+                    videoDuration = it.videoDuration
+                )
+            }.toList(),
+            comments = post.postComments.map { generateCommentResponseDto(it) }.toMutableList()
+        )
+    }
+    fun generatePostShortResponseDto(post : Post): PostResponseDto {
+        return PostResponseDto(
+            postId = post.postId!!,
+            postTitle = post.postTitle,
+        )
+    }
+
+    fun generateCommentResponseDto(comment: Comment): CommentResponseDto {
+        return CommentResponseDto(
+            commentId = comment.commentId!!,
+            commentMessage = comment.commentMessage,
+            commentCreator = generateUserResponseDto(comment.commentCreator),
+            commentLike = comment.commentLike
+        )
+    }
+
 
 }
