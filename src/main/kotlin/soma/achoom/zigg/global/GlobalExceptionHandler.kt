@@ -12,6 +12,7 @@ import soma.achoom.zigg.invite.exception.InviteExpiredException
 import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
 import soma.achoom.zigg.invite.exception.UserAlreadyInSpaceException
+import soma.achoom.zigg.post.exception.PostCreatorMismatchException
 import soma.achoom.zigg.space.exception.*
 import soma.achoom.zigg.user.exception.GuestUserUpdateProfileLimitationException
 import soma.achoom.zigg.user.exception.NicknameUserNotFoundException
@@ -94,6 +95,10 @@ class GlobalExceptionHandler {
     }
     @ExceptionHandler(GuestUserUpdateProfileLimitationException::class)
     fun handleGuestUserUpdateProfileLimitation(e: GuestUserUpdateProfileLimitationException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
+    }
+    @ExceptionHandler(PostCreatorMismatchException::class)
+    fun handlePostCreatorMismatch(e: PostCreatorMismatchException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
     }
 }
