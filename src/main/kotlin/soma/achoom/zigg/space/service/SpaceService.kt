@@ -56,8 +56,8 @@ class SpaceService(
         validateSpaceUser(user, space)
 
         val filteredInvite = invitedUsers.filter { invitee ->
-            space.invites.any {
-                it.invitee.userId != invitee.userId || it.isExpired || it.inviteStatus == InviteStatus.DENIED
+            space.invites.none {
+                it.invitee.userId == invitee.userId && it.inviteStatus != InviteStatus.DENIED
             }
         }.map { invitee ->
             Invite(
