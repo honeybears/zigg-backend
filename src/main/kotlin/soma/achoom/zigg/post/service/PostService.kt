@@ -21,7 +21,6 @@ import java.util.UUID
 @Service
 class PostService(
     private val postRepository: PostRepository,
-    private val historyRepository: HistoryRepository,
     private val userService: UserService,
     private val imageRepository: ImageRepository,
     private val videoRepository: VideoRepository
@@ -69,7 +68,7 @@ class PostService(
         return postRepository.findPostsByPostTitleContaining(keyword, PageRequest.of(page, 10, sort))
     }
 
-    fun updatePost(authentication: Authentication, postRequestDto:PostRequestDto, postId:Long){
+    fun updatePost(authentication: Authentication, postId:Long, postRequestDto:PostRequestDto) : Post{
         val user = userService.authenticationToUser(authentication)
 
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
@@ -99,7 +98,7 @@ class PostService(
             videoRepository.save(video)
         }.toMutableSet()
 
-        postRepository.save(post)
+        return postRepository.save(post)
     }
 
     fun deletePost(authentication: Authentication, postId: Long){

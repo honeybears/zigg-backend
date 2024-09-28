@@ -12,7 +12,6 @@ import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.entity.Invite
-import soma.achoom.zigg.post.dto.PostListResponseDto
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.dto.PostResponseDto
 import soma.achoom.zigg.post.entity.Post
@@ -138,11 +137,8 @@ class ResponseDtoManager(
             createdAt = invite.createAt!!,
             )
     }
-    fun generatePostListResponseDto(posts: List<Post>,pageInfo: PageInfo): PostListResponseDto {
-        return PostListResponseDto(
-            posts = posts.map { generatePostShortResponseDto(it) }.toMutableList(),
-            pageInfo = pageInfo
-        )
+    fun generatePostListResponseDto(posts: List<Post>,pageInfo: PageInfo): List<PostResponseDto> {
+        return posts.map { generatePostShortResponseDto(it) }.toList()
     }
     fun generatePostResponseDto(post : Post): PostResponseDto {
         return PostResponseDto(

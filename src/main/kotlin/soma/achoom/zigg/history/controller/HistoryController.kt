@@ -87,7 +87,7 @@ class HistoryController @Autowired constructor(
         @RequestBody historyRequestDto: HistoryRequestDto
     ): ResponseEntity<HistoryResponseDto> {
         val history = historyService.updateHistory(authentication, spaceId, historyId, historyRequestDto)
-        return ResponseEntity.ok( responseDtoManager.generateHistoryResponseDto(history))
+        return ResponseEntity.ok(responseDtoManager.generateHistoryResponseDto(history))
     }
 
     @DeleteMapping("/{spaceId}/{historyId}")
