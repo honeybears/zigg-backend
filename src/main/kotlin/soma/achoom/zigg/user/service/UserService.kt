@@ -17,7 +17,6 @@ import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.GuestUserUpdateProfileLimitationException
 import soma.achoom.zigg.user.exception.UserNotFoundException
 import soma.achoom.zigg.user.repository.UserRepository
-import java.util.UUID
 
 
 @Service
@@ -123,6 +122,4 @@ class UserService(
             throw GuestUserUpdateProfileLimitationException()
         }
     }
-
-
 }
