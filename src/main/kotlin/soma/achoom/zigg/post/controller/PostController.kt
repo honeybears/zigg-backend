@@ -5,6 +5,8 @@ import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
+import soma.achoom.zigg.post.dto.PostRequestDto
+import soma.achoom.zigg.post.dto.PostResponseDto
 import soma.achoom.zigg.post.service.PostService
 import soma.achoom.zigg.s3.service.S3DataType
 import soma.achoom.zigg.s3.service.S3Service
@@ -32,9 +34,34 @@ class PostController(
         }
         else return ResponseEntity.badRequest().build()
     }
-    @GetMapping("/{page}")
-    fun getPosts(authentication: Authentication, @PathVariable page: Int) {
+    @GetMapping
+    fun getPosts(authentication: Authentication, @RequestParam page: Int) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.getPosts(authentication, page)
+        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
     }
-
+    @PostMapping
+    fun createPost(authentication: Authentication, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
+        val post = postService.createPost(authentication, postRequestDto)
+        return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
+    }
+    @GetMapping("/{postId}")
+    fun getPost(authentication : Authentication, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
+        val post = postService.getPost(authentication,postId)
+        return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
+    }
+    @PatchMapping("/{postId}")
+    fun updatePost(authentication: Authentication, @PathVariable postId: Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
+        val post = postService.updatePost(authentication, postId, postRequestDto)
+        return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
+    }
+    @DeleteMapping("/{postId}")
+    fun deletePost(authentication: Authentication, @PathVariable postId: Long) : ResponseEntity<Unit> {
+        postService.deletePost(authentication, postId)
+        return ResponseEntity.ok().build()
+    }
+    @GetMapping("/search/{keyword}")
+    fun searchPosts(authentication: Authentication, @PathVariable keyword: String, @RequestParam page: Int) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.searchPosts(authentication, page, keyword)
+        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
+    }
 }

@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import soma.achoom.zigg.comment.exception.CommentNotFoundException
+import soma.achoom.zigg.comment.exception.CommentUserMissMatchException
 import soma.achoom.zigg.feedback.exception.FeedbackNotFoundException
 import soma.achoom.zigg.firebase.exception.FCMMessagingFailException
 import soma.achoom.zigg.history.exception.GuestHistoryCreateLimitationException
@@ -13,6 +15,7 @@ import soma.achoom.zigg.invite.exception.InviteNotFoundException
 import soma.achoom.zigg.invite.exception.InvitedUserMissMatchException
 import soma.achoom.zigg.invite.exception.UserAlreadyInSpaceException
 import soma.achoom.zigg.post.exception.PostCreatorMismatchException
+import soma.achoom.zigg.post.exception.PostNotFoundException
 import soma.achoom.zigg.space.exception.*
 import soma.achoom.zigg.user.exception.GuestUserUpdateProfileLimitationException
 import soma.achoom.zigg.user.exception.NicknameUserNotFoundException
@@ -99,6 +102,18 @@ class GlobalExceptionHandler {
     }
     @ExceptionHandler(PostCreatorMismatchException::class)
     fun handlePostCreatorMismatch(e: PostCreatorMismatchException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
+    }
+    @ExceptionHandler(PostNotFoundException::class)
+    fun handlePostNotFound(e: PostNotFoundException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+    }
+    @ExceptionHandler(CommentNotFoundException::class)
+    fun handleCommentNotFound(e: CommentNotFoundException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+    }
+    @ExceptionHandler(CommentUserMissMatchException::class)
+    fun handleCommentUserMissMatch(e: CommentUserMissMatchException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
     }
 }
