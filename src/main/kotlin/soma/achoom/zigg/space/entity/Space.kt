@@ -8,6 +8,7 @@ import soma.achoom.zigg.global.BaseEntity
 
 import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.invite.entity.Invite
+import java.time.LocalDateTime
 import java.util.UUID
 
 @EntityListeners(SpaceEntityListener::class)
@@ -36,7 +37,7 @@ class Space(
 
     fun addHistory(history: History) {
         histories.add(history)
-        this.updateAt = this.updateAt
+        this.updateAt = LocalDateTime.now()
     }
 
 }
