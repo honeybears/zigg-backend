@@ -12,15 +12,14 @@ import java.time.LocalDateTime
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-abstract class BaseEntity {
+abstract class BaseEntity(
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy:MM:dd")
-    open var createAt: LocalDateTime? = LocalDateTime.now()
+    var createAt: LocalDateTime = LocalDateTime.now(),
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy:MM:dd")
-    open var updateAt: LocalDateTime? = null
-
-}
+    var updateAt: LocalDateTime = LocalDateTime.now()
+)

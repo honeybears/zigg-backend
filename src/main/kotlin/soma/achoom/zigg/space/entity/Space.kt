@@ -10,6 +10,7 @@ import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.invite.entity.Invite
 import java.util.UUID
 
+@EntityListeners(SpaceEntityListener::class)
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "spaceId")
 class Space(
