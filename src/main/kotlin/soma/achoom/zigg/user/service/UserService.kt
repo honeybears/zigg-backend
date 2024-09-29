@@ -43,7 +43,7 @@ class UserService(
         if (userRequestDto.userId == null) {
             throw IllegalArgumentException("userId is null")
         }
-        val user = userRepository.findUserByUserId(userId = userRequestDto.userId)?: throw UserNotFoundException()
+        val user = userRepository.findUserByUserId(userRequestDto.userId)?: throw UserNotFoundException()
         return user
     }
 

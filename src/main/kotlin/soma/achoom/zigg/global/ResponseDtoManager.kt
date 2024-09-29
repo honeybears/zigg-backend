@@ -93,6 +93,7 @@ class ResponseDtoManager(
     }
     fun generateSpaceUserResponseDto(spaceUser: SpaceUser): SpaceUserResponseDto {
         return SpaceUserResponseDto(
+            userId = spaceUser.user?.userId,
             spaceUserId = spaceUser.spaceUserId,
             userName = spaceUser.user?.userName ?: "알수없음",
             userNickname = spaceUser.user?.userNickname ?: "알수없음",
