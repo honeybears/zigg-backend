@@ -70,9 +70,9 @@ class HistoryService @Autowired constructor(
             ),
             historyVideoKey = historyVideo,
             historyName = historyRequestDto.historyName,
-            historyVideoThumbnailUrl = historyThumbnailImage
+            historyVideoThumbnailUrl = historyThumbnailImage,
         )
-        space.histories.add(history)
+        space.addHistory(history)
         spaceRepository.save(space)
         return history
     }

@@ -34,4 +34,9 @@ class Space(
 
     ) : BaseEntity() {
 
+    fun addHistory(history: History) {
+        histories.add(history)
+        this.updateAt = this.updateAt
+    }
+
 }
