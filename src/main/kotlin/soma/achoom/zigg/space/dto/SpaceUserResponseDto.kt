@@ -1,9 +1,11 @@
 package soma.achoom.zigg.space.dto
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import soma.achoom.zigg.space.entity.SpaceRole
 import java.util.UUID
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class SpaceUserResponseDto(
+    val userId: UUID? = null,
     val userNickname: String?,
     val userName:String?,
     val spaceUserId: UUID?,

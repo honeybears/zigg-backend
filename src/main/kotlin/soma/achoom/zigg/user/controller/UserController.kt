@@ -79,7 +79,7 @@ class UserController @Autowired constructor(
     }
 
     @PostMapping("/info")
-    fun getUserInfoByUserId(authentication: Authentication,@RequestBody userRequestDto: UserRequestDto): ResponseEntity<UserResponseDto> {
+    fun getUserInfoByUserId(authentication: Authentication, @RequestBody userRequestDto: UserRequestDto): ResponseEntity<UserResponseDto> {
         val user = userService.getUserInfoByUserId(authentication,userRequestDto)
         return ResponseEntity.ok(responseDtoManager.generateUserResponseDto(user))
     }
