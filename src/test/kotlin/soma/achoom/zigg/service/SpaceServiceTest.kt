@@ -60,7 +60,6 @@ class SpaceServiceTest {
 
     @BeforeEach
     fun setup() {
-
         // Mocking S3Service behavior
         Mockito.`when`(s3Service.getPreSignedGetUrl(SPACE_IMAGE_KEY)).thenReturn(SPACE_IMAGE_URL)
         Mockito.`when`(s3Service.getPreSignedGetUrl(PROFILE_IMAGE_KEY)).thenReturn(PROFILE_IMAGE_URL)
