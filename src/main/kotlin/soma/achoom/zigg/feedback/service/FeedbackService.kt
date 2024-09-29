@@ -33,9 +33,7 @@ class FeedbackService @Autowired constructor(
     private val responseDtoManager: ResponseDtoManager
 ) {
     @Transactional(readOnly = true)
-    fun getFeedbacks(
-        authentication: Authentication, spaceId: UUID, historyId: UUID
-    ): List<Feedback> {
+    fun getFeedbacks(authentication: Authentication, spaceId: UUID, historyId: UUID): List<Feedback> {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -46,9 +44,7 @@ class FeedbackService @Autowired constructor(
     }
 
     @Transactional(readOnly = false)
-    fun createFeedback(
-        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackRequestDto: FeedbackRequestDto
-    ): Feedback {
+    fun createFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackRequestDto: FeedbackRequestDto): Feedback {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -65,20 +61,16 @@ class FeedbackService @Autowired constructor(
             feedbackMessage = feedbackRequestDto.feedbackMessage,
             feedbackCreator = spaceUser,
         )
+
         feedback.recipients.addAll(feedbackRecipient)
         history.feedbacks.add(feedback)
         historyRepository.save(history)
+
         return feedback
     }
 
     @Transactional(readOnly = false)
-    fun updateFeedback(
-        authentication: Authentication,
-        spaceId: UUID,
-        historyId: UUID,
-        feedbackId: UUID,
-        feedbackRequestDto: FeedbackRequestDto
-    ): Feedback {
+    fun updateFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID, feedbackRequestDto: FeedbackRequestDto): Feedback {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -89,7 +81,6 @@ class FeedbackService @Autowired constructor(
 
         feedback.recipients.addAll(
             feedbackRequestDto.recipientId.map {
-
                 spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw SpaceUserNotFoundInSpaceException()
             }
         )
@@ -102,9 +93,7 @@ class FeedbackService @Autowired constructor(
     }
 
     @Transactional(readOnly = false)
-    fun deleteFeedback(
-        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
-    ) {
+    fun deleteFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID) {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -116,22 +105,19 @@ class FeedbackService @Autowired constructor(
         history.feedbacks.remove(feedback)
 
         historyRepository.save(history)
-
     }
 
     @Transactional(readOnly = true)
-    fun getFeedback(
-        authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID
-    ): FeedbackResponseDto {
+    fun getFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID): FeedbackResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         spaceService.validateSpaceUser(user, space)
 
-
         historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
+
         return responseDtoManager.generateFeedbackResponseDto(feedback)
     }
 }

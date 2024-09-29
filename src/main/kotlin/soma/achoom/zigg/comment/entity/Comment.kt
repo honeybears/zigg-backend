@@ -1,10 +1,6 @@
 package soma.achoom.zigg.comment.entity
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
@@ -19,7 +15,13 @@ class Comment(
 
     var commentMessage : String,
 
-    var commentLike : Long = 0
+    var commentLike : Long = 0,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    var parent : Comment?,
+
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val commentsReplies: MutableList<Comment> = mutableListOf()
 
     ) : BaseEntity() {
 

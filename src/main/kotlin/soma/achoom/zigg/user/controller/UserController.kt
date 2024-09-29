@@ -78,6 +78,12 @@ class UserController @Autowired constructor(
         )
     }
 
+    @PostMapping("/info")
+    fun getUserInfoByUserId(authentication: Authentication,@RequestBody userRequestDto: UserRequestDto): ResponseEntity<UserResponseDto> {
+        val user = userService.getUserInfoByUserId(authentication,userRequestDto)
+        return ResponseEntity.ok(responseDtoManager.generateUserResponseDto(user))
+    }
+
     @PostMapping("/exists")
     fun checkUserExists(@RequestBody oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): ResponseEntity<UserExistsResponseDto> {
         val userExists = authenticationService.userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto)

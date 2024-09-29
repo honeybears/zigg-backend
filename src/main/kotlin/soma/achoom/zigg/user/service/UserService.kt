@@ -17,6 +17,7 @@ import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.GuestUserUpdateProfileLimitationException
 import soma.achoom.zigg.user.exception.UserNotFoundException
 import soma.achoom.zigg.user.repository.UserRepository
+import java.util.UUID
 
 
 @Service
@@ -37,6 +38,16 @@ class UserService(
         val user = authenticationToUser(authentication)
         return user
     }
+    @Transactional(readOnly = true)
+    fun getUserInfoByUserId(authentication: Authentication,userRequestDto: UserRequestDto): User {
+        authenticationToUser(authentication)
+        if (userRequestDto.userId == null) {
+            throw IllegalArgumentException("userId is null")
+        }
+        val user = userRepository.findUserByUserId(userId = userRequestDto.userId)?: throw UserNotFoundException()
+        return user
+    }
+
     @Transactional(readOnly = false)
     fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): User {
         val user = authenticationToUser(authentication)
@@ -112,5 +123,6 @@ class UserService(
             throw GuestUserUpdateProfileLimitationException()
         }
     }
+
 
 }
