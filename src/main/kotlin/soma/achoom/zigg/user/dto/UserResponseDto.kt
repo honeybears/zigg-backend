@@ -2,6 +2,7 @@ package soma.achoom.zigg.user.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import soma.achoom.zigg.user.entity.User
+import java.time.LocalDateTime
 import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -12,8 +13,8 @@ data class UserResponseDto(
     val profileImageUrl: String?,
     val profileBannerImageUrl:String?,
     val userTags : String?,
-    val userDescription: String?
-
+    val userDescription: String?,
+    val createdAt:LocalDateTime?,
 
 )  {
 

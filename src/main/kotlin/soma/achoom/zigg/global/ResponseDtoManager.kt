@@ -113,7 +113,8 @@ class ResponseDtoManager(
             profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey.imageKey),
             profileBannerImageUrl = user.profileBannerImageKey?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
             userTags = user.tags,
-            userDescription = user.description
+            userDescription = user.description,
+            createdAt = user.createAt
         )
     }
 
