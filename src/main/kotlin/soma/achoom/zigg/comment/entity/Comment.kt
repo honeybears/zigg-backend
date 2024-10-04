@@ -11,17 +11,17 @@ class Comment(
     val commentId : Long? = null,
 
     @ManyToOne
-    var commentCreator : User,
+    var creator: User,
 
-    var commentMessage : String,
+    var textComment: String,
 
-    var commentLike : Long = 0,
+    var likes: Long = 0,
 
     @ManyToOne(fetch = FetchType.LAZY)
     var parent : Comment?,
 
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val commentsReplies: MutableList<Comment> = mutableListOf()
+    val replies: MutableList<Comment> = mutableListOf(),
 
     ) : BaseEntity() {
 

@@ -5,7 +5,6 @@ import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.content.entity.Image
-import soma.achoom.zigg.feedback.entity.Feedback
 import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.space.entity.SpaceUser
@@ -19,10 +18,13 @@ class User(
     var userId: UUID = UUID.randomUUID(),
 
     // 활동명
-    var userName: String? = null,
-
+    var name: String? = null,
     // 고유한 닉네임
-    var userNickname: String? = null,
+    var nickname: String? = null,
+
+    var description: String? = "",
+
+    var tags : String? = "",
 
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,

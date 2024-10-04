@@ -25,7 +25,7 @@ class Invite(
     val inviter:User,
 
     @Enumerated(EnumType.STRING)
-    var inviteStatus: InviteStatus = InviteStatus.WAITING,
+    var status: InviteStatus = InviteStatus.WAITING,
 
     var isExpired: Boolean = false
 ) : BaseEntity() {

@@ -23,11 +23,11 @@ class CommentService(
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findById(postId).orElseThrow { PostNotFoundException() }
         val comment = Comment(
-            commentCreator = user,
-            commentMessage = commentRequestDto.message,
+            creator = user,
+            textComment = commentRequestDto.message,
             parent = null
         )
-        post.postComments.add(comment)
+        post.comments.add(comment)
         postRepository.save(post)
     }
     @Transactional(readOnly = false)
@@ -35,8 +35,8 @@ class CommentService(
         val user = userService.authenticationToUser(authentication)
         val parentComment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
         val childComment = Comment(
-            commentCreator = user,
-            commentMessage = commentRequestDto.message,
+            creator = user,
+            textComment = commentRequestDto.message,
             parent = parentComment
         )
         commentRepository.save(childComment)
@@ -45,17 +45,17 @@ class CommentService(
     fun updateComment(authentication: Authentication,commentId:Long, commentRequestDto: CommentRequestDto){
         val user = userService.authenticationToUser(authentication)
         val comment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
-        if(comment.commentCreator != user){
+        if(comment.creator != user){
             throw CommentUserMissMatchException()
         }
-        comment.commentMessage = commentRequestDto.message
+        comment.textComment = commentRequestDto.message
         commentRepository.save(comment)
     }
     @Transactional(readOnly = false)
     fun deleteComment(authentication: Authentication,commentId: Long){
         val user = userService.authenticationToUser(authentication)
         val comment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
-        if(comment.commentCreator != user){
+        if(comment.creator != user){
             throw CommentUserMissMatchException()
         }
         commentRepository.delete(comment)

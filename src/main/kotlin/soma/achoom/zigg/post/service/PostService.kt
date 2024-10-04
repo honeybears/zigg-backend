@@ -2,54 +2,56 @@ package soma.achoom.zigg.post.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import soma.achoom.zigg.board.repository.BoardRepository
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.content.repository.VideoRepository
-import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.post.exception.PostCreatorMismatchException
 import soma.achoom.zigg.post.repository.PostRepository
 import soma.achoom.zigg.user.service.UserService
-import java.util.UUID
 
 @Service
 class PostService(
     private val postRepository: PostRepository,
     private val userService: UserService,
     private val imageRepository: ImageRepository,
-    private val videoRepository: VideoRepository
+    private val videoRepository: VideoRepository,
+    private val boardRepository: BoardRepository
 ) {
-    fun createPost(authentication: Authentication, postRequestDto: PostRequestDto): Post {
+    fun createPost(authentication: Authentication, boardId:Long, postRequestDto: PostRequestDto): Post {
         val user = userService.authenticationToUser(authentication)
-
+        val board = boardRepository.findById(boardId).orElseThrow { IllegalArgumentException("Board not found") }
         val post = Post(
-            postTitle = postRequestDto.postTitle,
-            postMessage = postRequestDto.postMessage,
-            postImageContent = postRequestDto.postImageContent.map {
+            title = postRequestDto.postTitle,
+            textContent = postRequestDto.postMessage,
+            imageContents = postRequestDto.postImageContent.map {
                 val image = Image(
-                    imageUploader = user,
+                    uploader = user,
                     imageKey = it.split("?")[0].split("/")
                         .subList(3, it.split("?")[0].split("/").size).joinToString("/")
                 )
                 imageRepository.save(image)
             }.toMutableSet(),
-            postVideoContent = postRequestDto.postVideoContent.map {
+            videoContent = postRequestDto.postVideoContent?.let {
                 val video = Video(
-                    videoUploader = user,
+                    uploader = user,
                     videoKey = it.videoKey.split("?")[0].split("/")
                         .subList(3, it.videoKey.split("?")[0].split("/").size).joinToString("/"),
-                    videoDuration = it.videoDuration
+                    duration = it.videoDuration
 
                 )
                 videoRepository.save(video)
-            }.toMutableSet(),
-            postCreator = user
+            },
+            board = board,
+            creator = user,
+
+
         )
         return postRepository.save(post)
     }
@@ -59,13 +61,14 @@ class PostService(
         return postRepository.findAll(PageRequest.of(page, 10, sort))
     }
 
-    fun getPost(authentication:Authentication, postId: Long): Post {
+    fun getPost(authentication:Authentication, boardId:Long, postId: Long): Post {
         return postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
     }
 
-    fun searchPosts (authentication: Authentication, page:Int, keyword: String): Page<Post> {
+    fun searchPosts (authentication: Authentication, boardId :Long ,keyword: String, page:Int, ): Page<Post> {
         val sort = Sort.by(Sort.Order.desc("createdAt"))
-        return postRepository.findPostsByPostTitleContaining(keyword, PageRequest.of(page, 10, sort))
+        val board = boardRepository.findById(boardId).orElseThrow { IllegalArgumentException("Board not found") }
+        return postRepository.findPostsByBoardAndTitleContaining(board, keyword, PageRequest.of(page, 10, sort))
     }
 
     fun updatePost(authentication: Authentication, postId:Long, postRequestDto:PostRequestDto) : Post{
@@ -73,30 +76,30 @@ class PostService(
 
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
 
-        if(post.postCreator.userId != user.userId){
+        if(post.creator.userId != user.userId){
             throw PostCreatorMismatchException()
         }
 
-        post.postTitle = postRequestDto.postTitle
-        post.postMessage = postRequestDto.postMessage
-        post.postImageContent = postRequestDto.postImageContent.map {
+        post.title = postRequestDto.postTitle
+        post.textContent = postRequestDto.postMessage
+        post.imageContents = postRequestDto.postImageContent.map {
             val image = Image(
-                imageUploader = post.postCreator,
+                uploader = post.creator,
                 imageKey = it.split("?")[0].split("/")
                     .subList(3, it.split("?")[0].split("/").size).joinToString("/")
             )
             imageRepository.save(image)
         }.toMutableSet()
-        post.postVideoContent = postRequestDto.postVideoContent.map {
+        post.videoContent = postRequestDto.postVideoContent?.let {
             val video = Video(
-                videoUploader = post.postCreator,
+                uploader = post.creator,
                 videoKey = it.videoKey.split("?")[0].split("/")
                     .subList(3, it.videoKey.split("?")[0].split("/").size).joinToString("/"),
-                videoDuration = it.videoDuration
+                duration = it.videoDuration
 
             )
             videoRepository.save(video)
-        }.toMutableSet()
+        }
 
         return postRepository.save(post)
     }
@@ -104,8 +107,7 @@ class PostService(
     fun deletePost(authentication: Authentication, postId: Long){
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
-
-        if(post.postCreator.userId != user.userId){
+        if(post.creator.userId != user.userId){
             throw PostCreatorMismatchException()
         }
 

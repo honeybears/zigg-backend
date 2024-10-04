@@ -57,14 +57,14 @@ class SpaceService(
 
         val filteredInvite = invitedUsers.filter { invitee ->
             space.invites.none {
-                it.invitee.userId == invitee.userId && it.inviteStatus != InviteStatus.DENIED
+                it.invitee.userId == invitee.userId && it.status != InviteStatus.DENIED
             }
         }.map { invitee ->
             Invite(
                 invitee = invitee,
                 space = space,
                 inviter = user,
-                inviteStatus = InviteStatus.WAITING
+                status = InviteStatus.WAITING
             )
         }.toMutableSet()
 
@@ -75,7 +75,7 @@ class SpaceService(
             FCMEvent(
                 users = filteredInvite.map { it.invitee }.toMutableSet(),
                 title = "새로운 스페이스에 초대되었습니다.",
-                body = "${user.userName}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
+                body = "${user.name}님이 회원님을 ${space.name} 스페이스에 초대하였습니다.",
                 data = mapOf("spaceId" to space.spaceId.toString()),
                 android = null,
                 apns = null
@@ -98,7 +98,7 @@ class SpaceService(
         }.toMutableSet()
 
         val spaceBannerImage = Image(
-            imageUploader = user,
+            uploader = user,
             imageKey = spaceRequestDto.spaceImageUrl?.let {
                 it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
                     .joinToString("/")
@@ -108,16 +108,16 @@ class SpaceService(
         imageRepository.save(spaceBannerImage)
 
         val space = Space(
-            spaceName = spaceRequestDto.spaceName,
-            spaceImageKey = spaceBannerImage,
-            spaceUsers = mutableSetOf(),
+            name = spaceRequestDto.spaceName,
+            imageKey = spaceBannerImage,
+            users = mutableSetOf(),
             invites = mutableSetOf(),
         )
 
         val admin = SpaceUser(
             user = user,
             space = space,
-            spaceRole = SpaceRole.ADMIN,
+            role = SpaceRole.ADMIN,
         )
 
         space.invites.addAll(
@@ -126,14 +126,14 @@ class SpaceService(
                     invitee = it,
                     space = space,
                     inviter = user,
-                    inviteStatus = InviteStatus.WAITING
+                    status = InviteStatus.WAITING
                 )
             }
         )
 
         spaceRepository.save(space)
         spaceUserRepository.save(admin)
-        space.spaceUsers.add(admin)
+        space.users.add(admin)
         spaceRepository.save(space)
         user.spaces.add(admin)
         userRepository.save(user)
@@ -143,7 +143,7 @@ class SpaceService(
                 FCMEvent(
                     users = invitedUsers,
                     title = "새로운 스페이스에 초대되었습니다.",
-                    body = "${user.userName}님이 회원님을 ${space.spaceName} 스페이스에 초대하였습니다.",
+                    body = "${user.name}님이 회원님을 ${space.name} 스페이스에 초대하였습니다.",
                     data = mapOf("spaceId" to space.spaceId.toString()),
                     android = null,
                     apns = null
@@ -163,7 +163,7 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.spaceUsers.find { it.user?.userId == user.userId }?.let {
+        space.users.find { it.user?.userId == user.userId }?.let {
             it.withdraw = true
         }
         spaceRepository.save(space)
@@ -200,17 +200,17 @@ class SpaceService(
 
         validateSpaceUser(user, space)
 
-        space.spaceName = spaceRequestDto.spaceName
+        space.name = spaceRequestDto.spaceName
 
         spaceRequestDto.spaceImageUrl?.let {
-            space.spaceImageKey = Image(
+            space.imageKey = Image(
                 imageKey = it.let {
                     it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
                         .joinToString("/")
                 },
-                imageUploader = user
+                uploader = user
             )
-            imageRepository.save(space.spaceImageKey)
+            imageRepository.save(space.imageKey)
         }
 
         spaceRepository.save(space)
@@ -231,7 +231,7 @@ class SpaceService(
 //            it.space = null
 //            spaceUserRepository.delete(it)
 //        }
-        space.spaceUsers.clear()
+        space.users.clear()
         space.histories.clear()
         space.invites.clear()
 
@@ -275,7 +275,7 @@ class SpaceService(
 
     @Transactional(readOnly = false)
     fun validateSpaceUser(user: User, space: Space): SpaceUser {
-        space.spaceUsers.find {
+        space.users.find {
             it.user == user && it.withdraw.not()
         }?.let {
             return it

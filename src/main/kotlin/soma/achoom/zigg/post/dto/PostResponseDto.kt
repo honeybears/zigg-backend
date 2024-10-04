@@ -7,8 +7,9 @@ data class PostResponseDto(
     val postId: Long,
     val postTitle: String,
     val postMessage: String? = null,
-    val postImageContent: List<String> = listOf(),
-    val postVideoContent: List<VideoResponseDto> = listOf(),
+    val postImageContents: List<String> = listOf(),
+    val postVideoContent: VideoResponseDto? = null,
+    val postThumbnailImage: String? = null,
     val comments : List<CommentResponseDto> = listOf()
 
 ) {
