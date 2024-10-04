@@ -1,12 +1,13 @@
 package soma.achoom.zigg.post.entity
 
 import jakarta.persistence.*
+import soma.achoom.zigg.board.entity.Board
 import soma.achoom.zigg.comment.entity.Comment
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
-
+@EntityListeners(PostEntityListener::class)
 @Entity
 class Post(
     @Id
@@ -14,22 +15,30 @@ class Post(
     val postId: Long? = null,
 
     @ManyToOne
-    val postCreator: User,
+    val board: Board,
 
-    var postLike: Long = 0,
+    @ManyToOne
+    val creator: User,
 
-    var postTitle: String,
+    var likes: Long = 0,
 
-    var postMessage: String,
+    var title: String,
+
+    var textContent: String,
 
     @OneToMany(fetch = FetchType.LAZY)
-    var postImageContent: MutableSet<Image> = mutableSetOf(),
+    var imageContents: MutableSet<Image> = mutableSetOf(),
 
-    @OneToMany(fetch = FetchType.LAZY)
-    var postVideoContent: MutableSet<Video> = mutableSetOf(),
+    @OneToOne(fetch = FetchType.LAZY)
+    var videoContent: Video? = null,
+    @OneToOne
+    var videoThumbnail: Image? = null ,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var postComments: MutableSet<Comment> = mutableSetOf()
+    var comments: MutableSet<Comment> = mutableSetOf()
 
 ) : BaseEntity() {
+    fun detach(){
+        board.posts.remove(this)
+    }
 }

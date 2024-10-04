@@ -13,7 +13,7 @@ import soma.achoom.zigg.s3.service.S3Service
 import java.util.*
 
 @RestController
-@RequestMapping("/api/v0/posts")
+@RequestMapping("/api/v0/boards/posts")
 class PostController(
     private val s3Service: S3Service,
     private val responseDtoManager: ResponseDtoManager,
@@ -35,33 +35,33 @@ class PostController(
         else return ResponseEntity.badRequest().build()
     }
     @GetMapping
-    fun getPosts(authentication: Authentication, @RequestParam page: Int) : ResponseEntity<List<PostResponseDto>>{
+    fun getPosts(authentication: Authentication,  @RequestParam("page") page: Int) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.getPosts(authentication, page)
         return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
     }
-    @PostMapping
-    fun createPost(authentication: Authentication, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
-        val post = postService.createPost(authentication, postRequestDto)
+    @PostMapping("/{boardId}")
+    fun createPost(authentication: Authentication, @PathVariable boardId:Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
+        val post = postService.createPost(authentication, boardId, postRequestDto)
         return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
     }
-    @GetMapping("/{postId}")
-    fun getPost(authentication : Authentication, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
-        val post = postService.getPost(authentication,postId)
+    @GetMapping("/{boardId}/{postId}")
+    fun getPost(authentication : Authentication, @PathVariable boardId : Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
+        val post = postService.getPost(authentication,boardId,postId)
         return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
     }
-    @PatchMapping("/{postId}")
-    fun updatePost(authentication: Authentication, @PathVariable postId: Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
+    @PatchMapping("/{boardId}/{postId}")
+    fun updatePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
         val post = postService.updatePost(authentication, postId, postRequestDto)
         return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
     }
-    @DeleteMapping("/{postId}")
-    fun deletePost(authentication: Authentication, @PathVariable postId: Long) : ResponseEntity<Unit> {
+    @DeleteMapping("/{boardId}/{postId}")
+    fun deletePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long) : ResponseEntity<Unit> {
         postService.deletePost(authentication, postId)
         return ResponseEntity.ok().build()
     }
-    @GetMapping("/search/{keyword}")
-    fun searchPosts(authentication: Authentication, @PathVariable keyword: String, @RequestParam page: Int) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.searchPosts(authentication, page, keyword)
+    @GetMapping("/{boardId}")
+    fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam page: Int, @RequestParam keyword: String) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.searchPosts(authentication, boardId, keyword, page )
         return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
     }
 }

@@ -12,18 +12,17 @@ class Feedback(
     var feedbackId: UUID = UUID.randomUUID(),
 
     @Enumerated(EnumType.STRING)
-    var feedbackType: FeedbackType? = FeedbackType.USER,
+    var type: FeedbackType? = FeedbackType.USER,
 
-    var feedbackTimeline: String?,
+    var timeline: String?,
 
-    var feedbackMessage: String?,
+    var message: String?,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", unique = false)
-    var feedbackCreator: SpaceUser,
+    var creator: SpaceUser,
 
     @ManyToMany(fetch = FetchType.LAZY)
     var recipients: MutableList<SpaceUser> = mutableListOf(),
-
 
     ) : BaseEntity()

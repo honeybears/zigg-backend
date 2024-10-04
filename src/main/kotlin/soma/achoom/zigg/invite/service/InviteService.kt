@@ -3,7 +3,6 @@ package soma.achoom.zigg.invite.service
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
 import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.invite.entity.InviteStatus
@@ -50,20 +49,20 @@ class InviteService(
         val space = invite.space
         when (action.accept) {
             true -> {
-                if (space.spaceUsers.any { it.user?.userId == user.userId && !it.withdraw }) {
+                if (space.users.any { it.user?.userId == user.userId && !it.withdraw }) {
                     throw UserAlreadyInSpaceException()
                 }
                 val spaceUser = SpaceUser(
                     user = user,
                     space = space,
-                    spaceRole = SpaceRole.USER
+                    role = SpaceRole.USER
                 )
                 spaceUserRepository.save(spaceUser)
-                space.spaceUsers.add(spaceUser)
-                invite.inviteStatus = InviteStatus.ACCEPTED
+                space.users.add(spaceUser)
+                invite.status = InviteStatus.ACCEPTED
             }
             false -> {
-                invite.inviteStatus = InviteStatus.DENIED
+                invite.status = InviteStatus.DENIED
                 invite.isExpired = true
             }
         }

@@ -83,7 +83,7 @@ class SpaceServiceTest {
             spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
-                    userNickname = it.userNickname,
+                    userNickname = it.nickname,
                     spaceRole = SpaceRole.USER,
                     spaceUserId = null
                 )
@@ -92,7 +92,7 @@ class SpaceServiceTest {
         )
         val response = spaceService.createSpace(adminAuth, spaceRequestDto)
         // then
-        assert(response.spaceName == spaceRequestDto.spaceName)
+        assert(response.name == spaceRequestDto.spaceName)
         println(response.toString())
     }
 
@@ -105,7 +105,7 @@ class SpaceServiceTest {
             spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
-                    userNickname = it.userNickname,
+                    userNickname = it.nickname,
                     spaceRole = SpaceRole.USER,
                     spaceUserId = null
                 )
@@ -118,7 +118,7 @@ class SpaceServiceTest {
             spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
-                    userNickname = it.userNickname,
+                    userNickname = it.nickname,
                     spaceRole = SpaceRole.USER,
                     spaceUserId = null
                 )
@@ -128,7 +128,7 @@ class SpaceServiceTest {
         // when
         val updateResponse = spaceService.updateSpace(adminAuth, response.spaceId!!, updateSpaceRequestDto)
         // then
-        assert(updateResponse.spaceName == updateSpaceRequestDto.spaceName)
+        assert(updateResponse.name == updateSpaceRequestDto.spaceName)
         println(updateResponse.toString())
     }
     @Test
@@ -140,7 +140,7 @@ class SpaceServiceTest {
             spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
-                    userNickname = it.userNickname,
+                    userNickname = it.nickname,
                     spaceRole = SpaceRole.USER,
                     spaceUserId = null
                 )
@@ -167,7 +167,7 @@ class SpaceServiceTest {
             spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
-                    userNickname = it.userNickname,
+                    userNickname = it.nickname,
                     spaceRole = SpaceRole.USER,
                     spaceUserId = UUID.randomUUID()
                 )
@@ -180,7 +180,7 @@ class SpaceServiceTest {
 
         val spaces = spaceService.getSpaces(adminAuth)
         // then
-        assert(spaceRepository.findSpaceBySpaceId(response.spaceId!!)?.spaceUsers?.find { it.user == admin }?.withdraw == true)
+        assert(spaceRepository.findSpaceBySpaceId(response.spaceId!!)?.users?.find { it.user == admin }?.withdraw == true)
         assert(spaces.isEmpty())
     }
 
@@ -194,7 +194,7 @@ class SpaceServiceTest {
             spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
-                    userNickname = it.userNickname,
+                    userNickname = it.nickname,
                     spaceRole = SpaceRole.USER,
                     spaceUserId = null
                 )
@@ -206,7 +206,7 @@ class SpaceServiceTest {
             spaceImageUrl = SPACE_IMAGE_URL,
             spaceUsers = userList.map {
                 SpaceUserRequestDto(
-                    userNickname = it.userNickname,
+                    userNickname = it.nickname,
                     spaceRole = SpaceRole.USER,
                     spaceUserId = null
                 )

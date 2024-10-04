@@ -8,8 +8,8 @@ class SpaceUserEntityListener {
     @PostUpdate
     fun postPersist(spaceUser: SpaceUser) {
         spaceUser.space?.let{
-            if (!it.spaceUsers.contains(spaceUser)) {
-                it.spaceUsers.add(spaceUser)
+            if (!it.users.contains(spaceUser)) {
+                it.users.add(spaceUser)
             }
         }
         spaceUser.user?.let {

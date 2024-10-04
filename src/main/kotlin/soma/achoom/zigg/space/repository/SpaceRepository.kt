@@ -11,7 +11,7 @@ import java.util.UUID
 
 interface SpaceRepository : JpaRepository<Space, UUID> {
 
-    fun findSpacesBySpaceUsersContaining(spaceUsers: SpaceUser): List<Space>
+    fun findSpacesByUsersContaining(spaceUsers: SpaceUser): List<Space>
     fun findSpaceBySpaceId(spaceId: UUID): Space?
     fun findSpaceByHistoriesContains(history: History): Space?
     @Query("select s from Space s where s in (select spaceUser.space from SpaceUser spaceUser where spaceUser.user = :user and spaceUser.withdraw = false)")

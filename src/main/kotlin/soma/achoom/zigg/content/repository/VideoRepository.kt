@@ -5,5 +5,5 @@ import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.user.entity.User
 
 interface VideoRepository : JpaRepository<Video,Long> {
-    fun findVideosByVideoUploader(uploader : User) : List<Video>
+    fun findVideosByUploader(uploader: User) : List<Video>
 }

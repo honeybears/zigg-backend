@@ -11,11 +11,11 @@ class Video(
     val videoId: Long? = null,
 
     @ManyToOne
-    var videoUploader: User?,
+    var uploader: User?,
 
     val videoKey: String,
 
-    val videoDuration: String,
+    val duration: String,
 
     ) : BaseEntity() {
 
