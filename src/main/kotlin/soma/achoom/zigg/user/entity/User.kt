@@ -28,9 +28,11 @@ class User(
 
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
-    @OneToOne
+
+    @ManyToOne
     var profileImageKey: Image,
-    @OneToOne
+
+    @ManyToOne
     var profileBannerImageKey:Image? = null,
 
     @Enumerated(EnumType.STRING)
