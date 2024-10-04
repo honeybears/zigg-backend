@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.auth.dto.*
 import soma.achoom.zigg.auth.filter.JwtTokenProvider
-import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.entity.UserRole
@@ -41,7 +40,7 @@ class AuthenticationService @Autowired constructor(
     }
     @Transactional(readOnly = true)
     fun checkNickname(nicknameRequestDto:NicknameValidRequestDto): NicknameValidResponseDto {
-        return NicknameValidResponseDto(userRepository.existsUserByUserNickname(nicknameRequestDto.nickname))
+        return NicknameValidResponseDto(userRepository.existsUserByNickname(nicknameRequestDto.nickname))
     }
     fun generateJWTToken(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
         val user = userRepository.findUserByPlatformAndProviderId(
@@ -59,7 +58,7 @@ class AuthenticationService @Autowired constructor(
     @Transactional(readOnly = false)
     fun registers(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
         oAuth2UserRequestDto.userNickname?: throw IllegalArgumentException("userNickname is required")
-        userRepository.findUserByUserNickname(oAuth2UserRequestDto.userNickname)?.let {
+        userRepository.findUserByNickname(oAuth2UserRequestDto.userNickname)?.let {
             throw UserAlreadyExistsException()
         }
         when (oAuth2UserRequestDto.platform) {
@@ -162,8 +161,8 @@ class AuthenticationService @Autowired constructor(
             val image = imageRepository.findByImageKey(defaultProfileImages.random()) ?: throw RuntimeException("사진이 없습니다.")
 
             user = User(
-                userNickname = oAuth2UserRequestDto.userNickname,
-                userName = oAuth2UserRequestDto.userName,
+                nickname = oAuth2UserRequestDto.userNickname,
+                name = oAuth2UserRequestDto.userName,
                 providerId = oAuth2UserRequestDto.providerId,
                 platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
                 jwtToken = "",

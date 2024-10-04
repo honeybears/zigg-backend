@@ -5,7 +5,6 @@ import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.feedback.entity.Feedback
-import soma.achoom.zigg.space.entity.Space
 import java.util.UUID
 
 @Entity
@@ -13,13 +12,13 @@ class History(
     @Id
     var historyId: UUID = UUID.randomUUID(),
 
-    var historyName: String?,
+    var name: String?,
 
     @OneToOne
-    var historyVideoKey: Video,
+    var videoKey: Video,
 
     @OneToOne
-    var historyVideoThumbnailUrl : Image,
+    var videoThumbnailUrl: Image,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     var feedbacks: MutableSet<Feedback> = mutableSetOf(),

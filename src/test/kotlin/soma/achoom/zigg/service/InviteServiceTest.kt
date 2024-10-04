@@ -62,8 +62,8 @@ class InviteServiceTest {
         )
         spaceUserRepository.save(spaceUser)
         spaceUserRepository.save(inviteeInSpace)
-        space.spaceUsers.add(inviteeInSpace)
-        space.spaceUsers.add(spaceUser)
+        space.users.add(inviteeInSpace)
+        space.users.add(spaceUser)
         spaceRepository.save(space)
 
         user.spaces.add(spaceUser)
@@ -83,7 +83,7 @@ class InviteServiceTest {
             inviteRequestDto = InviteRequestDto(
                 spaceUsers = listOf(
                     SpaceUserRequestDto(
-                        userNickname = user.userNickname,
+                        userNickname = user.nickname,
                         spaceRole = SpaceRole.USER,
                         spaceUserId = null
                     )
@@ -91,7 +91,7 @@ class InviteServiceTest {
             )
         )
         assert(result.invites.size == 1)
-        assert(result.invites.any { it.invitee.userName == user.userName })
+        assert(result.invites.any { it.invitee.name == user.name })
     }
 
 }

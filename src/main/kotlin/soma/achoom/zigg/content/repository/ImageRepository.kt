@@ -5,6 +5,6 @@ import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.user.entity.User
 
 interface ImageRepository : JpaRepository<Image,Long>{
-    fun findByImageKey(imageKey : String) : Image?
-    fun findImagesByImageUploader(uploader : User) : List<Image>
+    fun findByImageKey(imageKey: String) : Image?
+    fun findImagesByUploader(uploader: User) : List<Image>
 }

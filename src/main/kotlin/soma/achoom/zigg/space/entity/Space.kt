@@ -17,15 +17,15 @@ import java.util.UUID
 class Space(
     @Id
     var spaceId: UUID = UUID.randomUUID(),
-    var spaceName: String,
+    var name: String,
 
     @OneToOne
-    var spaceImageKey: Image,
+    var imageKey: Image,
 
     var referenceVideoKey: String? = null,
 
     @OneToMany(mappedBy = "space", cascade = [CascadeType.REMOVE], orphanRemoval = true)
-    var spaceUsers: MutableSet<SpaceUser> = mutableSetOf(),
+    var users: MutableSet<SpaceUser> = mutableSetOf(),
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     var histories: MutableSet<History> = mutableSetOf(),

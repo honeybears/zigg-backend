@@ -17,9 +17,9 @@ data class FeedbackRequestDto(
 ) {
     fun toFeedBack(history: History, creator: SpaceUser, recipients: MutableSet<SpaceUser>): Feedback {
         val feedback = Feedback(
-            feedbackTimeline = feedbackTimeline!!,
-            feedbackMessage = feedbackMessage,
-            feedbackCreator = creator,
+            timeline = feedbackTimeline!!,
+            message = feedbackMessage,
+            creator = creator,
             recipients = mutableListOf(),
 //            history = history
         )

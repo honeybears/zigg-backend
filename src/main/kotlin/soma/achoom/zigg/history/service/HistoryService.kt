@@ -48,14 +48,14 @@ class HistoryService @Autowired constructor(
 
         val historyVideo = Video(
 
-            videoUploader = user,
-            videoDuration = historyRequestDto.videoDuration,
+            uploader = user,
+            duration = historyRequestDto.videoDuration,
             videoKey = historyRequestDto.historyVideoUrl.split("?")[0].split("/")
                 .subList(3, historyRequestDto.historyVideoUrl.split("?")[0].split("/").size).joinToString("/")
             )
 
         val historyThumbnailImage = Image(
-            imageUploader = user,
+            uploader = user,
             imageKey = historyRequestDto.historyThumbnailUrl.split("?")[0].split("/")
                 .subList(3, historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").size).joinToString("/")
         )
@@ -68,9 +68,9 @@ class HistoryService @Autowired constructor(
             historyId = UUID.fromString(
                 historyRequestDto.historyVideoUrl.split("?")[0].split("/").last().split(".")[0]
             ),
-            historyVideoKey = historyVideo,
-            historyName = historyRequestDto.historyName,
-            historyVideoThumbnailUrl = historyThumbnailImage,
+            videoKey = historyVideo,
+            name = historyRequestDto.historyName,
+            videoThumbnailUrl = historyThumbnailImage,
         )
         space.addHistory(history)
         spaceRepository.save(space)
@@ -109,7 +109,7 @@ class HistoryService @Autowired constructor(
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw HistoryNotFoundException()
 
-        history.historyName = historyRequestDto.historyName
+        history.name = historyRequestDto.historyName
         return historyRepository.save(history)
     }
 
