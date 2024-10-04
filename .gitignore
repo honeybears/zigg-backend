@@ -40,6 +40,9 @@ out/
 .kotlin
 
 *.sh
+!/src/main/resources/db
 /src/main/resources/**
+
+
 
 /src/test/resources/**
