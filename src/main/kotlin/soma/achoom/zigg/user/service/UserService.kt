@@ -30,7 +30,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun searchUser(authentication: Authentication, nickname: String): List<User> {
         val users = userRepository.findUsersByUserNameLike(nickname,PageRequest.of(0,10))
-        return users.filter { it.userNickname != authenticationToUser(authentication).userNickname }
+        return users.filter { it.nickname != authenticationToUser(authentication).nickname }
     }
     @Transactional(readOnly = true)
     fun getUserInfo(authentication: Authentication): User {
@@ -51,14 +51,16 @@ class UserService(
     fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): User {
         val user = authenticationToUser(authentication)
         checkGuestUserUpdateProfileLimit(user)
-        user.userName = userRequestDto.userName
+        user.name = userRequestDto.userName
+        user.description = userRequestDto.userDescription
+        user.tags = userRequestDto.userTags
 
         userRequestDto.profileImageUrl?.let{
 
             user.profileImageKey = Image(
                 imageKey = it.split("?")[0].split("/").subList(3, userRequestDto.profileImageUrl.split("?")[0].split("/").size)
                     .joinToString("/"),
-                imageUploader = user
+                uploader = user
             )
             imageRepository.save(user.profileImageKey)
         }
@@ -67,7 +69,7 @@ class UserService(
             user.profileBannerImageKey = Image(
                 imageKey = it.split("?")[0].split("/").subList(3, userRequestDto.profileBannerImageUrl.split("?")[0].split("/").size)
                     .joinToString("/"),
-                imageUploader = user
+                uploader = user
             )
 
             imageRepository.save(user.profileBannerImageKey!!)
@@ -86,7 +88,7 @@ class UserService(
     }
     @Transactional(readOnly = true)
     fun findUserByNickName(nickname: String): User {
-        val user =  userRepository.findUserByUserNickname(nickname)?: throw UserNotFoundException()
+        val user =  userRepository.findUserByNickname(nickname)?: throw UserNotFoundException()
         return user
     }
     @Transactional(readOnly = false)
@@ -96,12 +98,12 @@ class UserService(
             spaceUser -> spaceUser.user = null
             spaceUserRepository.save(spaceUser)
         }
-        imageRepository.findImagesByImageUploader(user).forEach {
-            it.imageUploader = null
+        imageRepository.findImagesByUploader(user).forEach {
+            it.uploader = null
             imageRepository.save(it)
         }
-        videoRepository.findVideosByVideoUploader(user).forEach {
-            it.videoUploader = null
+        videoRepository.findVideosByUploader(user).forEach {
+            it.uploader = null
             videoRepository.save(it)
         }
         userRepository.delete(user)

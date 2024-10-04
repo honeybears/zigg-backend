@@ -22,7 +22,7 @@ class SpaceUser(
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    var spaceRole: SpaceRole = SpaceRole.USER,
+    var role: SpaceRole = SpaceRole.USER,
 
     var withdraw : Boolean = false,
 

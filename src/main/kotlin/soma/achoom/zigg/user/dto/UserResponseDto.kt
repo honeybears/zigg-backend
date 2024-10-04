@@ -10,7 +10,10 @@ data class UserResponseDto(
     val userName: String?,
     val userNickname: String?,
     val profileImageUrl: String?,
-    val profileBannerImageUrl:String?
+    val profileBannerImageUrl:String?,
+    val userTags : String?,
+    val userDescription: String?
+
 
 )  {
 

@@ -26,7 +26,7 @@ class InviteController(
         val invites = inviteService.getInvites(authentication)
         return ResponseEntity.ok(InviteListResponseDto(
             invites.filter{
-                it.isExpired.not().and(it.inviteStatus == InviteStatus.WAITING)
+                it.isExpired.not().and(it.status == InviteStatus.WAITING)
             }.map {
                 responseDtoManager.generateInviteResponseDto(it)
             }.toList()

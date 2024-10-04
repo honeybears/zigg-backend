@@ -57,9 +57,9 @@ class FeedbackService @Autowired constructor(
         }.toMutableSet()
 
         val feedback = Feedback(
-            feedbackTimeline = feedbackRequestDto.feedbackTimeline,
-            feedbackMessage = feedbackRequestDto.feedbackMessage,
-            feedbackCreator = spaceUser,
+            timeline = feedbackRequestDto.feedbackTimeline,
+            message = feedbackRequestDto.feedbackMessage,
+            creator = spaceUser,
         )
 
         feedback.recipients.addAll(feedbackRecipient)
@@ -84,8 +84,8 @@ class FeedbackService @Autowired constructor(
                 spaceUserRepository.findSpaceUserBySpaceUserId(it) ?: throw SpaceUserNotFoundInSpaceException()
             }
         )
-        feedback.feedbackTimeline = feedbackRequestDto.feedbackTimeline
-        feedback.feedbackMessage = feedbackRequestDto.feedbackMessage
+        feedback.timeline = feedbackRequestDto.feedbackTimeline
+        feedback.message = feedbackRequestDto.feedbackMessage
 
         feedbackRepository.save(feedback)
 

@@ -15,7 +15,7 @@ class Image(
     val imageId: Long? = null,
 
     @ManyToOne
-    var imageUploader: User?,
+    var uploader: User?,
 
     val imageKey: String,
 

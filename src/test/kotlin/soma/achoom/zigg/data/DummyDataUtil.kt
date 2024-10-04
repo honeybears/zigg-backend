@@ -57,13 +57,13 @@ class DummyDataUtil(
     fun createDummyUser(): User {
         val image = Image(
             imageKey = PROFILE_IMAGE_KEY,
-            imageUploader = null
+            uploader = null
         )
         imageRepository.save(image)
         val user = User(
             userId = UUID.randomUUID(),
-            userName = createRandomString(5),
-            userNickname = createRandomString(7),
+            name = createRandomString(5),
+            nickname = createRandomString(7),
             profileImageKey = image,
             jwtToken = "",
             providerId = UUID.randomUUID().toString(),
@@ -80,13 +80,13 @@ class DummyDataUtil(
     fun createDummyGuestUser() : User {
         val image = Image(
             imageKey = PROFILE_IMAGE_KEY,
-            imageUploader = null
+            uploader = null
         )
         imageRepository.save(image)
         val user = User(
             userId = UUID.randomUUID(),
-            userName = createRandomString(5),
-            userNickname = createRandomString(7),
+            name = createRandomString(5),
+            nickname = createRandomString(7),
             profileImageKey = image,
             jwtToken = "",
             providerId = UUID.randomUUID().toString(),
@@ -117,14 +117,14 @@ class DummyDataUtil(
     fun createDummySpace(): Space {
         val image = Image(
             imageKey = SPACE_IMAGE_KEY,
-            imageUploader = null
+            uploader = null
         )
         imageRepository.save(image)
         val space =  Space(
             spaceId = UUID.randomUUID(),
-            spaceName = createRandomString(10),
-            spaceImageKey = image,
-            spaceUsers = mutableSetOf(),
+            name = createRandomString(10),
+            imageKey = image,
+            users = mutableSetOf(),
             referenceVideoKey = HISTORY_VIDEO_URL,
         )
         return spaceRepository.save(space)
@@ -135,7 +135,7 @@ class DummyDataUtil(
             spaceUserId = UUID.randomUUID(),
             space = space,
             user = user,
-            spaceRole = SpaceRole.USER
+            role = SpaceRole.USER
         )
         spaceUserRepository.save(spaceUser)
         return spaceUser
@@ -516,9 +516,9 @@ class DummyDataUtil(
     fun createDummyFeedback(history: History, user: SpaceUser, recipients: MutableList<SpaceUser>): Feedback {
         val feedback =  Feedback(
             feedbackId = UUID.randomUUID(),
-            feedbackTimeline = "00:00:00",
-            feedbackMessage = "피드백 내용",
-            feedbackCreator = user,
+            timeline = "00:00:00",
+            message = "피드백 내용",
+            creator = user,
             recipients = recipients,
         )
         history.feedbacks.add(feedback)
@@ -530,11 +530,11 @@ class DummyDataUtil(
     fun createDummyHistory(space: Space): History {
         val video = Video(
             videoKey = HISTORY_VIDEO_URL,
-            videoUploader = null,
-            videoDuration = "00:00:00",
+            uploader = null,
+            duration = "00:00:00",
         )
         val image = Image(
-            imageUploader = null,
+            uploader = null,
             imageKey = HISTORY_VIDEO_URL
         )
         imageRepository.save(image)
@@ -542,9 +542,9 @@ class DummyDataUtil(
         val history = History(
             historyId = UUID.randomUUID(),
 //            space = space,
-            historyName = "히스토리 이름",
-            historyVideoKey = video,
-            historyVideoThumbnailUrl = image,
+            name = "히스토리 이름",
+            videoKey = video,
+            videoThumbnailUrl = image,
         )
         space.histories.add(history)
         spaceRepository.save(space)
