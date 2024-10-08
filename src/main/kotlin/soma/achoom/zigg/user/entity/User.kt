@@ -33,7 +33,7 @@ class User(
     var profileImageKey: Image,
 
     @ManyToOne
-    var profileBannerImageKey:Image? = null,
+    var profileBannerImageKey : Image? = null,
 
     @Enumerated(EnumType.STRING)
     var platform: OAuthProviderEnum,
