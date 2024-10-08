@@ -17,6 +17,7 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -41,7 +42,10 @@ out/
 
 *.sh
 !/src/main/resources/db
-/src/main/resources/**
+/src/main/resources/static
+/src/main/resources/templates
+/src/main/resources/**.properties
+/src/main/resources/**.json
 
 
 
