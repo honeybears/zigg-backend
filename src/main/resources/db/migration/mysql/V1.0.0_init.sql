@@ -122,11 +122,8 @@ INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_us
 INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (8, '2024-10-04 19:09:02.000000', '2024-10-04 19:09:03.000000', 'profile/default_profile8.png', null);
 INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (9, '2024-10-04 19:09:14.000000', '2024-10-04 19:09:15.000000', 'profile/default_profile9.png', null);
 INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (10, '2024-10-04 19:09:32.000000', '2024-10-04 19:09:35.000000', 'profile/default_profile10.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (11, '2024-10-04 19:12:30.269783', '2024-10-04 19:12:30.269783', 'image/space/default_space.jpeg', 0xB744AC4C65904351B314E630A81458B9);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (12, '2024-10-04 19:13:08.780624', '2024-10-04 19:13:08.780624', 'thumbnail/history/d2cde8c1-e1f2-4f04-b324-84f0fded30ed.jpeg', 0xB744AC4C65904351B314E630A81458B9);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (13, '2024-10-04 19:13:47.297114', '2024-10-04 19:13:47.297114', 'thumbnail/history/a07364e0-e42b-4a4b-ac59-9db97925c691.jpeg', 0xB744AC4C65904351B314E630A81458B9);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (14, '2024-10-04 19:32:31.663882', '2024-10-04 19:32:31.663882', 'thumbnail/history/5d88f2de-7ffa-4c6e-9143-4f2f536f8194.jpeg', 0x8EFE5E6C49FE4D0BADC88DC06FE3BED7);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (15, '2024-10-04 19:35:28.087043', '2024-10-04 19:35:28.087043', 'banner/8b8ea711-732d-4996-b422-2d8dabb8c5c0.jpeg', 0x8EFE5E6C49FE4D0BADC88DC06FE3BED7);
+INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (11, '2024-10-04 19:12:30.269783', '2024-10-04 19:12:30.269783', 'image/space/default_space.jpeg', null);
+
 
 create table invite
 (
@@ -258,31 +255,26 @@ create table user_device_tokens
         foreign key (user_user_id) references user (user_id)
 );
 
-create table user
-(
-    user_id                           binary(16)                                         not null
-        primary key,
-    created_at                        datetime(6)                                        not null,
-    updated_at                        datetime(6)                                        not null,
-    description                       varchar(255)                                       null,
-    jwt_token                         varchar(255)                                       null,
-    name                              varchar(255)                                       null,
-    nickname                          varchar(255)                                       null,
-    platform                          enum ('APPLE', 'GOOGLE', 'GUEST', 'KAKAO', 'TEST') null,
-    provider_id                       varchar(255)                                       null,
-    role                              enum ('ADMIN', 'GUEST', 'USER')                    null,
-    tags                              varchar(255)                                       null,
-    profile_banner_image_key_image_id bigint                                             null,
-    profile_image_key_image_id        bigint                                             null,
-    constraint UK637ri2ck2506ywxamq3k3yyal
-        unique (profile_banner_image_key_image_id),
-    constraint UKlw31l5x13pignvm6frxqtfy2c
-        unique (profile_image_key_image_id),
-    constraint FKhprbh316ur7niobeo662xv89x
-        foreign key (profile_banner_image_key_image_id) references image (image_id),
-    constraint FKllxa6yp80pm7wkv7c7omayddj
-        foreign key (profile_image_key_image_id) references image (image_id)
+CREATE TABLE user (
+    user_id                           BINARY(16)                                         NOT NULL PRIMARY KEY,
+    created_at                        DATETIME(6)                                        NOT NULL,
+    updated_at                        DATETIME(6)                                        NOT NULL,
+    description                       VARCHAR(255)                                       NULL,
+    jwt_token                         VARCHAR(255)                                       NULL,
+    name                              VARCHAR(255)                                       NULL,
+    nickname                          VARCHAR(255)                                       NULL,
+    platform                          ENUM('APPLE', 'GOOGLE', 'GUEST', 'KAKAO', 'TEST') NULL,
+                      provider_id                       VARCHAR(255)                                       NULL,
+                      role                              ENUM('ADMIN', 'GUEST', 'USER')                    NULL,
+                      tags                              VARCHAR(255)                                       NULL,
+                      profile_banner_image_key_image_id BIGINT                                             NULL,
+                      profile_image_key_image_id        BIGINT                                             NULL,
+                      CONSTRAINT FKhprbh316ur7niobeo662xv89x
+                          FOREIGN KEY (profile_banner_image_key_image_id) REFERENCES image(image_id),
+                      CONSTRAINT FKllxa6yp80pm7wkv7c7omayddj
+                          FOREIGN KEY (profile_image_key_image_id) REFERENCES image(image_id)
 );
+
 
 create table video
 (

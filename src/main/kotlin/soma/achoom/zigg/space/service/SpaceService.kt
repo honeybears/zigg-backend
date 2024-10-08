@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.content.entity.Image
+import soma.achoom.zigg.content.exception.ImageNotfoundException
 import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.firebase.dto.FCMEvent
 import soma.achoom.zigg.firebase.service.FCMService
@@ -97,13 +98,15 @@ class SpaceService(
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
 
-        val spaceBannerImage = Image(
-            uploader = user,
-            imageKey = spaceRequestDto.spaceImageUrl?.let {
-                it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
-                    .joinToString("/")
-            } ?: defaultSpaceImageUrl
-        )
+        val spaceBannerImage = spaceRequestDto.spaceImageUrl?.let {
+            Image(
+                uploader = user,
+                imageKey = spaceRequestDto.spaceImageUrl.let {
+                    it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
+                        .joinToString("/")
+                }
+            )
+        }?: imageRepository.findByImageKey(defaultSpaceImageUrl) ?: throw ImageNotfoundException()
 
         imageRepository.save(spaceBannerImage)
 
