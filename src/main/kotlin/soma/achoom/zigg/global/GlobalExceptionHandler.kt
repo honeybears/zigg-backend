@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import soma.achoom.zigg.comment.exception.CommentNotFoundException
 import soma.achoom.zigg.comment.exception.CommentUserMissMatchException
+import soma.achoom.zigg.content.exception.ImageNotfoundException
 import soma.achoom.zigg.feedback.exception.FeedbackNotFoundException
 import soma.achoom.zigg.firebase.exception.FCMMessagingFailException
 import soma.achoom.zigg.history.exception.GuestHistoryCreateLimitationException
@@ -115,5 +116,9 @@ class GlobalExceptionHandler {
     @ExceptionHandler(CommentUserMissMatchException::class)
     fun handleCommentUserMissMatch(e: CommentUserMissMatchException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message)
+    }
+    @ExceptionHandler(ImageNotfoundException::class)
+    fun handleImageNotFound(e: ImageNotfoundException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
     }
 }

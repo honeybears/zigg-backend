@@ -17,6 +17,7 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -40,6 +41,12 @@ out/
 .kotlin
 
 *.sh
-/src/main/resources/**
+!/src/main/resources/db
+/src/main/resources/static
+/src/main/resources/templates
+/src/main/resources/**.properties
+/src/main/resources/**.json
+
+
 
 /src/test/resources/**
