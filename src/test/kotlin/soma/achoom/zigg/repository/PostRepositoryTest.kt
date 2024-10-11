@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.TestConfig
 import soma.achoom.zigg.board.entity.Board
 import soma.achoom.zigg.board.repository.BoardRepository
 import soma.achoom.zigg.data.DummyDataUtil
@@ -13,7 +14,7 @@ import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.post.repository.PostRepository
 import kotlin.test.Test
 
-@SpringBootTest
+@SpringBootTest(classes = [TestConfig::class])
 @Transactional
 @ActiveProfiles("test")
 class PostRepositoryTest {
