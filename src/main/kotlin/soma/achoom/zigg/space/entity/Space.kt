@@ -19,7 +19,7 @@ class Space(
     var spaceId: UUID = UUID.randomUUID(),
     var name: String,
 
-    @OneToOne
+    @ManyToOne
     var imageKey: Image,
 
     var referenceVideoKey: String? = null,
