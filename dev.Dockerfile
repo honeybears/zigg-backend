@@ -1,10 +1,11 @@
-FROM gradle:8.8.0-jdk21-slim
+FROM gradle:8.8.0-jdk21 AS build
 WORKDIR /app
-
-# 소스 코드 복사 및 빌드
 COPY . .
 RUN ./gradlew build --parallel --no-daemon
 
-# 애플리케이션 실행
+# Stage 2: Run the application
+FROM openjdk:21-slim
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","-Dspring.profiles.active=dev","/app/build/libs/*.jar"]
+ENTRYPOINT ["java","-jar","-Dspring.profiles.active=dev","app.jar"]
