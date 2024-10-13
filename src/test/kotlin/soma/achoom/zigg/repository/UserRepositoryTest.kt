@@ -2,12 +2,12 @@ package soma.achoom.zigg.repository
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.TestConfig
 import soma.achoom.zigg.data.DummyDataUtil
 import soma.achoom.zigg.user.repository.UserRepository
-import java.util.*
 import kotlin.test.Test
 
 @SpringBootTest(classes = [TestConfig::class])
@@ -51,8 +51,13 @@ class UserRepositoryTest {
     }
 
     @Test
-    fun `delete user without spaceUser`() {
+    fun `find user by username`() {
+        val user = dummyDataUtil.createDummyUserWithMultiFCMToken(1)
 
+        val user1 = userRepository.findUsersByUserNameLike(userName = user.name!!, pageable = Pageable.ofSize(10))
+        for (u in user1) {
+            assert(u.name == user.name)
+        }
 
     }
 }
