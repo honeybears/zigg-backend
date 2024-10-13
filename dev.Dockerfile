@@ -8,4 +8,3 @@ RUN ./gradlew build --parallel --no-daemon
 # 애플리케이션 실행
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","-Dspring.profiles.active=dev","/app/build/libs/*.jar"]
-g
