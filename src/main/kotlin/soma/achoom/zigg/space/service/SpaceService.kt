@@ -41,9 +41,7 @@ class SpaceService(
 
     @Transactional(readOnly = false)
     fun inviteSpace(
-        authentication: Authentication,
-        spaceId: UUID,
-        inviteRequestDto: InviteRequestDto
+        authentication: Authentication, spaceId: UUID, inviteRequestDto: InviteRequestDto
     ): Space {
         val user = userService.authenticationToUser(authentication)
 
@@ -51,8 +49,7 @@ class SpaceService(
             userService.findUserByNickName(it.userNickname!!)
         }.toMutableSet()
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
 
@@ -60,14 +57,11 @@ class SpaceService(
             space.invites.none {
                 it.invitee.userId == invitee.userId && it.status != InviteStatus.DENIED
             } || space.users.none {
-                it.user?.userId == invitee.userId && it.withdraw.not()
+                it.user?.userId == invitee.userId && it.withdraw
             }
         }.map { invitee ->
             Invite(
-                invitee = invitee,
-                space = space,
-                inviter = user,
-                status = InviteStatus.WAITING
+                invitee = invitee, space = space, inviter = user, status = InviteStatus.WAITING
             )
         }.toMutableSet()
 
@@ -89,8 +83,7 @@ class SpaceService(
 
     @Transactional(readOnly = false)
     fun createSpace(
-        authentication: Authentication,
-        spaceRequestDto: SpaceRequestDto
+        authentication: Authentication, spaceRequestDto: SpaceRequestDto
     ): Space {
         val user = userService.authenticationToUser(authentication)
 
@@ -101,14 +94,11 @@ class SpaceService(
         }.toMutableSet()
 
         val spaceBannerImage = spaceRequestDto.spaceImageUrl?.let {
-            Image(
-                uploader = user,
-                imageKey = spaceRequestDto.spaceImageUrl.let {
-                    it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
-                        .joinToString("/")
-                }
-            )
-        }?: imageRepository.findByImageKey(defaultSpaceImageUrl) ?: throw ImageNotfoundException()
+            Image(uploader = user, imageKey = spaceRequestDto.spaceImageUrl.let {
+                it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
+                    .joinToString("/")
+            })
+        } ?: imageRepository.findByImageKey(defaultSpaceImageUrl) ?: throw ImageNotfoundException()
 
         imageRepository.save(spaceBannerImage)
 
@@ -125,16 +115,11 @@ class SpaceService(
             role = SpaceRole.ADMIN,
         )
 
-        space.invites.addAll(
-            invitedUsers.map {
-                Invite(
-                    invitee = it,
-                    space = space,
-                    inviter = user,
-                    status = InviteStatus.WAITING
-                )
-            }
-        )
+        space.invites.addAll(invitedUsers.map {
+            Invite(
+                invitee = it, space = space, inviter = user, status = InviteStatus.WAITING
+            )
+        })
 
         spaceRepository.save(space)
         spaceUserRepository.save(admin)
@@ -163,8 +148,7 @@ class SpaceService(
     fun withdrawSpace(authentication: Authentication, spaceId: UUID) {
         val user = userService.authenticationToUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
 
@@ -185,8 +169,7 @@ class SpaceService(
     fun getSpace(authentication: Authentication, spaceId: UUID): Space {
         val user = userService.authenticationToUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
         return space
@@ -194,14 +177,11 @@ class SpaceService(
 
     @Transactional(readOnly = false)
     fun updateSpace(
-        authentication: Authentication,
-        spaceId: UUID,
-        spaceRequestDto: SpaceRequestDto
+        authentication: Authentication, spaceId: UUID, spaceRequestDto: SpaceRequestDto
     ): Space {
         val user = userService.authenticationToUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
 
@@ -212,8 +192,7 @@ class SpaceService(
                 imageKey = it.let {
                     it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
                         .joinToString("/")
-                },
-                uploader = user
+                }, uploader = user
             )
             imageRepository.save(space.imageKey)
         }
@@ -227,8 +206,7 @@ class SpaceService(
     fun deleteSpace(authentication: Authentication, spaceId: UUID) {
         val user = userService.authenticationToUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
 //        space.spaceUsers.forEach{
@@ -246,14 +224,11 @@ class SpaceService(
 
     @Transactional(readOnly = false)
     fun addReferenceUrl(
-        authentication: Authentication,
-        spaceId: UUID,
-        spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto
+        authentication: Authentication, spaceId: UUID, spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto
     ): Space {
         val user = userService.authenticationToUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
         space.referenceVideoKey = spaceReferenceUrlRequestDto.referenceUrl
@@ -267,8 +242,7 @@ class SpaceService(
     fun deleteReferenceUrl(authentication: Authentication, spaceId: UUID): Space {
         val user = userService.authenticationToUser(authentication)
 
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
+        val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
         space.referenceVideoKey = null
