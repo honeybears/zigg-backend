@@ -14,6 +14,7 @@ import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.space.dto.InviteRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
+import soma.achoom.zigg.space.dto.SpaceResponseDto
 import soma.achoom.zigg.space.entity.*
 import soma.achoom.zigg.space.exception.GuestSpaceCreateLimitationException
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
