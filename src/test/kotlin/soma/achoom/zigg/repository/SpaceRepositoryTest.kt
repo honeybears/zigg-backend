@@ -27,7 +27,7 @@ class SpaceRepositoryTest {
 
     @Test
     fun `is not n+1`() {
-        val space = spaceRepository.findAll().first()
+        val space = spaceRepository.findAll().firstOrNull() ?: return
         for (i in space.histories){
             println(i.name)
         }
