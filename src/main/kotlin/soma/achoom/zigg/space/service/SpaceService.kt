@@ -59,6 +59,8 @@ class SpaceService(
         val filteredInvite = invitedUsers.filter { invitee ->
             space.invites.none {
                 it.invitee.userId == invitee.userId && it.status != InviteStatus.DENIED
+            } || space.users.none {
+                it.user?.userId == invitee.userId && it.withdraw.not()
             }
         }.map { invitee ->
             Invite(
