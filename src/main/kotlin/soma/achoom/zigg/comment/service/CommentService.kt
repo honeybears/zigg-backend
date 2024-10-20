@@ -25,7 +25,6 @@ class CommentService(
         val comment = Comment(
             creator = user,
             textComment = commentRequestDto.message,
-            parent = null
         )
         post.comments.add(comment)
         postRepository.save(post)
@@ -37,7 +36,6 @@ class CommentService(
         val childComment = Comment(
             creator = user,
             textComment = commentRequestDto.message,
-            parent = parentComment
         )
         commentRepository.save(childComment)
     }
