@@ -24,8 +24,7 @@ class PostController(
         @RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto, @PathVariable value: String
     ): ResponseEntity<String> {
         if (value.trim() == "video") {
-            val preSignedUrl =
-                s3Service.getPreSignedPutUrl(S3DataType.POST_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.POST_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)
             return ResponseEntity.ok(preSignedUrl)
         }
         else if (value.trim() == "image") {
@@ -34,9 +33,9 @@ class PostController(
         }
         else return ResponseEntity.badRequest().build()
     }
-    @GetMapping
-    fun getPosts(authentication: Authentication,  @RequestParam("page") page: Int) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.getPosts(authentication, page)
+    @GetMapping("/{boardId}")
+    fun getPosts(authentication: Authentication, @PathVariable boardId:Long,  @RequestParam("page") page: Int) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.getPosts(authentication, boardId, page)
         return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
     }
     @PostMapping("/{boardId}")
@@ -48,6 +47,11 @@ class PostController(
     fun getPost(authentication : Authentication, @PathVariable boardId : Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
         val post = postService.getPost(authentication,boardId,postId)
         return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
+    }
+    @GetMapping("/{boardId}/{postId}/likes")
+    fun likePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long) : ResponseEntity<Unit>{
+        postService.likePost(authentication, postId)
+        return ResponseEntity.noContent().build()
     }
     @PatchMapping("/{boardId}/{postId}")
     fun updatePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{

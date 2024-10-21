@@ -10,11 +10,13 @@ import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.content.repository.VideoRepository
+import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.post.exception.PostCreatorMismatchException
 import soma.achoom.zigg.post.repository.PostRepository
 import soma.achoom.zigg.user.service.UserService
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class PostService(
@@ -22,11 +24,16 @@ class PostService(
     private val userService: UserService,
     private val imageRepository: ImageRepository,
     private val videoRepository: VideoRepository,
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val historyRepository: HistoryRepository
 ) {
     fun createPost(authentication: Authentication, boardId:Long, postRequestDto: PostRequestDto): Post {
         val user = userService.authenticationToUser(authentication)
         val board = boardRepository.findById(boardId).orElseThrow { IllegalArgumentException("Board not found") }
+
+        val history = postRequestDto.historyId?.let {
+            historyRepository.findHistoryByHistoryId(it)
+        }
         val post = Post(
             title = postRequestDto.postTitle,
             textContent = postRequestDto.postMessage,
@@ -39,7 +46,7 @@ class PostService(
                 imageRepository.save(image)
             }.toMutableSet(),
             videoContent = postRequestDto.postVideoContent?.let {
-                val video = Video(
+                val video = history?.videoKey ?:  Video(
                     uploader = user,
                     videoKey = it.videoKey.split("?")[0].split("/")
                         .subList(3, it.videoKey.split("?")[0].split("/").size).joinToString("/"),
@@ -56,9 +63,10 @@ class PostService(
         return postRepository.save(post)
     }
 
-    fun getPosts(authentication: Authentication, page:Int): Page<Post> {
+    fun getPosts(authentication: Authentication, boardId: Long, page:Int): Page<Post> {
+        val board = boardRepository.findById(boardId).orElseThrow { IllegalArgumentException("Board not found") }
         val sort = Sort.by(Sort.Order.desc("createdAt"))
-        return postRepository.findAll(PageRequest.of(page, 10, sort))
+        return postRepository.findPostsByBoard(board ,PageRequest.of(page, 10, sort))
     }
 
     fun getPost(authentication:Authentication, boardId:Long, postId: Long): Post {
@@ -112,5 +120,12 @@ class PostService(
         }
 
         postRepository.delete(post)
+    }
+
+    fun likePost(authentication: Authentication, postId: Long) {
+        val user = userService.authenticationToUser(authentication)
+        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
+        post.likes += 1
+        postRepository.save(post)
     }
 }

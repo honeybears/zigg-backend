@@ -16,5 +16,6 @@ interface PostRepository : JpaRepository<Post,Long>{
     @Query("SELECT p FROM Post p WHERE local_date - p.createAt <= 3 ORDER BY p.likes DESC")
     fun findBestPosts(pageable: Pageable): List<Post>
 
+    fun findPostsByBoard(board: Board, pageable: Pageable): Page<Post>
 
 }

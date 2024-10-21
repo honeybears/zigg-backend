@@ -2,6 +2,7 @@ package soma.achoom.zigg.post.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import soma.achoom.zigg.content.dto.VideoRequestDto
+import java.util.UUID
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -10,6 +11,7 @@ data class PostRequestDto(
     val postMessage: String,
     val postImageContent: MutableSet<String> = mutableSetOf(),
     val postVideoContent: VideoRequestDto?,
-    val postVideoThumbnail: String?
+    val postVideoThumbnail: String?,
+    val historyId: UUID?
 ) {
 }
