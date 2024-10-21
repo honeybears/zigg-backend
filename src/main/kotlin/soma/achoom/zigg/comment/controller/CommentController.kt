@@ -16,8 +16,5 @@ class CommentController(
     private val commentService: CommentService,
     private val responseDtoManager: ResponseDtoManager
 ) {
-    @PostMapping("/posts/comments/{postId}")
-    fun createComment(authentication: Authentication, @PathVariable postId: Long, commentRequestDto: CommentRequestDto) {
-        commentService.createComment(authentication, postId, commentRequestDto)
-    }
+
 }

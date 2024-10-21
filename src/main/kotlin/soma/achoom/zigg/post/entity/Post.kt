@@ -26,12 +26,12 @@ class Post(
 
     var textContent: String,
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany
     var imageContents: MutableSet<Image> = mutableSetOf(),
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     var videoContent: Video? = null,
-    @OneToOne
+    @ManyToOne
     var videoThumbnail: Image? = null ,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)

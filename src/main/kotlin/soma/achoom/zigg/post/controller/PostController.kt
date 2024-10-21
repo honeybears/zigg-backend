@@ -63,8 +63,8 @@ class PostController(
         postService.deletePost(authentication, postId)
         return ResponseEntity.ok().build()
     }
-    @GetMapping("/{boardId}")
-    fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam page: Int, @RequestParam keyword: String) : ResponseEntity<List<PostResponseDto>>{
+    @GetMapping("/{boardId}/search")
+    fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam("page") page: Int, @RequestParam("keyword") keyword: String) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.searchPosts(authentication, boardId, keyword, page )
         return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
     }
