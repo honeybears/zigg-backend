@@ -36,7 +36,7 @@ class PostController(
     @GetMapping("/{boardId}")
     fun getPosts(authentication: Authentication, @PathVariable boardId:Long,  @RequestParam("page") page: Int) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.getPosts(authentication, boardId, page)
-        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
+        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
     }
     @PostMapping("/{boardId}")
     fun createPost(authentication: Authentication, @PathVariable boardId:Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
@@ -66,6 +66,6 @@ class PostController(
     @GetMapping("/{boardId}/search")
     fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam("page") page: Int, @RequestParam("keyword") keyword: String) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.searchPosts(authentication, boardId, keyword, page )
-        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostResponseDto(it)}.toList())
+        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
     }
 }

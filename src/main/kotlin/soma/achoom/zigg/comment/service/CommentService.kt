@@ -3,6 +3,8 @@ package soma.achoom.zigg.comment.service
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.board.exception.BoardNotFoundException
+import soma.achoom.zigg.board.repository.BoardRepository
 import soma.achoom.zigg.comment.dto.CommentRequestDto
 import soma.achoom.zigg.comment.entity.Comment
 import soma.achoom.zigg.comment.exception.CommentNotFoundException
@@ -16,11 +18,14 @@ import soma.achoom.zigg.user.service.UserService
 class CommentService(
     private val commentRepository: CommentRepository,
     private val postRepository: PostRepository,
-    private val userService: UserService
+    private val userService: UserService,
+    private val boardRepository: BoardRepository
 ){
     @Transactional(readOnly = false)
-    fun createComment(authentication: Authentication, postId:Long, commentRequestDto : CommentRequestDto){
+    fun createComment(authentication: Authentication,boardId:Long, postId:Long, commentRequestDto : CommentRequestDto){
         val user = userService.authenticationToUser(authentication)
+        val board = boardRepository.findById(boardId).orElseThrow { BoardNotFoundException() }
+
         val post = postRepository.findById(postId).orElseThrow { PostNotFoundException() }
         val comment = Comment(
             creator = user,
@@ -30,14 +35,18 @@ class CommentService(
         postRepository.save(post)
     }
     @Transactional(readOnly = false)
-    fun createChildComment(authentication: Authentication,commentId: Long, commentRequestDto: CommentRequestDto){
+    fun createChildComment(authentication: Authentication,boardId:Long, postId:Long,commentId: Long, commentRequestDto: CommentRequestDto){
         val user = userService.authenticationToUser(authentication)
+        val board = boardRepository.findById(boardId).orElseThrow { BoardNotFoundException() }
+        val post = postRepository.findById(postId).orElseThrow { PostNotFoundException() }
+
         val parentComment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
         val childComment = Comment(
             creator = user,
             textComment = commentRequestDto.message,
         )
-        commentRepository.save(childComment)
+        parentComment.replies.add(childComment)
+        commentRepository.save(parentComment)
     }
     @Transactional(readOnly = false)
     fun updateComment(authentication: Authentication,commentId:Long, commentRequestDto: CommentRequestDto){
@@ -56,6 +65,11 @@ class CommentService(
         if(comment.creator != user){
             throw CommentUserMissMatchException()
         }
-        commentRepository.delete(comment)
+        comment.isDeleted = true
+        commentRepository.save(comment)
+    }
+
+    fun likeComment(authentication: Authentication, boardId: Long,  postId: Long, commentId: Long) {
+
     }
 }

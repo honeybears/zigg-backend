@@ -21,6 +21,7 @@ class Comment(
     @OneToMany(cascade = [CascadeType.PERSIST], orphanRemoval = true)
     val replies: MutableList<Comment> = mutableListOf(),
 
+    var isDeleted: Boolean = false
     ) : BaseEntity() {
 
 }
