@@ -95,13 +95,12 @@ class SpaceService(
         }.toMutableSet()
 
         val spaceBannerImage = spaceRequestDto.spaceImageUrl?.let {
-            Image(uploader = user, imageKey = spaceRequestDto.spaceImageUrl.let {
-                it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
-                    .joinToString("/")
-            })
+            Image.fromUrl(
+                imageUrl = it,
+                uploader = user
+            )
         } ?: imageRepository.findByImageKey(defaultSpaceImageUrl) ?: throw ImageNotfoundException()
 
-        imageRepository.save(spaceBannerImage)
 
         val space = Space(
             name = spaceRequestDto.spaceName,
@@ -189,13 +188,10 @@ class SpaceService(
         space.name = spaceRequestDto.spaceName
 
         spaceRequestDto.spaceImageUrl?.let {
-            space.imageKey = Image(
-                imageKey = it.let {
-                    it.split("?")[0].split("/").subList(3, spaceRequestDto.spaceImageUrl.split("?")[0].split("/").size)
-                        .joinToString("/")
-                }, uploader = user
+            space.imageKey = Image.fromUrl(
+                imageUrl = it,
+                uploader = user
             )
-            imageRepository.save(space.imageKey)
         }
 
         spaceRepository.save(space)

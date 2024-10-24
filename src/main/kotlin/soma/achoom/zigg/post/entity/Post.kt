@@ -25,12 +25,13 @@ class Post(
 
     var textContent: String,
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.PERSIST])
     var imageContents: MutableSet<Image> = mutableSetOf(),
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.PERSIST])
     var videoContent: Video? = null,
-    @ManyToOne
+
+    @ManyToOne(cascade = [CascadeType.PERSIST])
     var videoThumbnail: Image? = null ,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
@@ -46,7 +47,4 @@ class Post(
     val scraps: MutableSet<PostScrap> = mutableSetOf()
 
 ) : BaseEntity() {
-    fun detach(){
-        board.posts.remove(this)
-    }
 }

@@ -14,10 +14,10 @@ class History(
 
     var name: String?,
 
-    @OneToOne
+    @OneToOne(cascade = [CascadeType.PERSIST])
     var videoKey: Video,
 
-    @OneToOne
+    @OneToOne(cascade = [CascadeType.PERSIST])
     var videoThumbnailUrl: Image,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)

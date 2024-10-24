@@ -31,10 +31,10 @@ class User(
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.PERSIST])
     var profileImageKey: Image,
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.PERSIST])
     var profileBannerImageKey : Image? = null,
 
     @Enumerated(EnumType.STRING)

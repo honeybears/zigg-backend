@@ -57,22 +57,17 @@ class UserService(
 
         userRequestDto.profileImageUrl?.let{
 
-            user.profileImageKey = Image(
-                imageKey = it.split("?")[0].split("/").subList(3, userRequestDto.profileImageUrl.split("?")[0].split("/").size)
-                    .joinToString("/"),
+            user.profileImageKey = Image.fromUrl(
+                imageUrl = it,
                 uploader = user
             )
-            imageRepository.save(user.profileImageKey)
         }
 
         userRequestDto.profileBannerImageUrl?.let {
-            user.profileBannerImageKey = Image(
-                imageKey = it.split("?")[0].split("/").subList(3, userRequestDto.profileBannerImageUrl.split("?")[0].split("/").size)
-                    .joinToString("/"),
+            user.profileBannerImageKey = Image.fromUrl(
+                imageUrl = it,
                 uploader = user
             )
-
-            imageRepository.save(user.profileBannerImageKey!!)
 
         }
 

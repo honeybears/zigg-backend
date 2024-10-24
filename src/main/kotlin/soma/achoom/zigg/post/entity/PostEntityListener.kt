@@ -6,7 +6,7 @@ import jakarta.persistence.PreRemove
 class PostEntityListener {
     @PreRemove
     fun onPreDelete(post:Post) {
-        post.detach()
+        post.board.posts.remove(post)
         for (likes in post.likes) {
             likes.user.likedPosts.remove(likes)
         }

@@ -27,7 +27,6 @@ class AuthenticationService @Autowired constructor(
 )  {
     @Transactional(readOnly = true)
     fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): Boolean {
-
         runCatching {
             userRepository.findUserByPlatformAndProviderId(
                 OAuthProviderEnum.valueOf(oAuth2MetaDataRequestDto.platform), oAuth2MetaDataRequestDto.providerId
