@@ -68,4 +68,14 @@ class PostController(
         val posts = postService.searchPosts(authentication, boardId, keyword, page )
         return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
     }
+    @GetMapping("/my")
+    fun getMyPosts(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.getMyPosts(authentication)
+        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
+    }
+//    @GetMapping("/scraps")
+//    fun getScraps(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
+//        val posts = postService.getScraps(authentication)
+//        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
+//    }
 }

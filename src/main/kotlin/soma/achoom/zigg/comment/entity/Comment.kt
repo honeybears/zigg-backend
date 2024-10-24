@@ -16,7 +16,7 @@ class Comment(
 
     var textComment: String,
 
-    var likes: Long = 0,
+    var likes : Int = 0,
 
     @OneToMany(cascade = [CascadeType.PERSIST], orphanRemoval = true)
     val replies: MutableList<Comment> = mutableListOf(),

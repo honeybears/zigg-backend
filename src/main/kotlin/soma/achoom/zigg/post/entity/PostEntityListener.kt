@@ -1,5 +1,6 @@
 package soma.achoom.zigg.post.entity
 
+import jakarta.persistence.PrePersist
 import jakarta.persistence.PreRemove
 
 class PostEntityListener {

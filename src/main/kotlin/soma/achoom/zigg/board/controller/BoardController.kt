@@ -1,5 +1,6 @@
 package soma.achoom.zigg.board.controller
 
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,11 +14,11 @@ class BoardController(
     private val boardService: BoardService
 ) {
     @GetMapping
-    fun getBoards(authentication: Authentication)  : List<BoardResponseDto>{
-        return boardService.getBoardList().map{BoardResponseDto(it.boardId!! , it.name)}
+    fun getBoards(authentication: Authentication)  : ResponseEntity<List<BoardResponseDto>> {
+        return ResponseEntity.ok(boardService.getBoardList().map{BoardResponseDto(it.boardId!! , it.name)})
     }
     @GetMapping("/hot")
-    fun getHotBoards(authentication: Authentication) : List<BoardResponseDto>{
-        return boardService.getRecentHotPosts().map{BoardResponseDto(it.postId!!, it.title)}
+    fun getHotBoards(authentication: Authentication) : ResponseEntity<List<BoardResponseDto>>{
+        return ResponseEntity.ok(boardService.getRecentHotPosts().map{BoardResponseDto(it.postId!!, it.title)})
     }
 }

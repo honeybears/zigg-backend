@@ -7,6 +7,8 @@ import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.firebase.entity.FCMToken
 import soma.achoom.zigg.invite.entity.Invite
+import soma.achoom.zigg.post.entity.PostLike
+import soma.achoom.zigg.post.entity.PostScrap
 import soma.achoom.zigg.space.entity.SpaceUser
 import java.util.*
 
@@ -48,12 +50,16 @@ class User(
     var deviceTokens : MutableSet<FCMToken> = mutableSetOf(),
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    var spaces : MutableSet<SpaceUser>,
+    var spaces : MutableSet<SpaceUser> = mutableSetOf(),
 
     @OneToMany(mappedBy = "inviter", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var invites : MutableSet<Invite>,
+    var invites : MutableSet<Invite> = mutableSetOf(),
     @OneToMany(mappedBy = "invitee", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var invited : MutableSet<Invite>,
+    var invited : MutableSet<Invite> = mutableSetOf(),
+    @OneToMany(fetch = FetchType.LAZY)
+    var scrapedPosts : MutableSet<PostScrap> = mutableSetOf(),
+    @OneToMany(fetch = FetchType.LAZY)
+    var likedPosts : MutableSet<PostLike> = mutableSetOf(),
 
     ) : BaseEntity(){
 
