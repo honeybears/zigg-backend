@@ -46,23 +46,16 @@ class HistoryService @Autowired constructor(
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
 
-        val historyVideo = Video(
-
+        val historyVideo = Video.fromUrl(
             uploader = user,
             duration = historyRequestDto.videoDuration,
-            videoKey = historyRequestDto.historyVideoUrl.split("?")[0].split("/")
-                .subList(3, historyRequestDto.historyVideoUrl.split("?")[0].split("/").size).joinToString("/")
-            )
-
-        val historyThumbnailImage = Image(
-            uploader = user,
-            imageKey = historyRequestDto.historyThumbnailUrl.split("?")[0].split("/")
-                .subList(3, historyRequestDto.historyThumbnailUrl.split("?")[0].split("/").size).joinToString("/")
+            videoUrl = historyRequestDto.historyVideoUrl
         )
 
-        videoRepository.save(historyVideo)
-        imageRepository.save(historyThumbnailImage)
-
+        val historyThumbnailImage = Image.fromUrl(
+            uploader = user,
+            imageUrl = historyRequestDto.historyThumbnailUrl
+        )
 
         val history = History(
             historyId = UUID.fromString(

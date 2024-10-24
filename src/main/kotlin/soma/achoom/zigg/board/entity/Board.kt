@@ -14,4 +14,5 @@ class Board(
 
     @OneToMany(fetch = FetchType.LAZY,orphanRemoval = true)
     val posts: MutableSet<Post> = mutableSetOf(),
+
 ): BaseEntity()

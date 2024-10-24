@@ -13,6 +13,8 @@ import soma.achoom.zigg.content.repository.VideoRepository
 import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.entity.Post
+import soma.achoom.zigg.post.entity.PostLike
+import soma.achoom.zigg.post.entity.PostScrap
 import soma.achoom.zigg.post.exception.PostCreatorMismatchException
 import soma.achoom.zigg.post.repository.PostLikeRepository
 import soma.achoom.zigg.post.repository.PostRepository
@@ -23,8 +25,6 @@ import soma.achoom.zigg.user.service.UserService
 class PostService(
     private val postRepository: PostRepository,
     private val userService: UserService,
-    private val imageRepository: ImageRepository,
-    private val videoRepository: VideoRepository,
     private val boardRepository: BoardRepository,
     private val historyRepository: HistoryRepository,
     private val postLikeRepository: PostLikeRepository,
@@ -41,22 +41,19 @@ class PostService(
             title = postRequestDto.postTitle,
             textContent = postRequestDto.postMessage,
             imageContents = postRequestDto.postImageContent.map {
-                val image = Image(
+                 Image.fromUrl(
                     uploader = user,
-                    imageKey = it.split("?")[0].split("/")
-                        .subList(3, it.split("?")[0].split("/").size).joinToString("/")
+                    imageUrl = it
                 )
-                imageRepository.save(image)
             }.toMutableSet(),
             videoContent = postRequestDto.postVideoContent?.let {
-                val video = history?.videoKey ?:  Video(
+                history?.videoKey ?:  Video.fromUrl(
                     uploader = user,
-                    videoKey = it.videoKey.split("?")[0].split("/")
-                        .subList(3, it.videoKey.split("?")[0].split("/").size).joinToString("/"),
+                    videoUrl = it.videoKey,
                     duration = it.videoDuration
 
                 )
-                videoRepository.save(video)
+
             },
             board = board,
             creator = user,
@@ -93,24 +90,24 @@ class PostService(
         post.title = postRequestDto.postTitle
         post.textContent = postRequestDto.postMessage
         post.imageContents = postRequestDto.postImageContent.map {
-            val image = Image(
+             Image.fromUrl(
                 uploader = post.creator,
-                imageKey = it.split("?")[0].split("/")
-                    .subList(3, it.split("?")[0].split("/").size).joinToString("/")
+                imageUrl = it
             )
-            imageRepository.save(image)
         }.toMutableSet()
         post.videoContent = postRequestDto.postVideoContent?.let {
-            val video = Video(
+            Video.fromUrl(
                 uploader = post.creator,
-                videoKey = it.videoKey.split("?")[0].split("/")
-                    .subList(3, it.videoKey.split("?")[0].split("/").size).joinToString("/"),
+                videoUrl = it.videoKey,
                 duration = it.videoDuration
-
             )
-            videoRepository.save(video)
         }
-
+        post.videoThumbnail = postRequestDto.postVideoThumbnail?.let {
+            Image.fromUrl(
+                uploader = post.creator,
+                imageUrl = it
+            )
+        }
         return postRepository.save(post)
     }
 
@@ -120,15 +117,17 @@ class PostService(
         if(post.creator.userId != user.userId){
             throw PostCreatorMismatchException()
         }
-        post.board.posts.remove(post)
         postRepository.delete(post)
     }
 
     fun likePost(authentication: Authentication, postId: Long) {
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
-        post.likeCnt += 1
-        postRepository.save(post)
+        val postLike = PostLike(
+            post = post,
+            user = user
+        )
+        postLikeRepository.save(postLike)
     }
 
     fun getMyPosts(authentication: Authentication): List<Post> {
@@ -136,26 +135,26 @@ class PostService(
         return postRepository.findPostsByCreator(user)
     }
 
-//    fun getScraps(authentication: Authentication): Any {
-//
-//    }
-//    fun createScraps(authentication: Authentication, postId: Long) {
-//        val user = userService.authenticationToUser(authentication)
-//        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
-//        user.scrapedPosts.add(post)
-//    }
-//    fun getMyScrapPosts(authentication: Authentication): List<Post> {
-//        val user = userService.authenticationToUser(authentication)
-//        return user.scrapPosts.toList()
-//    }
-//    fun scrapPost(authentication: Authentication, postId: Long) {
-//        val user = userService.authenticationToUser(authentication)
-//        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
-//        user.scrapPosts.add(post)
-//    }
-//    fun unScrapPost(authentication: Authentication, postId: Long) {
-//        val user = userService.authenticationToUser(authentication)
-//        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
-//        user.scrapPosts.remove(post)
-//    }
+    fun getScraps(authentication: Authentication): List<Post> {
+        val user = userService.authenticationToUser(authentication)
+        return user.scrapedPosts.map{it.post}.toList()
+    }
+    fun getMyScrapPosts(authentication: Authentication): List<Post> {
+        val user = userService.authenticationToUser(authentication)
+        return user.scrapedPosts.map{it.post}.toList()
+    }
+    fun scrapPost(authentication: Authentication, postId: Long) {
+        val user = userService.authenticationToUser(authentication)
+        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
+        post.scraps.filter { it.user.userId == user.userId }.map {
+            postScrapRepository.delete(it)
+            return
+        }
+        val postScrap = PostScrap(
+            post = post,
+            user = user
+        )
+        postScrapRepository.save(postScrap)
+    }
+
 }
