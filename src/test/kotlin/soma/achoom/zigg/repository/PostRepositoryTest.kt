@@ -78,9 +78,25 @@ class PostRepositoryTest {
     @Test
     fun `delete post`() {
         val post = postRepository.findAll()[0]
-//        post.detach()
+        val user1 = userRepository.save(dummyDataUtil.createDummyUser())
+
+        val postLike1 = PostLike(user = user1, post = post)
+//        post.likes.add(postLike1)
+//        user1.likedPosts.add(postLike1)
+        val user2 = userRepository.save(dummyDataUtil.createDummyUser())
+
+        val postLike2 = PostLike(user = user2, post = post)
+//        post.likes.add(postLike2)
+//        user2.likedPosts.add(postLike2)
+        postLikeRepository.save(postLike2)
+
         postRepository.delete(post)
-        assert(postRepository.findAll().size == 9)
+
+        assert(postRepository.findById(post.postId!!).isEmpty)
+        assert(user1.likedPosts.isEmpty())
+        assert(user2.likedPosts.isEmpty())
+        assert(postLikeRepository.findAll().isEmpty())
+
     }
 
     @Test
@@ -89,8 +105,8 @@ class PostRepositoryTest {
         val user = dummyDataUtil.createDummyUser()
 
         val postLike = PostLike(user = user, post = post)
-        post.likes.add(postLike)
-        user.likedPosts.add(postLike)
+//        post.likes.add(postLike)
+//        user.likedPosts.add(postLike)
         postLikeRepository.save(postLike)
 
         assert(postLikeRepository.findAll().size == 1)
@@ -108,8 +124,8 @@ class PostRepositoryTest {
 
         // PostLike 생성 및 추가
         val postLike = PostLike(user = user, post = post)
-        post.likes.add(postLike)
-        user.likedPosts.add(postLike)
+//        post.likes.add(postLike)
+//        user.likedPosts.add(postLike)
         postLikeRepository.save(postLike)
 
         // 검증: 좋아요 추가 후 상태 확인
@@ -119,8 +135,8 @@ class PostRepositoryTest {
         assert(user.likedPosts.first().post == post)
 
         // 좋아요 삭제
-        post.likes.remove(postLike)
-        user.likedPosts.remove(postLike)
+//        post.likes.remove(postLike)
+//        user.likedPosts.remove(postLike)
         postLikeRepository.delete(postLike)
 
         // 검증: 좋아요 삭제 후 상태 확인
