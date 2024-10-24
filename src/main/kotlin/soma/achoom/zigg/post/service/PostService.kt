@@ -14,9 +14,10 @@ import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.post.exception.PostCreatorMismatchException
+import soma.achoom.zigg.post.repository.PostLikeRepository
 import soma.achoom.zigg.post.repository.PostRepository
+import soma.achoom.zigg.post.repository.PostScrapRepository
 import soma.achoom.zigg.user.service.UserService
-import kotlin.jvm.optionals.getOrElse
 
 @Service
 class PostService(
@@ -25,7 +26,9 @@ class PostService(
     private val imageRepository: ImageRepository,
     private val videoRepository: VideoRepository,
     private val boardRepository: BoardRepository,
-    private val historyRepository: HistoryRepository
+    private val historyRepository: HistoryRepository,
+    private val postLikeRepository: PostLikeRepository,
+    private val postScrapRepository: PostScrapRepository
 ) {
     fun createPost(authentication: Authentication, boardId:Long, postRequestDto: PostRequestDto): Post {
         val user = userService.authenticationToUser(authentication)
@@ -57,9 +60,8 @@ class PostService(
             },
             board = board,
             creator = user,
-
-
         )
+        board.posts.add(post)
         return postRepository.save(post)
     }
 
@@ -118,14 +120,42 @@ class PostService(
         if(post.creator.userId != user.userId){
             throw PostCreatorMismatchException()
         }
-
+        post.board.posts.remove(post)
         postRepository.delete(post)
     }
 
     fun likePost(authentication: Authentication, postId: Long) {
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
-        post.likes += 1
+        post.likeCnt += 1
         postRepository.save(post)
     }
+
+    fun getMyPosts(authentication: Authentication): List<Post> {
+        val user = userService.authenticationToUser(authentication)
+        return postRepository.findPostsByCreator(user)
+    }
+
+//    fun getScraps(authentication: Authentication): Any {
+//
+//    }
+//    fun createScraps(authentication: Authentication, postId: Long) {
+//        val user = userService.authenticationToUser(authentication)
+//        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
+//        user.scrapedPosts.add(post)
+//    }
+//    fun getMyScrapPosts(authentication: Authentication): List<Post> {
+//        val user = userService.authenticationToUser(authentication)
+//        return user.scrapPosts.toList()
+//    }
+//    fun scrapPost(authentication: Authentication, postId: Long) {
+//        val user = userService.authenticationToUser(authentication)
+//        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
+//        user.scrapPosts.add(post)
+//    }
+//    fun unScrapPost(authentication: Authentication, postId: Long) {
+//        val user = userService.authenticationToUser(authentication)
+//        val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
+//        user.scrapPosts.remove(post)
+//    }
 }

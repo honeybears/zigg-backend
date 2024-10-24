@@ -22,7 +22,7 @@ class CommentService(
     private val boardRepository: BoardRepository
 ){
     @Transactional(readOnly = false)
-    fun createComment(authentication: Authentication,boardId:Long, postId:Long, commentRequestDto : CommentRequestDto){
+    fun createComment(authentication: Authentication,boardId:Long, postId:Long, commentRequestDto : CommentRequestDto) : Comment{
         val user = userService.authenticationToUser(authentication)
         val board = boardRepository.findById(boardId).orElseThrow { BoardNotFoundException() }
 
@@ -33,9 +33,10 @@ class CommentService(
         )
         post.comments.add(comment)
         postRepository.save(post)
+        return comment
     }
     @Transactional(readOnly = false)
-    fun createChildComment(authentication: Authentication,boardId:Long, postId:Long,commentId: Long, commentRequestDto: CommentRequestDto){
+    fun createChildComment(authentication: Authentication,boardId:Long, postId:Long,commentId: Long, commentRequestDto: CommentRequestDto) : Comment{
         val user = userService.authenticationToUser(authentication)
         val board = boardRepository.findById(boardId).orElseThrow { BoardNotFoundException() }
         val post = postRepository.findById(postId).orElseThrow { PostNotFoundException() }
@@ -46,17 +47,17 @@ class CommentService(
             textComment = commentRequestDto.message,
         )
         parentComment.replies.add(childComment)
-        commentRepository.save(parentComment)
+        return commentRepository.save(parentComment)
     }
     @Transactional(readOnly = false)
-    fun updateComment(authentication: Authentication,commentId:Long, commentRequestDto: CommentRequestDto){
+    fun updateComment(authentication: Authentication,commentId:Long, commentRequestDto: CommentRequestDto) : Comment{
         val user = userService.authenticationToUser(authentication)
         val comment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
         if(comment.creator != user){
             throw CommentUserMissMatchException()
         }
         comment.textComment = commentRequestDto.message
-        commentRepository.save(comment)
+        return commentRepository.save(comment)
     }
     @Transactional(readOnly = false)
     fun deleteComment(authentication: Authentication,commentId: Long){
@@ -69,7 +70,4 @@ class CommentService(
         commentRepository.save(comment)
     }
 
-    fun likeComment(authentication: Authentication, boardId: Long,  postId: Long, commentId: Long) {
-
-    }
 }

@@ -167,11 +167,6 @@ class AuthenticationService @Autowired constructor(
                 platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
                 jwtToken = "",
                 profileImageKey = image,
-                deviceTokens = mutableSetOf(),
-                invites = mutableSetOf(),
-                invited = mutableSetOf(),
-                profileBannerImageKey = null,
-                spaces = mutableSetOf()
             )
         }
 
