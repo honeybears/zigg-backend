@@ -41,10 +41,6 @@ class Post(
 
     var scrapCnt: Int = 0,
 
-    @OneToMany(cascade = [CascadeType.REMOVE])
-    val likes: MutableSet<PostLike> = mutableSetOf(),
-    @OneToMany(cascade = [CascadeType.REMOVE])
-    val scraps: MutableSet<PostScrap> = mutableSetOf()
 
 ) : BaseEntity() {
 }

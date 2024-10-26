@@ -16,7 +16,6 @@ import java.util.*
 @RequestMapping("/api/v0/boards/posts")
 class PostController(
     private val s3Service: S3Service,
-    private val responseDtoManager: ResponseDtoManager,
     private val postService: PostService
 ) {
     @PostMapping("/pre-signed-url/{value}")
@@ -36,46 +35,61 @@ class PostController(
     @GetMapping("/{boardId}")
     fun getPosts(authentication: Authentication, @PathVariable boardId:Long,  @RequestParam("page") page: Int) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.getPosts(authentication, boardId, page)
-        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
+        return ResponseEntity.ok(posts)
     }
     @PostMapping("/{boardId}")
     fun createPost(authentication: Authentication, @PathVariable boardId:Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
         val post = postService.createPost(authentication, boardId, postRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
+        return ResponseEntity.ok(post)
     }
     @GetMapping("/{boardId}/{postId}")
     fun getPost(authentication : Authentication, @PathVariable boardId : Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
         val post = postService.getPost(authentication,boardId,postId)
-        return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
+        return ResponseEntity.ok(post)
     }
     @GetMapping("/{boardId}/{postId}/likes")
     fun likePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long) : ResponseEntity<Unit>{
-        postService.likePost(authentication, postId)
+        val post = postService.likeOrUnlikePost(authentication, postId)
         return ResponseEntity.noContent().build()
     }
     @PatchMapping("/{boardId}/{postId}")
     fun updatePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
         val post = postService.updatePost(authentication, postId, postRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generatePostResponseDto(post))
+        return ResponseEntity.ok(post)
     }
     @DeleteMapping("/{boardId}/{postId}")
     fun deletePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long) : ResponseEntity<Unit> {
         postService.deletePost(authentication, postId)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.noContent().build()
     }
     @GetMapping("/{boardId}/search")
     fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam("page") page: Int, @RequestParam("keyword") keyword: String) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.searchPosts(authentication, boardId, keyword, page )
-        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
+        return ResponseEntity.ok(posts)
     }
     @GetMapping("/my")
     fun getMyPosts(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.getMyPosts(authentication)
-        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
+        return ResponseEntity.ok(posts)
     }
-//    @GetMapping("/scraps")
-//    fun getScraps(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
-//        val posts = postService.getScraps(authentication)
-//        return ResponseEntity.ok(posts.map{responseDtoManager.generatePostShortResponseDto(it)}.toList())
-//    }
+    @GetMapping("/scraps/{boardId}/{postId}")
+    fun getScraps(authentication: Authentication,@PathVariable boardId: Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
+        val posts = postService.scrapOrUnscrapPost(authentication, postId)
+        return ResponseEntity.ok(posts)
+    }
+    @GetMapping("/likes/{boardId}/{postId}")
+    fun getLikes(authentication: Authentication,@PathVariable boardId: Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
+        val posts = postService.likeOrUnlikePost(authentication, postId)
+        return ResponseEntity.ok(posts)
+    }
+    @GetMapping("/scraps")
+    fun getMyScraps(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.getMyScraps(authentication)
+        return ResponseEntity.ok(posts)
+    }
+    @GetMapping("/likes")
+    fun getMyLikes(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.getMyLikes(authentication)
+        return ResponseEntity.ok(posts)
+    }
 }

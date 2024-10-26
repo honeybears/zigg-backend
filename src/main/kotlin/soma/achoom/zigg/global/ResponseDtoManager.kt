@@ -148,34 +148,6 @@ class ResponseDtoManager(
         )
     }
 
-
-    fun generatePostResponseDto(post: Post): PostResponseDto {
-        return PostResponseDto(
-            postId = post.postId!!,
-            postTitle = post.title,
-            postMessage = post.textContent,
-            postImageContents = post.imageContents.map { s3Service.getPreSignedGetUrl(it.imageKey) }.toList(),
-            postVideoContent = post.videoContent?.let {
-                VideoResponseDto(
-                    videoUrl = s3Service.getPreSignedGetUrl(post.videoContent!!.videoKey),
-                    videoDuration = it.duration
-                )
-            },
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
-            comments = post.comments.map { generateCommentResponseDto(it) }.toMutableList()
-        )
-    }
-
-    fun generatePostShortResponseDto(post: Post): PostResponseDto {
-        return PostResponseDto(
-            postId = post.postId!!,
-            postTitle = post.title,
-            postMessage = post.textContent,
-            postImageContents = post.imageContents.first().imageKey.let { s3Service.getPreSignedGetUrl(it) }.let { listOf(it) },
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
-        )
-    }
-
     fun generateCommentResponseDto(comment: Comment): CommentResponseDto {
         return CommentResponseDto(
             commentId = comment.commentId!!,

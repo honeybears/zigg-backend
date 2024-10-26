@@ -6,7 +6,6 @@ import soma.achoom.zigg.comment.entity.Comment
 import soma.achoom.zigg.user.entity.User
 
 interface CommentRepository : JpaRepository<Comment,Long> {
-
     @TestOnly
     fun findCommentsByCreator(user: User): List<Comment>
 }

@@ -5,16 +5,11 @@ import jakarta.persistence.PreRemove
 
 class PostLikeEntityListener {
     @PrePersist
-    fun onPrePersist(postLike: PostLike) {
-        postLike.user.likedPosts.add(postLike)
-        postLike.post.likes.add(postLike)
+    fun prePersist(postLike: PostLike) {
         postLike.post.likeCnt++
     }
-
     @PreRemove
-    fun onPreRemove(postLike: PostLike) {
-        postLike.user.likedPosts.remove(postLike)
-        postLike.post.likes.remove(postLike)
+    fun preDestroy(postLike: PostLike) {
         postLike.post.likeCnt--
     }
 }

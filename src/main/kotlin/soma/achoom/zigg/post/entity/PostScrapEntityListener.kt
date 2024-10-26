@@ -5,16 +5,11 @@ import jakarta.persistence.PreRemove
 
 class PostScrapEntityListener {
     @PrePersist
-    fun onPrePersist(postScrap: PostScrap) {
-        postScrap.user.scrapedPosts.add(postScrap)
-        postScrap.post.scraps.add(postScrap)
+    fun prePersist(postScrap: PostScrap) {
         postScrap.post.scrapCnt++
     }
-
     @PreRemove
-    fun onPreRemove(postScrap: PostScrap) {
-        postScrap.user.scrapedPosts.remove(postScrap)
-        postScrap.post.scraps.remove(postScrap)
+    fun preDestroy(postScrap: PostScrap) {
         postScrap.post.scrapCnt--
     }
 }

@@ -68,10 +68,6 @@ class DummyDataUtil(
             jwtToken = "",
             providerId = UUID.randomUUID().toString(),
             platform = OAuthProviderEnum.TEST,
-            deviceTokens = mutableSetOf(),
-            spaces = mutableSetOf(),
-            invites = mutableSetOf(),
-            invited = mutableSetOf(),
             profileBannerImageKey = null
         )
         return userRepository.save(user)
@@ -92,10 +88,6 @@ class DummyDataUtil(
             providerId = UUID.randomUUID().toString(),
             platform = OAuthProviderEnum.GUEST,
             role = UserRole.GUEST,
-            deviceTokens = mutableSetOf(),
-            spaces = mutableSetOf(),
-            invites = mutableSetOf(),
-            invited = mutableSetOf(),
             profileBannerImageKey = null
         )
         return userRepository.save(user)
