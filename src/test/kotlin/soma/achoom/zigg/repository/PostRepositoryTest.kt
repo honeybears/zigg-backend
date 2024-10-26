@@ -54,7 +54,6 @@ class PostRepositoryTest {
                 postRepository.save(
                     Post(
                         creator = user,
-                        likes = mutableSetOf(),
                         likeCnt = i,
                         title = "title$i",
                         textContent = "content$i",
@@ -78,24 +77,11 @@ class PostRepositoryTest {
     @Test
     fun `delete post`() {
         val post = postRepository.findAll()[0]
-        val user1 = userRepository.save(dummyDataUtil.createDummyUser())
-
-        val postLike1 = PostLike(user = user1, post = post)
-//        post.likes.add(postLike1)
-//        user1.likedPosts.add(postLike1)
-        val user2 = userRepository.save(dummyDataUtil.createDummyUser())
-
-        val postLike2 = PostLike(user = user2, post = post)
-//        post.likes.add(postLike2)
-//        user2.likedPosts.add(postLike2)
-        postLikeRepository.save(postLike2)
 
         postRepository.delete(post)
 
         assert(postRepository.findById(post.postId!!).isEmpty)
-        assert(user1.likedPosts.isEmpty())
-        assert(user2.likedPosts.isEmpty())
-        assert(postLikeRepository.findAll().isEmpty())
+
 
     }
 
@@ -112,37 +98,31 @@ class PostRepositoryTest {
         assert(postLikeRepository.findAll().size == 1)
         assert(postLikeRepository.findAll()[0].post == post)
         assert(postLikeRepository.findAll()[0].user == user)
-        assert(user.likedPosts.first().post == post)
-        assert(user.likedPosts.size == 1)
 
     }
 
     @Test
     fun `post like delete test`() {
         val post = postRepository.findAll()[0]
+        val likes = post.likeCnt
         val user = userRepository.save(dummyDataUtil.createDummyUser()) // user를 영속화하여 저장
 
-        // PostLike 생성 및 추가
+        //when
         val postLike = PostLike(user = user, post = post)
-//        post.likes.add(postLike)
-//        user.likedPosts.add(postLike)
         postLikeRepository.save(postLike)
 
-        // 검증: 좋아요 추가 후 상태 확인
+        //then
         assert(postLikeRepository.findAll().size == 1)
         assert(postLikeRepository.findAll()[0].post == post)
         assert(postLikeRepository.findAll()[0].user == user)
-        assert(user.likedPosts.first().post == post)
+        assert(post.likeCnt == likes + 1)
 
-        // 좋아요 삭제
-//        post.likes.remove(postLike)
-//        user.likedPosts.remove(postLike)
+        // when
         postLikeRepository.delete(postLike)
 
-        // 검증: 좋아요 삭제 후 상태 확인
-        assert(postLikeRepository.findAll().isEmpty()) //failed
-        assert(postRepository.findById(post.postId!!).get().likes.isEmpty())
-        assert(user.likedPosts.isEmpty()) // 이 부분이 이제 성공해야 합니다.
+        // then
+        assert(postLikeRepository.findAll().isEmpty())
+        assert(post.likeCnt == likes)
     }
 
     @Test
@@ -155,7 +135,6 @@ class PostRepositoryTest {
 
         val post = Post(
             creator = user,
-            likes = mutableSetOf(),
             title = "title",
             textContent = "content",
             board = board
@@ -175,7 +154,6 @@ class PostRepositoryTest {
         boardRepository.save(board)
         val post = Post(
             creator = user,
-            likes = mutableSetOf(),
             title = "title",
             textContent = "content",
             board = board

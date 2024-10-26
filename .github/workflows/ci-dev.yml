@@ -21,10 +21,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Log in to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v1
-
       - name: Extract Tag
         id: extract_tag
         run: |
@@ -33,18 +29,36 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID_DEV }}.dkr.ecr.${{ secrets.AWS_REGION_DEV }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME_DEV }}:${{ env.RC_TAG }} dev.Dockerfile .
+          docker build -t zigg:${{ env.RC_TAG }} dev.Dockerfile .
 
-      - name: Push Docker Image to ECR
+      - name: Save Docker Image as tar file
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID_DEV }}.dkr.ecr.${{ secrets.AWS_REGION_DEV }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME_DEV }}:${{ env.RC_TAG }}
+            docker save zigg:${{ env.RC_TAG }} -o zigg_${{ env.RC_TAG }}.tar
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Elastic Beanstalk S3 Bucket
+        id: get_bucket
+        run: |
+          BUCKET_NAME=$(aws elasticbeanstalk describe-application-versions \
+          --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
+          --query 'ApplicationVersions[0].SourceBundle.S3Bucket' --output text)
+          echo "S3_BUCKET=$BUCKET_NAME" >> $GITHUB_ENV
+
+      - name: Upload Docker Image to Elastic Beanstalk S3 Bucket
+        run: |
+          aws s3 cp zigg_${{ env.RC_TAG }}.tar s3://${{ env.S3_BUCKET }}/zigg_${{ env.RC_TAG }}.tar
 
       - name: Deploy to Elastic Beanstalk
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION_DEV }}
         run: |
-          eb init ${{ secrets.ELASTIC_BEANSTALK_APP_NAME_DEV }} --region ${{ secrets.AWS_REGION_DEV }}
-          eb use ${{ secrets.ELASTIC_BEANSTALK_ENV_NAME_DEV }}
-          eb deploy --timeout 5
+          aws elasticbeanstalk create-application-version --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
+          --version-label ${{ env.RC_TAG }} --source-bundle S3Bucket=${{ env.S3_BUCKET }},zigg_${{env.RC_TAG}}.tar
+        
+          aws elasticbeanstalk update-environment --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
+          --environment-name ${{ secrets.ENVIRONMENT_NAME_DEV }} \
+          --version-label ${{ env.RC_TAG }}

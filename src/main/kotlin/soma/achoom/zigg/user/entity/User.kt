@@ -56,10 +56,6 @@ class User(
     var invites : MutableSet<Invite> = mutableSetOf(),
     @OneToMany(mappedBy = "invitee", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     var invited : MutableSet<Invite> = mutableSetOf(),
-    @OneToMany(fetch = FetchType.LAZY)
-    var scrapedPosts : MutableSet<PostScrap> = mutableSetOf(),
-    @OneToMany(fetch = FetchType.LAZY)
-    var likedPosts : MutableSet<PostLike> = mutableSetOf(),
 
     ) : BaseEntity(){
 

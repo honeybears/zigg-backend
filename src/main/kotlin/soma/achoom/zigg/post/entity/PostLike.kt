@@ -11,10 +11,10 @@ class PostLike(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @ManyToOne(cascade = [CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.LAZY)
     val user: User,
 
-    @ManyToOne(cascade = [CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.LAZY)
     val post: Post
 ) : BaseEntity() {
 }

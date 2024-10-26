@@ -37,7 +37,6 @@ class BoardRepositoryTest {
                 postRepository.save(
                     Post(
                         creator = user,
-                        likes = mutableSetOf(),
                         title = "title$i",
                         textContent = "content$i",
                         board = board
