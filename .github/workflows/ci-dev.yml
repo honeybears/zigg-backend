@@ -49,8 +49,10 @@ jobs:
       - name: Deploy to Elastic Beanstalk
         run: |
           aws elasticbeanstalk create-application-version --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
-          --version-label ${{ env.RC_TAG }} --source-bundle S3Bucket=${{ secrets.S3_DEV }},zigg_${{env.RC_TAG}}.tar
-        
+          --version-label ${{ env.RC_TAG }} \
+          --source-bundle S3Bucket=${{ secrets.S3_DEV }},S3Key=zigg_${{ env.RC_TAG }}.tar
+
           aws elasticbeanstalk update-environment --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
           --environment-name ${{ secrets.ENVIRONMENT_NAME_DEV }} \
           --version-label ${{ env.RC_TAG }}
+
