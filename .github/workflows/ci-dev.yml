@@ -37,7 +37,8 @@ jobs:
 
       - name: Compress Docker Image and Dockerfile to zip
         run: |
-          zip zigg_${{ env.RC_TAG }}.zip zigg_${{ env.RC_TAG }}.tar dev.Dockerfile
+          cp dev.Dockerfile Dockerfile
+          zip zigg_${{ env.RC_TAG }}.zip zigg_${{ env.RC_TAG }}.tar Dockerfile
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
