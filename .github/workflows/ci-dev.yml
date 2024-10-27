@@ -27,18 +27,14 @@ jobs:
           TAG=$(git describe --tags --exact-match)
           echo "RC_TAG=$TAG" >> $GITHUB_ENV
 
-      - name: Build Docker Image
+      - name: Build Docker Image for Test
         run: |
           docker build --build-arg JASYPT_PASSWORD=$JASYPT_PASSWORD -t zigg:${{ env.RC_TAG }} -f dev.Dockerfile .
-
-      - name: Save Docker Image as tar file
-        run: |
-          docker save zigg:${{ env.RC_TAG }} -o zigg_${{ env.RC_TAG }}.tar
 
       - name: Compress Docker Image and Dockerfile to zip
         run: |
           cp dev.Dockerfile Dockerfile
-          zip zigg_${{ env.RC_TAG }}.zip zigg_${{ env.RC_TAG }}.tar Dockerfile
+          zip -r zigg_${{ env.RC_TAG }}.zip Dockerfile build.gradle.kts settings.gradle.kts src/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
