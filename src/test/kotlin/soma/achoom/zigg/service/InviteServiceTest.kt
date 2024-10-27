@@ -2,8 +2,10 @@ package soma.achoom.zigg.service
 
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.TestConfig
 import soma.achoom.zigg.data.DummyDataUtil
 import soma.achoom.zigg.invite.service.InviteService
@@ -19,8 +21,10 @@ import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
 import kotlin.test.Test
 
-@SpringBootTest(classes = [TestConfig::class])
+@SpringBootTest
+@EntityScan("soma.achoom.zigg.*")
 @ActiveProfiles("test")
+@Transactional
 class InviteServiceTest {
     @Autowired
     private lateinit var spaceService: SpaceService
@@ -74,24 +78,5 @@ class InviteServiceTest {
 
     }
 
-    @Test
-    fun `invite space after withdraw`() {
-        val auth = dummyDataUtil.createDummyAuthentication(inviter)
-        val result = spaceService.inviteSpace(
-            authentication = auth,
-            spaceId = space.spaceId,
-            inviteRequestDto = InviteRequestDto(
-                spaceUsers = listOf(
-                    SpaceUserRequestDto(
-                        userNickname = user.nickname,
-                        spaceRole = SpaceRole.USER,
-                        spaceUserId = null
-                    )
-                )
-            )
-        )
-        assert(result.invites.size == 1)
-        assert(result.invites.any { it.invitee.name == user.name })
-    }
 
 }

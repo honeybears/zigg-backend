@@ -12,16 +12,17 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @EntityListeners(SpaceEntityListener::class)
-@Entity
+@Entity(name = "space")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "spaceId")
 class Space(
     @Id
+    @Column(columnDefinition = "BINARY(16)")
     var spaceId: UUID = UUID.randomUUID(),
     var name: String,
 
     @ManyToOne(cascade = [CascadeType.PERSIST])
     var imageKey: Image,
-
+    @Column(name = "reference_video_key")
     var referenceVideoKey: String? = null,
 
     @OneToMany(mappedBy = "space", cascade = [CascadeType.REMOVE], orphanRemoval = true)

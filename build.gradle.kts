@@ -48,6 +48,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.json:json:20231013")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
+
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")

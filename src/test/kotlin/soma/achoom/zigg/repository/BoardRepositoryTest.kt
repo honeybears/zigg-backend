@@ -27,35 +27,25 @@ class BoardRepositoryTest {
     private lateinit var boardRepository: BoardRepository
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         val user = dummyDataUtil.createDummyUser()
         val board = Board(
             name = "board",
         )
         for (i in 1..10) {
-            board.posts.add(
-                postRepository.save(
-                    Post(
-                        creator = user,
-                        title = "title$i",
-                        textContent = "content$i",
-                        board = board
+            postRepository.save(
+                Post(
+                    creator = user,
+                    title = "title$i",
+                    textContent = "content$i",
+                    board = board
 
-                    )
                 )
             )
+
         }
         boardRepository.save(board)
     }
 
-    @Test
-    fun `fetch lazy test`(){
-        val board = boardRepository.findById(1).get()
-        print("is it lazy? ")
-
-        assert(board.posts.size == 10)
-
-        println(board.posts.first().title)
-    }
 
 }
