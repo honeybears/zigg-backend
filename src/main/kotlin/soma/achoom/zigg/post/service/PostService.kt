@@ -61,7 +61,6 @@ class PostService(
             board = board,
             creator = user,
         )
-        board.posts.add(post)
         postRepository.save(post)
         return PostResponseDto(
             postId = post.postId!!,

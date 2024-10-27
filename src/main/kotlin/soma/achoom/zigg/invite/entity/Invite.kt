@@ -10,6 +10,7 @@ import java.util.UUID
 @Table(name = "`invite`")
 class Invite(
     @Id
+    @Column(columnDefinition = "BINARY(16)")
     val inviteId: UUID = UUID.randomUUID(),
 
     @ManyToOne
@@ -25,6 +26,7 @@ class Invite(
     val inviter:User,
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "invite_status")
     var status: InviteStatus = InviteStatus.WAITING,
 
     var isExpired: Boolean = false

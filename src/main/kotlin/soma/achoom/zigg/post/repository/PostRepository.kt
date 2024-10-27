@@ -17,7 +17,7 @@ interface PostRepository : JpaRepository<Post,Long>{
     override fun findAll(page: Pageable): Page<Post>
 
     fun findPostsByBoardAndTitleContaining(board: Board, keyword: String, page: Pageable): Page<Post>
-    @Query("SELECT p FROM Post p WHERE local_date - p.createAt <= 3 ORDER BY p.likeCnt DESC")
+    @Query("SELECT p FROM post p WHERE local_date - p.createAt <= 3 ORDER BY p.likeCnt DESC")
     fun findBestPosts(pageable: Pageable): List<Post>
 
     fun findPostsByBoard(board: Board, pageable: Pageable): Page<Post>

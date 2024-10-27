@@ -1,6 +1,5 @@
 package soma.achoom.zigg.post.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import soma.achoom.zigg.board.entity.Board
 import soma.achoom.zigg.comment.entity.Comment
@@ -8,8 +7,8 @@ import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
-@EntityListeners(PostEntityListener::class)
-@Entity
+
+@Entity(name = "post")
 class Post(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +18,13 @@ class Post(
     val board: Board,
 
     @ManyToOne
+    @JoinColumn(name = "creator")
     val creator: User,
 
+    @Column(name = "title")
     var title: String,
 
+    @Column(name = "text_content")
     var textContent: String,
 
     @OneToMany(cascade = [CascadeType.PERSIST])
@@ -36,11 +38,10 @@ class Post(
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     val comments: MutableSet<Comment> = mutableSetOf(),
-
+    @Column(name = "like_cnt")
     var likeCnt: Int = 0,
-
+    @Column(name = "comment_cnt")
     var scrapCnt: Int = 0,
-
 
 ) : BaseEntity() {
 }

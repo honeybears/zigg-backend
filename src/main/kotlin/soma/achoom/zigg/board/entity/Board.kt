@@ -2,17 +2,14 @@ package soma.achoom.zigg.board.entity
 
 import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
-import soma.achoom.zigg.post.entity.Post
 
-@Entity
+@Entity(name = "board")
 class Board(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var boardId: Long? = null,
-
+    @Column(name = "board_name")
     val name:String,
 
-    @OneToMany(fetch = FetchType.LAZY,orphanRemoval = true)
-    val posts: MutableSet<Post> = mutableSetOf(),
 
 ): BaseEntity()

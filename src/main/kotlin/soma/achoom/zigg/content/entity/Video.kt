@@ -5,17 +5,18 @@ import org.jetbrains.annotations.TestOnly
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
-@Entity
+@Entity(name = "video")
 class Video private constructor(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val videoId: Long? = null,
 
     @ManyToOne
+    @JoinColumn(name = "uploader")
     var uploader: User?,
-
+    @Column(name = "video_key")
     val videoKey: String,
-
+    @Column(name = "duration")
     val duration: String,
 
     ) : BaseEntity() {

@@ -14,21 +14,25 @@ import java.util.*
 
 
 @Entity
-@Table(name = "`user`")
+@Table(name = "\"user\"")
 class User(
     @Id
+    @Column(columnDefinition = "BINARY(16)")
     var userId: UUID = UUID.randomUUID(),
 
     // 활동명
+    @Column(name = "name")
     var name: String? = null,
     // 고유한 닉네임
+    @Column(name = "nickname")
     var nickname: String? = null,
-
+    @Column(name = "description")
     var description: String? = "",
-
+    @Column(name = "tags")
     var tags : String? = "",
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "user_role")
     var role: UserRole = UserRole.USER,
 
     @ManyToOne(cascade = [CascadeType.PERSIST])

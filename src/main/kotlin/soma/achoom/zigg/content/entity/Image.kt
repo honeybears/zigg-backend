@@ -1,23 +1,20 @@
 package soma.achoom.zigg.content.entity
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import org.jetbrains.annotations.TestOnly
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
-@Entity
+@Entity(name = "image")
 class Image private constructor(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val imageId: Long? = null,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uploader")
     var uploader: User?,
-
+    @Column(name = "image_key")
     val imageKey: String,
 
     ) : BaseEntity() {

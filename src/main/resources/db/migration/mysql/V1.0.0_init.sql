@@ -1,291 +1,391 @@
-create table board_posts
+CREATE TABLE board
 (
-    board_board_id bigint not null,
-    posts_post_id  bigint not null,
-    primary key (board_board_id, posts_post_id),
-    constraint UK8qgn4buo6mcwvhr6wy1185ewp
-        unique (posts_post_id),
-    constraint FKeopjo9uapbq6e1km7y5eqac12
-        foreign key (board_board_id) references board (board_id),
-    constraint FKh40h2s4fw6rc0d2ewrnm1uunw
-        foreign key (posts_post_id) references post (post_id)
+    board_id   BIGINT AUTO_INCREMENT NOT NULL,
+    created_at datetime              NOT NULL,
+    updated_at datetime              NOT NULL,
+    board_name VARCHAR(255)          NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (board_id)
 );
 
-create table board
+CREATE TABLE comment
 (
-    board_id bigint auto_increment
-        primary key,
-    name     varchar(255) null
+    comment_id   BIGINT AUTO_INCREMENT NOT NULL,
+    created_at   datetime              NOT NULL,
+    updated_at   datetime              NOT NULL,
+    is_deleted   BIT(1)                NULL,
+    likes        INT                   NULL,
+    text_comment VARCHAR(255)          NULL,
+    creator      BLOB                  NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (comment_id)
 );
 
-create table comment
+CREATE TABLE comment_replies
 (
-    comment_id        bigint auto_increment
-        primary key,
-    created_at        datetime(6)  not null,
-    updated_at        datetime(6)  not null,
-    likes             bigint       not null,
-    text_comment      varchar(255) null,
-    creator_user_id   binary(16)   null,
-    parent_comment_id bigint       null,
-    constraint FKf6v5iovdm8x7ywvwao7w1s1i9
-        foreign key (creator_user_id) references user (user_id),
-    constraint FKhvh0e2ybgg16bpu229a5teje7
-        foreign key (parent_comment_id) references comment (comment_id)
+    comment_comment_id BIGINT NOT NULL,
+    replies_comment_id BIGINT NOT NULL
 );
-create table fcmtoken
+
+CREATE TABLE fcm_token
 (
-    fcm_id     bigint auto_increment
-        primary key,
-    created_at datetime(6)  not null,
-    updated_at datetime(6)  not null,
-    token      varchar(255) null
+    fcm_id     BIGINT AUTO_INCREMENT NOT NULL,
+    created_at datetime              NOT NULL,
+    updated_at datetime              NOT NULL,
+    token      VARCHAR(255)          NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (fcm_id)
 );
 
-
-create table feedback_recipients
+CREATE TABLE feedback
 (
-    feedback_feedback_id     binary(16) not null,
-    recipients_space_user_id binary(16) not null,
-    constraint FK5hfknxf58qqi2a8ro4qoobpm3
-        foreign key (feedback_feedback_id) references feedback (feedback_id),
-    constraint FKgvjaqirwbdq9p6g415ah6qj7m
-        foreign key (recipients_space_user_id) references space_user (space_user_id)
+    feedback_id BLOB         NOT NULL,
+    created_at  datetime     NOT NULL,
+    updated_at  datetime     NOT NULL,
+    message     VARCHAR(255) NULL,
+    timeline    VARCHAR(255) NULL,
+    type        ENUM         NULL,
+    creator_id  BLOB         NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (feedback_id)
 );
 
-create table feedback
+CREATE TABLE feedback_recipients
 (
-    feedback_id binary(16)          not null
-        primary key,
-    created_at  datetime(6)         not null,
-    updated_at  datetime(6)         not null,
-    message     varchar(255)        null,
-    timeline    varchar(255)        null,
-    type        enum ('AI', 'USER') null,
-    creator_id  binary(16)          null,
-    constraint FKctqubma5fvrobxkjblp0ki0gj
-        foreign key (creator_id) references space_user (space_user_id)
+    feedback_feedback_id     BLOB NOT NULL,
+    recipients_space_user_id BLOB NOT NULL
 );
 
-create table history_feedbacks
+CREATE TABLE flyway_schema_history
 (
-    history_history_id    binary(16) not null,
-    feedbacks_feedback_id binary(16) not null,
-    primary key (history_history_id, feedbacks_feedback_id),
-    constraint UKap8s6b154d94pw1x74vwl11mi
-        unique (feedbacks_feedback_id),
-    constraint FKm0soj87becp8bxwpv7go50n8h
-        foreign key (feedbacks_feedback_id) references feedback (feedback_id),
-    constraint FKst40rcmydrqhwa56cpejy5s3m
-        foreign key (history_history_id) references history (history_id)
+    installed_rank INT                                   NOT NULL,
+    version        VARCHAR(50)                           NULL,
+    `description`  VARCHAR(200)                          NOT NULL,
+    type           VARCHAR(20)                           NOT NULL,
+    script         VARCHAR(1000)                         NOT NULL,
+    checksum       INT                                   NULL,
+    installed_by   VARCHAR(100)                          NOT NULL,
+    installed_on   timestamp DEFAULT 'CURRENT_TIMESTAMP' NOT NULL,
+    execution_time INT                                   NOT NULL,
+    success        TINYINT(1)                            NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (installed_rank)
 );
 
-create table history
+CREATE TABLE `history`
 (
-    history_id                   binary(16)   not null
-        primary key,
-    created_at                   datetime(6)  not null,
-    updated_at                   datetime(6)  not null,
-    name                         varchar(255) null,
-    video_key_video_id           bigint       null,
-    video_thumbnail_url_image_id bigint       null,
-    constraint UKf6vrs0ismyxitgiog0cacrxug
-        unique (video_key_video_id),
-    constraint UKhsmvp8taeyd1u13qdlemp10d8
-        unique (video_thumbnail_url_image_id),
-    constraint FK18i8edaqojq5svbooag6vl35u
-        foreign key (video_thumbnail_url_image_id) references image (image_id),
-    constraint FKnqex6gk7fy8vkso46lvqpwdvx
-        foreign key (video_key_video_id) references video (video_id)
+    history_id   BLOB         NOT NULL,
+    created_at   datetime     NOT NULL,
+    updated_at   datetime     NOT NULL,
+    history_name VARCHAR(255) NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (history_id)
 );
 
-
-create table image
+CREATE TABLE history_feedbacks
 (
-    image_id         bigint auto_increment
-        primary key,
-    created_at       datetime(6)  not null,
-    updated_at       datetime(6)  not null,
-    image_key        varchar(255) null,
-    uploader_user_id binary(16)   null,
-    constraint FKlav1xb1h0gcutu18nqotpwoyh
-        foreign key (uploader_user_id) references user (user_id)
+    history_history_id    BLOB NOT NULL,
+    feedbacks_feedback_id BLOB NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (history_history_id, feedbacks_feedback_id)
 );
 
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (1, '2024-10-04 19:07:46.000000', '2024-10-04 19:07:47.000000', 'profile/default_profile1.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (2, '2024-10-04 19:07:56.000000', '2024-10-04 19:08:01.000000', 'profile/default_profile2.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (3, '2024-10-04 19:08:07.000000', '2024-10-04 19:08:09.000000', 'profile/default_profile3.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (4, '2024-10-04 19:08:16.000000', '2024-10-04 19:08:18.000000', 'profile/default_profile4.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (5, '2024-10-04 19:08:29.000000', '2024-10-04 19:08:25.000000', 'profile/default_profile5.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (6, '2024-10-04 19:08:36.000000', '2024-10-04 19:08:39.000000', 'profile/default_profile6.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (7, '2024-10-04 19:08:44.000000', '2024-10-04 19:08:59.000000', 'profile/default_profile7.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (8, '2024-10-04 19:09:02.000000', '2024-10-04 19:09:03.000000', 'profile/default_profile8.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (9, '2024-10-04 19:09:14.000000', '2024-10-04 19:09:15.000000', 'profile/default_profile9.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (10, '2024-10-04 19:09:32.000000', '2024-10-04 19:09:35.000000', 'profile/default_profile10.png', null);
-INSERT INTO zigg.image (image_id, created_at, updated_at, image_key, uploader_user_id) VALUES (11, '2024-10-04 19:12:30.269783', '2024-10-04 19:12:30.269783', 'image/space/default_space.jpeg', null);
-
-
-create table invite
+CREATE TABLE image
 (
-    invite_id  binary(16)                             not null
-        primary key,
-    created_at datetime(6)                            not null,
-    updated_at datetime(6)                            not null,
-    is_expired bit                                    not null,
-    status     enum ('ACCEPTED', 'DENIED', 'WAITING') null,
-    invitee    binary(16)                             null,
-    inviter    binary(16)                             null,
-    space      binary(16)                             null,
-    constraint FK17dr4j1ldf68ijh9jl2y4xcc4
-        foreign key (inviter) references user (user_id),
-    constraint FKlf3nx4p75gy5ffyapitjs57a3
-        foreign key (space) references space (space_id),
-    constraint FKoe0829o0jncoq8lgace7p3phb
-        foreign key (invitee) references user (user_id)
+    image_id   BIGINT AUTO_INCREMENT NOT NULL,
+    created_at datetime              NOT NULL,
+    updated_at datetime              NOT NULL,
+    image_key  VARCHAR(255)          NULL,
+    uploader   BLOB                  NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (image_id)
 );
 
-
-create table post_comments
+CREATE TABLE invite
 (
-    post_post_id        bigint not null,
-    comments_comment_id bigint not null,
-    primary key (post_post_id, comments_comment_id),
-    constraint UKp5mtl3wujn9knlxr3mv02pxym
-        unique (comments_comment_id),
-    constraint FK1jod8ebo19f650nperx6ahpyx
-        foreign key (comments_comment_id) references comment (comment_id),
-    constraint FKh3a98kwisr5vka488yw7uyxuk
-        foreign key (post_post_id) references post (post_id)
+    invite_id     BLOB     NOT NULL,
+    created_at    datetime NOT NULL,
+    updated_at    datetime NOT NULL,
+    is_expired    BIT(1)   NOT NULL,
+    invite_status ENUM     NULL,
+    invitee       BLOB     NULL,
+    inviter       BLOB     NULL,
+    space         BLOB     NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (invite_id)
 );
 
-create table post_image_contents
+CREATE TABLE post
 (
-    post_post_id            bigint not null,
-    image_contents_image_id bigint not null,
-    primary key (post_post_id, image_contents_image_id),
-    constraint UKr5c3urbdjh5kmg587c0r1fk5r
-        unique (image_contents_image_id),
-    constraint FK41csw925clg9jgs7d4punbc9y
-        foreign key (post_post_id) references post (post_id),
-    constraint FKm8wyejd5pl2fiy5j7itixwhe2
-        foreign key (image_contents_image_id) references image (image_id)
+    post_id                  BIGINT AUTO_INCREMENT NOT NULL,
+    created_at               datetime              NOT NULL,
+    updated_at               datetime              NOT NULL,
+    like_cnt                 INT                   NULL,
+    comment_cnt              INT                   NULL,
+    text_content             VARCHAR(255)          NULL,
+    title                    VARCHAR(255)          NULL,
+    board_board_id           BIGINT                NULL,
+    creator                  BLOB                  NULL,
+    video_content_video_id   BIGINT                NULL,
+    video_thumbnail_image_id BIGINT                NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (post_id)
 );
 
-create table post
+CREATE TABLE post_comments
 (
-    post_id                  bigint auto_increment
-        primary key,
-    created_at               datetime(6)  not null,
-    updated_at               datetime(6)  not null,
-    likes                    bigint       not null,
-    text_content             varchar(255) null,
-    title                    varchar(255) null,
-    board_board_id           bigint       null,
-    creator_user_id          binary(16)   null,
-    video_content_video_id   bigint       null,
-    video_thumbnail_image_id bigint       null,
-    constraint UKgyp2d4r1sidp9jmm0n4ct6mvo
-        unique (video_content_video_id),
-    constraint UKul65dx0ce7sw4mxv7egkv1ia
-        unique (video_thumbnail_image_id),
-    constraint FK3orwkcnrtfi169j7oyxo856nx
-        foreign key (video_thumbnail_image_id) references image (image_id),
-    constraint FK3ytjg3polootwmtxq6b7ceamr
-        foreign key (creator_user_id) references user (user_id),
-    constraint FKbq8cspws6cmwfjjj378uy3fdj
-        foreign key (video_content_video_id) references video (video_id),
-    constraint FKjdwd14rfby2rlu2ju5e0jepl3
-        foreign key (board_board_id) references board (board_id)
+    post_post_id        BIGINT NOT NULL,
+    comments_comment_id BIGINT NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (post_post_id, comments_comment_id)
 );
 
-create table space_histories
+CREATE TABLE post_image_contents
 (
-    space_space_id       binary(16) not null,
-    histories_history_id binary(16) not null,
-    primary key (space_space_id, histories_history_id),
-    constraint UK5i18bfm07mg6wqy8anhy1t4yg
-        unique (histories_history_id),
-    constraint FK37i3i95n4wxhbuy2qgduuemf2
-        foreign key (histories_history_id) references history (history_id),
-    constraint FK5fjgtmw83k3edefc2jb82vc4x
-        foreign key (space_space_id) references space (space_id)
+    post_post_id            BIGINT NOT NULL,
+    image_contents_image_id BIGINT NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (post_post_id, image_contents_image_id)
 );
 
-create table space_user
+CREATE TABLE post_like
 (
-    space_user_id binary(16)             not null
-        primary key,
-    created_at    datetime(6)            not null,
-    updated_at    datetime(6)            not null,
-    role          enum ('ADMIN', 'USER') null,
-    withdraw      bit                    not null,
-    space_id      binary(16)             null,
-    user_id       binary(16)             null,
-    constraint FK41uctqfllf093h11jpuul83fe
-        foreign key (user_id) references user (user_id),
-    constraint FKhmodbff0cni9kll8bqc2n8ygg
-        foreign key (space_id) references space (space_id)
+    id           BIGINT AUTO_INCREMENT NOT NULL,
+    created_at   datetime              NOT NULL,
+    updated_at   datetime              NOT NULL,
+    post_post_id BIGINT                NULL,
+    user_user_id BLOB                  NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (id)
 );
 
-create table space
+CREATE TABLE post_scrap
 (
-    space_id            binary(16)   not null
-        primary key,
-    created_at          datetime(6)  not null,
-    updated_at          datetime(6)  not null,
-    name                varchar(255) null,
-    reference_video_key varchar(255) null,
-    image_key_image_id  bigint       null,
-    constraint UKedegj2562xkkkk1ik5qgbjk0w
-        unique (image_key_image_id),
-    constraint FKfxv38hmy559tnmdue8j4wrq15
-        foreign key (image_key_image_id) references image (image_id)
+    id           BIGINT AUTO_INCREMENT NOT NULL,
+    created_at   datetime              NOT NULL,
+    updated_at   datetime              NOT NULL,
+    post_post_id BIGINT                NULL,
+    user_user_id BLOB                  NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (id)
 );
 
-create table user_device_tokens
+CREATE TABLE space
 (
-    user_user_id         binary(16) not null,
-    device_tokens_fcm_id bigint     not null,
-    primary key (user_user_id, device_tokens_fcm_id),
-    constraint UKacv5hs3ejm1s9l84qw5ahepaj
-        unique (device_tokens_fcm_id),
-    constraint FK9fycmgaa8x0o9gc71aka6wo9b
-        foreign key (device_tokens_fcm_id) references fcmtoken (fcm_id),
-    constraint FKef6b50gm1tu0qkj943voj3o8x
-        foreign key (user_user_id) references user (user_id)
+    space_id            BLOB         NOT NULL,
+    created_at          datetime     NOT NULL,
+    updated_at          datetime     NOT NULL,
+    name                VARCHAR(255) NULL,
+    reference_video_key VARCHAR(255) NULL,
+    image_key_image_id  BIGINT       NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (space_id)
 );
 
-CREATE TABLE user (
-    user_id                           BINARY(16)                                         NOT NULL PRIMARY KEY,
-    created_at                        DATETIME(6)                                        NOT NULL,
-    updated_at                        DATETIME(6)                                        NOT NULL,
-    description                       VARCHAR(255)                                       NULL,
-    jwt_token                         VARCHAR(255)                                       NULL,
-    name                              VARCHAR(255)                                       NULL,
-    nickname                          VARCHAR(255)                                       NULL,
-    platform                          ENUM('APPLE', 'GOOGLE', 'GUEST', 'KAKAO', 'TEST') NULL,
-                      provider_id                       VARCHAR(255)                                       NULL,
-                      role                              ENUM('ADMIN', 'GUEST', 'USER')                    NULL,
-                      tags                              VARCHAR(255)                                       NULL,
-                      profile_banner_image_key_image_id BIGINT                                             NULL,
-                      profile_image_key_image_id        BIGINT                                             NULL,
-                      CONSTRAINT FKhprbh316ur7niobeo662xv89x
-                          FOREIGN KEY (profile_banner_image_key_image_id) REFERENCES image(image_id),
-                      CONSTRAINT FKllxa6yp80pm7wkv7c7omayddj
-                          FOREIGN KEY (profile_image_key_image_id) REFERENCES image(image_id)
-);
-
-
-create table video
+CREATE TABLE space_histories
 (
-    video_id         bigint auto_increment
-        primary key,
-    created_at       datetime(6)  not null,
-    updated_at       datetime(6)  not null,
-    duration         varchar(255) null,
-    video_key        varchar(255) null,
-    uploader_user_id binary(16)   null,
-    constraint FK5jvd8jx2g01ljlrmka730qxes
-        foreign key (uploader_user_id) references user (user_id)
+    space_space_id       BLOB NOT NULL,
+    histories_history_id BLOB NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (space_space_id, histories_history_id)
 );
 
+CREATE TABLE space_user
+(
+    space_user_id BLOB     NOT NULL,
+    created_at    datetime NOT NULL,
+    updated_at    datetime NOT NULL,
+    space_role    ENUM     NULL,
+    withdraw      BIT(1)   NOT NULL,
+    space_id      BLOB     NULL,
+    user_id       BLOB     NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (space_user_id)
+);
+
+CREATE TABLE user
+(
+    user_id                           BLOB         NOT NULL,
+    created_at                        datetime     NOT NULL,
+    updated_at                        datetime     NOT NULL,
+    `description`                     VARCHAR(255) NULL,
+    jwt_token                         VARCHAR(255) NULL,
+    name                              VARCHAR(255) NULL,
+    nickname                          VARCHAR(255) NULL,
+    platform                          ENUM         NULL,
+    provider_id                       VARCHAR(255) NULL,
+    user_role                         ENUM         NULL,
+    tags                              VARCHAR(255) NULL,
+    profile_banner_image_key_image_id BIGINT       NULL,
+    profile_image_key_image_id        BIGINT       NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (user_id)
+);
+
+CREATE TABLE user_device_tokens
+(
+    user_user_id         BLOB   NOT NULL,
+    device_tokens_fcm_id BIGINT NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (user_user_id, device_tokens_fcm_id)
+);
+
+CREATE TABLE video
+(
+    video_id   BIGINT AUTO_INCREMENT NOT NULL,
+    created_at datetime              NOT NULL,
+    updated_at datetime              NOT NULL,
+    duration   VARCHAR(255)          NULL,
+    video_key  VARCHAR(255)          NULL,
+    uploader   BLOB                  NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (video_id)
+);
+
+ALTER TABLE space_histories
+    ADD CONSTRAINT UK5i18bfm07mg6wqy8anhy1t4yg UNIQUE (histories_history_id);
+
+ALTER TABLE comment_replies
+    ADD CONSTRAINT UK8iuxd4uf9ielc9w0vqqpma789 UNIQUE (replies_comment_id);
+
+ALTER TABLE history_feedbacks
+    ADD CONSTRAINT UKap8s6b154d94pw1x74vwl11mi UNIQUE (feedbacks_feedback_id);
+
+ALTER TABLE user_device_tokens
+    ADD CONSTRAINT UKcauhg0ikqv9hwkkic3t99updb UNIQUE (device_tokens_fcm_id);
+
+ALTER TABLE post_comments
+    ADD CONSTRAINT UKp5mtl3wujn9knlxr3mv02pxym UNIQUE (comments_comment_id);
+
+ALTER TABLE post_image_contents
+    ADD CONSTRAINT UKr5c3urbdjh5kmg587c0r1fk5r UNIQUE (image_contents_image_id);
+
+CREATE INDEX flyway_schema_history_s_idx ON flyway_schema_history (success);
+
+ALTER TABLE post_comments
+    ADD CONSTRAINT FK1jod8ebo19f650nperx6ahpyx FOREIGN KEY (comments_comment_id) REFERENCES comment (comment_id) ON DELETE NO ACTION;
+
+ALTER TABLE video
+    ADD CONSTRAINT FK28cx58hgy0l9kwlv5w03lgsnt FOREIGN KEY (uploader) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FK28cx58hgy0l9kwlv5w03lgsnt ON video (uploader);
+
+ALTER TABLE space_histories
+    ADD CONSTRAINT FK37i3i95n4wxhbuy2qgduuemf2 FOREIGN KEY (histories_history_id) REFERENCES `history` (history_id) ON DELETE NO ACTION;
+
+ALTER TABLE post
+    ADD CONSTRAINT FK3orwkcnrtfi169j7oyxo856nx FOREIGN KEY (video_thumbnail_image_id) REFERENCES image (image_id) ON DELETE NO ACTION;
+
+CREATE INDEX FK3orwkcnrtfi169j7oyxo856nx ON post (video_thumbnail_image_id);
+
+ALTER TABLE post_image_contents
+    ADD CONSTRAINT FK41csw925clg9jgs7d4punbc9y FOREIGN KEY (post_post_id) REFERENCES post (post_id) ON DELETE NO ACTION;
+
+ALTER TABLE space_histories
+    ADD CONSTRAINT FK5fjgtmw83k3edefc2jb82vc4x FOREIGN KEY (space_space_id) REFERENCES space (space_id) ON DELETE NO ACTION;
+
+ALTER TABLE feedback_recipients
+    ADD CONSTRAINT FK5hfknxf58qqi2a8ro4qoobpm3 FOREIGN KEY (feedback_feedback_id) REFERENCES feedback (feedback_id) ON DELETE NO ACTION;
+
+CREATE INDEX FK5hfknxf58qqi2a8ro4qoobpm3 ON feedback_recipients (feedback_feedback_id);
+
+ALTER TABLE invite
+    ADD CONSTRAINT FK60wkqtxja6o0hgou6cme5rs8e FOREIGN KEY (invitee) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FK60wkqtxja6o0hgou6cme5rs8e ON invite (invitee);
+
+ALTER TABLE user
+    ADD CONSTRAINT FK72sgc830otp5n8nscyukrx9ja FOREIGN KEY (profile_image_key_image_id) REFERENCES image (image_id) ON DELETE NO ACTION;
+
+CREATE INDEX FK72sgc830otp5n8nscyukrx9ja ON user (profile_image_key_image_id);
+
+ALTER TABLE post_like
+    ADD CONSTRAINT FK89uoktlvquc87m52ox2x50hf5 FOREIGN KEY (post_post_id) REFERENCES post (post_id) ON DELETE NO ACTION;
+
+CREATE INDEX FK89uoktlvquc87m52ox2x50hf5 ON post_like (post_post_id);
+
+ALTER TABLE post_scrap
+    ADD CONSTRAINT FK8m5nbiqqeaau0a7tfhkpar9oc FOREIGN KEY (post_post_id) REFERENCES post (post_id) ON DELETE NO ACTION;
+
+CREATE INDEX FK8m5nbiqqeaau0a7tfhkpar9oc ON post_scrap (post_post_id);
+
+ALTER TABLE user_device_tokens
+    ADD CONSTRAINT FK988a1na0t00tw7i0s99m39d1m FOREIGN KEY (device_tokens_fcm_id) REFERENCES fcm_token (fcm_id) ON DELETE NO ACTION;
+
+ALTER TABLE post
+    ADD CONSTRAINT FKaa8l9ff159t8jldvrdr8ryc9d FOREIGN KEY (creator) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKaa8l9ff159t8jldvrdr8ryc9d ON post (creator);
+
+ALTER TABLE post_like
+    ADD CONSTRAINT FKb4p2017s194os2nijkp0qmgbp FOREIGN KEY (user_user_id) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKb4p2017s194os2nijkp0qmgbp ON post_like (user_user_id);
+
+ALTER TABLE user_device_tokens
+    ADD CONSTRAINT FKboohyt5eqhixumagdrpiotn7g FOREIGN KEY (user_user_id) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+ALTER TABLE post
+    ADD CONSTRAINT FKbq8cspws6cmwfjjj378uy3fdj FOREIGN KEY (video_content_video_id) REFERENCES video (video_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKbq8cspws6cmwfjjj378uy3fdj ON post (video_content_video_id);
+
+ALTER TABLE feedback
+    ADD CONSTRAINT FKctqubma5fvrobxkjblp0ki0gj FOREIGN KEY (creator_id) REFERENCES space_user (space_user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKctqubma5fvrobxkjblp0ki0gj ON feedback (creator_id);
+
+ALTER TABLE comment
+    ADD CONSTRAINT FKfqymi934nige0v1gba0k0cx3g FOREIGN KEY (creator) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKfqymi934nige0v1gba0k0cx3g ON comment (creator);
+
+ALTER TABLE comment_replies
+    ADD CONSTRAINT FKft2oospw1s0b2btelvdcl77vi FOREIGN KEY (replies_comment_id) REFERENCES comment (comment_id) ON DELETE NO ACTION;
+
+ALTER TABLE space
+    ADD CONSTRAINT FKfxv38hmy559tnmdue8j4wrq15 FOREIGN KEY (image_key_image_id) REFERENCES image (image_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKfxv38hmy559tnmdue8j4wrq15 ON space (image_key_image_id);
+
+ALTER TABLE feedback_recipients
+    ADD CONSTRAINT FKgvjaqirwbdq9p6g415ah6qj7m FOREIGN KEY (recipients_space_user_id) REFERENCES space_user (space_user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKgvjaqirwbdq9p6g415ah6qj7m ON feedback_recipients (recipients_space_user_id);
+
+ALTER TABLE post_comments
+    ADD CONSTRAINT FKh3a98kwisr5vka488yw7uyxuk FOREIGN KEY (post_post_id) REFERENCES post (post_id) ON DELETE NO ACTION;
+
+ALTER TABLE image
+    ADD CONSTRAINT FKhj9w2eemvk9oq6ypj5uk6m5j7 FOREIGN KEY (uploader) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKhj9w2eemvk9oq6ypj5uk6m5j7 ON image (uploader);
+
+ALTER TABLE post_scrap
+    ADD CONSTRAINT FKhk7swe1we1d40iepf8mtb5a8f FOREIGN KEY (user_user_id) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKhk7swe1we1d40iepf8mtb5a8f ON post_scrap (user_user_id);
+
+ALTER TABLE space_user
+    ADD CONSTRAINT FKhmodbff0cni9kll8bqc2n8ygg FOREIGN KEY (space_id) REFERENCES space (space_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKhmodbff0cni9kll8bqc2n8ygg ON space_user (space_id);
+
+ALTER TABLE comment_replies
+    ADD CONSTRAINT FKj01hm5s17rd8q8jc98ens5m90 FOREIGN KEY (comment_comment_id) REFERENCES comment (comment_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKj01hm5s17rd8q8jc98ens5m90 ON comment_replies (comment_comment_id);
+
+ALTER TABLE post
+    ADD CONSTRAINT FKjdwd14rfby2rlu2ju5e0jepl3 FOREIGN KEY (board_board_id) REFERENCES board (board_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKjdwd14rfby2rlu2ju5e0jepl3 ON post (board_board_id);
+
+ALTER TABLE invite
+    ADD CONSTRAINT FKlf3nx4p75gy5ffyapitjs57a3 FOREIGN KEY (space) REFERENCES space (space_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKlf3nx4p75gy5ffyapitjs57a3 ON invite (space);
+
+ALTER TABLE history_feedbacks
+    ADD CONSTRAINT FKm0soj87becp8bxwpv7go50n8h FOREIGN KEY (feedbacks_feedback_id) REFERENCES feedback (feedback_id) ON DELETE NO ACTION;
+
+ALTER TABLE post_image_contents
+    ADD CONSTRAINT FKm8wyejd5pl2fiy5j7itixwhe2 FOREIGN KEY (image_contents_image_id) REFERENCES image (image_id) ON DELETE NO ACTION;
+
+ALTER TABLE user
+    ADD CONSTRAINT FKoes0y38697beqgx8ntnppcbif FOREIGN KEY (profile_banner_image_key_image_id) REFERENCES image (image_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKoes0y38697beqgx8ntnppcbif ON user (profile_banner_image_key_image_id);
+
+ALTER TABLE space_user
+    ADD CONSTRAINT FKpwh215o0wuou6ak3fox00udgq FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKpwh215o0wuou6ak3fox00udgq ON space_user (user_id);
+
+ALTER TABLE invite
+    ADD CONSTRAINT FKrej5tkou5ortka3ra8qe78vpt FOREIGN KEY (inviter) REFERENCES user (user_id) ON DELETE NO ACTION;
+
+CREATE INDEX FKrej5tkou5ortka3ra8qe78vpt ON invite (inviter);
+
+ALTER TABLE history_feedbacks
+    ADD CONSTRAINT FKst40rcmydrqhwa56cpejy5s3m FOREIGN KEY (history_history_id) REFERENCES `history` (history_id) ON DELETE NO ACTION;

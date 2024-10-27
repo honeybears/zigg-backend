@@ -50,16 +50,15 @@ class PostRepositoryTest {
         )
         for (i in 1..10) {
             val users = dummyDataUtil.createDummyUserList(i)
-            board.posts.add(
-                postRepository.save(
-                    Post(
-                        creator = user,
-                        likeCnt = i,
-                        title = "title$i",
-                        textContent = "content$i",
-                        board = board
 
-                    )
+            postRepository.save(
+                Post(
+                    creator = user,
+                    likeCnt = i,
+                    title = "title$i",
+                    textContent = "content$i",
+                    board = board
+
                 )
             )
         }
@@ -86,7 +85,7 @@ class PostRepositoryTest {
     }
 
     @Test
-    fun `post like persist test`(){
+    fun `post like persist test`() {
         val post = postRepository.findAll()[0]
         val user = dummyDataUtil.createDummyUser()
 
@@ -126,7 +125,7 @@ class PostRepositoryTest {
     }
 
     @Test
-    fun `when save post, it should save board`(){
+    fun `when save post, it should save board`() {
         val user = dummyDataUtil.createDummyUser()
         val board = Board(
             name = "board",
@@ -139,14 +138,12 @@ class PostRepositoryTest {
             textContent = "content",
             board = board
         )
-        board.posts.add(post)
         postRepository.save(post)
 
-        assert(boardRepository.findById(board.boardId!!).get().posts.size == 1) // failed reason: board.posts.size == 0
     }
 
     @Test
-    fun `when delete post it should delete comments`(){
+    fun `when delete post it should delete comments`() {
         val user = dummyDataUtil.createDummyUser()
         val board = Board(
             name = "board",
@@ -158,7 +155,6 @@ class PostRepositoryTest {
             textContent = "content",
             board = board
         )
-        board.posts.add(post)
         postRepository.save(post)
 
         val comment1 = Comment(

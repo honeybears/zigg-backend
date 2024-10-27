@@ -10,7 +10,7 @@ data class PostRequestDto(
     val postTitle: String,
     val postMessage: String,
     val postImageContent: MutableSet<String> = mutableSetOf(),
-    val postVideoContent: VideoRequestDto?,
+    val postVideoContent: VideoRequestDto? = null,
     val postVideoThumbnail: String?,
     val historyId: UUID?
 ) {
