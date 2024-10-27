@@ -7,38 +7,41 @@ import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
-@EntityListeners(PostEntityListener::class)
-@Entity
+
+@Entity(name = "post")
 class Post(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val postId: Long? = null,
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.MERGE], fetch = FetchType.LAZY)
     val board: Board,
 
     @ManyToOne
+    @JoinColumn(name = "creator")
     val creator: User,
 
-    var likes: Long = 0,
-
+    @Column(name = "title")
     var title: String,
 
+    @Column(name = "text_content")
     var textContent: String,
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(cascade = [CascadeType.PERSIST])
     var imageContents: MutableSet<Image> = mutableSetOf(),
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = [CascadeType.PERSIST])
     var videoContent: Video? = null,
-    @OneToOne
+
+    @ManyToOne(cascade = [CascadeType.PERSIST])
     var videoThumbnail: Image? = null ,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var comments: MutableSet<Comment> = mutableSetOf()
+    val comments: MutableSet<Comment> = mutableSetOf(),
+    @Column(name = "like_cnt")
+    var likeCnt: Int = 0,
+    @Column(name = "comment_cnt")
+    var scrapCnt: Int = 0,
 
 ) : BaseEntity() {
-    fun detach(){
-        board.posts.remove(this)
-    }
 }

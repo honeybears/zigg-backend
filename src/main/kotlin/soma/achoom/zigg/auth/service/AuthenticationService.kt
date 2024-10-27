@@ -27,7 +27,6 @@ class AuthenticationService @Autowired constructor(
 )  {
     @Transactional(readOnly = true)
     fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): Boolean {
-
         runCatching {
             userRepository.findUserByPlatformAndProviderId(
                 OAuthProviderEnum.valueOf(oAuth2MetaDataRequestDto.platform), oAuth2MetaDataRequestDto.providerId
@@ -167,11 +166,6 @@ class AuthenticationService @Autowired constructor(
                 platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
                 jwtToken = "",
                 profileImageKey = image,
-                deviceTokens = mutableSetOf(),
-                invites = mutableSetOf(),
-                invited = mutableSetOf(),
-                profileBannerImageKey = null,
-                spaces = mutableSetOf()
             )
         }
 

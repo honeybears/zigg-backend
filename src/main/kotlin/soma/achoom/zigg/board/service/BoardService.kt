@@ -20,8 +20,4 @@ class BoardService(
         return postRepository.findBestPosts(Pageable.ofSize(2))
     }
 
-//    fun getBoardPosts(boardId: Long, page : Long): List<Post> {
-//
-//    }
-
 }
