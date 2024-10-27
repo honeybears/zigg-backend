@@ -1,7 +1,6 @@
-package soma.achoom.zigg.global
+package soma.achoom.zigg.global.config
 
 import com.zaxxer.hikari.HikariDataSource
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
@@ -10,6 +9,7 @@ import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Primary
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy
+import soma.achoom.zigg.global.DataSourceRouter
 import javax.sql.DataSource
 
 @Configuration
@@ -18,7 +18,6 @@ class DataSourceConfig{
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.write")
     fun writeDataSource(): DataSource {
-
         return DataSourceBuilder.create().type(HikariDataSource::class.java).build()
     }
     @Bean

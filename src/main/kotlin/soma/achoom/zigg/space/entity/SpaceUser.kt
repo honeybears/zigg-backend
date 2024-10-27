@@ -20,7 +20,7 @@ class SpaceUser(
     @JoinColumn(name = "user_id")
     var user: User?,
 
-    @Column(name = "role")
+    @Column(name = "space_role")
     @Enumerated(EnumType.STRING)
     var role: SpaceRole = SpaceRole.USER,
 

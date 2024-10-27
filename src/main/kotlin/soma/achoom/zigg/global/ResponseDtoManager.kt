@@ -134,7 +134,7 @@ class ResponseDtoManager(
                 createdAt = invite.space.createAt,
                 updatedAt = invite.space.updateAt,
             ),
-            createdAt = invite.createAt!!,
+            createdAt = invite.createAt,
 
             )
     }
@@ -148,43 +148,19 @@ class ResponseDtoManager(
         )
     }
 
-    fun generatePostListResponseDto(posts: List<Post>, pageInfo: PageInfo): List<PostResponseDto> {
-        return posts.map { generatePostShortResponseDto(it) }.toList()
-    }
-
-    fun generatePostResponseDto(post: Post): PostResponseDto {
-        return PostResponseDto(
-            postId = post.postId!!,
-            postTitle = post.title,
-            postMessage = post.textContent,
-            postImageContents = post.imageContents.map { s3Service.getPreSignedGetUrl(it.imageKey) }.toList(),
-            postVideoContent = post.videoContent?.let {
-                VideoResponseDto(
-                    videoUrl = s3Service.getPreSignedGetUrl(post.videoContent!!.videoKey),
-                    videoDuration = it.duration
-                )
-            },
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
-            comments = post.comments.map { generateCommentResponseDto(it) }.toMutableList()
-        )
-    }
-
-    fun generatePostShortResponseDto(post: Post): PostResponseDto {
-        return PostResponseDto(
-            postId = post.postId!!,
-            postTitle = post.title,
-            postMessage = post.textContent,
-            postImageContents = post.imageContents.first().imageKey.let { s3Service.getPreSignedGetUrl(it) }.let { listOf(it) },
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
-            comments = post.comments.map { generateCommentResponseDto(it) }.toMutableList()
-        )
-    }
-
     fun generateCommentResponseDto(comment: Comment): CommentResponseDto {
         return CommentResponseDto(
             commentId = comment.commentId!!,
             commentMessage = comment.textComment,
-            commentCreator = generateUserResponseDto(comment.creator),
+            commentCreator = if(comment.isDeleted) UserResponseDto(
+                userName = "알 수 없음",
+                userNickname = "알 수 없음",
+                profileImageUrl = null,
+                profileBannerImageUrl = null,
+                userTags = null,
+                userDescription = null,
+                createdAt = null
+            ) else generateUserResponseDto(comment.creator),
             commentLike = comment.likes
         )
     }

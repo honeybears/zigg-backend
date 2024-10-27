@@ -1,0 +1,68 @@
+name: Build and Deploy to ECR and Elastic Beanstalk in Dev
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - dev
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'  # 모든 버전 형식 트래킹 (예: v10.0.1-rc11)
+
+jobs:
+  build-and-deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Jasypt password
+        env:
+          JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
+        run: echo "Jasypt password is set."
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Extract Tag
+        id: extract_tag
+        run: |
+          TAG=$(git describe --tags --exact-match)
+          echo "RC_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Build Docker Image
+        run: |
+          docker build --build-arg JASYPT_PASSWORD=$JASYPT_PASSWORD -t zigg:${{ env.RC_TAG }} dev.Dockerfile .
+
+      - name: Save Docker Image as tar file
+        run: |
+            docker save zigg:${{ env.RC_TAG }} -o zigg_${{ env.RC_TAG }}.tar
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Elastic Beanstalk S3 Bucket
+        id: get_bucket
+        run: |
+          BUCKET_NAME=$(aws elasticbeanstalk describe-application-versions \
+          --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
+          --query 'ApplicationVersions[0].SourceBundle.S3Bucket' --output text)
+          echo "S3_BUCKET=$BUCKET_NAME" >> $GITHUB_ENV
+
+      - name: Upload Docker Image to Elastic Beanstalk S3 Bucket
+        run: |
+          aws s3 cp zigg_${{ env.RC_TAG }}.tar s3://${{ env.S3_BUCKET }}/zigg_${{ env.RC_TAG }}.tar
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          aws elasticbeanstalk create-application-version --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
+          --version-label ${{ env.RC_TAG }} --source-bundle S3Bucket=${{ env.S3_BUCKET }},zigg_${{env.RC_TAG}}.tar
+        
+          aws elasticbeanstalk update-environment --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
+          --environment-name ${{ secrets.ENVIRONMENT_NAME_DEV }} \
+          --version-label ${{ env.RC_TAG }}

@@ -7,7 +7,7 @@ import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class UserResponseDto(
-    val userId: UUID?,
+    val userId: UUID? = null,
     val userName: String?,
     val userNickname: String?,
     val profileImageUrl: String?,

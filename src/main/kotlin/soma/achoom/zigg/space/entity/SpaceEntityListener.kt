@@ -7,6 +7,5 @@ class SpaceEntityListener {
     @PreUpdate
     fun onPreUpdate(space: Space) {
         space.updateAt = LocalDateTime.now()
-
     }
 }
