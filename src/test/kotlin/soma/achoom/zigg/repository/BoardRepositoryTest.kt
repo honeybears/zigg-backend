@@ -19,7 +19,6 @@ import kotlin.test.Test
 class BoardRepositoryTest {
     @Autowired
     private lateinit var postRepository: PostRepository
-
     @Autowired
     private lateinit var dummyDataUtil: DummyDataUtil
 
