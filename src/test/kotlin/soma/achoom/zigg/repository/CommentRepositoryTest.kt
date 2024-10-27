@@ -4,11 +4,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.comment.entity.Comment
 import soma.achoom.zigg.comment.repository.CommentRepository
 import soma.achoom.zigg.data.DummyDataUtil
+import soma.achoom.zigg.s3.config.S3Config
 import soma.achoom.zigg.user.entity.User
 
 @SpringBootTest
@@ -19,6 +21,7 @@ class CommentRepositoryTest {
     private lateinit var commentRepository: CommentRepository
     @Autowired
     private lateinit var dummyDataUtil: DummyDataUtil
+
 
     private lateinit var user : User
 

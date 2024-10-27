@@ -44,7 +44,7 @@ jobs:
 
       - name: Upload Docker Image to Elastic Beanstalk S3 Bucket
         run: |
-          aws s3 cp zigg_${{ env.RC_TAG }}.tar s3://${{ secrets.S3_DEV }}/zigg_${{ env.RC_TAG }}.tar
+          aws s3 cp zigg_${{ env.RC_TAG }}.tar s3://${{ secrets.S3_DEV }}/zigg_${{ env.RC_TAG }}.tar --quiet
 
       - name: Deploy to Elastic Beanstalk
         run: |
