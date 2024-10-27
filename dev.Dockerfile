@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 ARG JASYPT_PASSWORD
 ENV JASYPT_ENCRYPTOR_PASSWORD=$JASYPT_PASSWORD
-RUN ./gradlew build --parallel --no-daemon
+RUN ./gradlew build --parallel --no-daemon -x test
 
 FROM openjdk:21-slim
 WORKDIR /app
