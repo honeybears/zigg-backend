@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -27,6 +28,7 @@ import soma.achoom.zigg.history.entity.History
 import soma.achoom.zigg.history.repository.HistoryRepository
 import soma.achoom.zigg.invite.entity.Invite
 import soma.achoom.zigg.invite.repository.InviteRepository
+import soma.achoom.zigg.s3.config.S3Config
 import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.entity.SpaceRole
 import soma.achoom.zigg.space.entity.SpaceUser
@@ -48,6 +50,8 @@ class DummyDataUtil(
     private val imageRepository: ImageRepository,
     private val videoRepository: VideoRepository
 ) {
+    @MockBean
+    private lateinit var s3Config: S3Config
 
     @Value("\${jwt.secret}")
     private lateinit var secret: String
