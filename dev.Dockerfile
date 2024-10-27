@@ -1,9 +1,8 @@
 # Gradle 빌드 단계
 FROM gradle:8.8.0-jdk21 AS build
 WORKDIR /app
-# 의존성 캐싱을 위한 gradle 설정 파일 먼저 복사
 COPY build.gradle.kts settings.gradle.kts ./
-RUN gradle build --parallel --no-daemon -x test || return 0  # 종속성 캐싱을 위해 의존성 빌드
+RUN gradle build --parallel --no-daemon -x test || return 0
 # 실제 애플리케이션 파일 복사
 COPY . .
 ARG JASYPT_PASSWORD

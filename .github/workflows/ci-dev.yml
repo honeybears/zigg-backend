@@ -33,7 +33,11 @@ jobs:
 
       - name: Save Docker Image as tar file
         run: |
-            docker save zigg:${{ env.RC_TAG }} -o zigg_${{ env.RC_TAG }}.tar
+          docker save zigg:${{ env.RC_TAG }} -o zigg_${{ env.RC_TAG }}.tar
+
+      - name: Compress Docker Image to zip
+        run: |
+          zip zigg_${{ env.RC_TAG }}.zip zigg_${{ env.RC_TAG }}.tar
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -44,15 +48,14 @@ jobs:
 
       - name: Upload Docker Image to Elastic Beanstalk S3 Bucket
         run: |
-          aws s3 cp zigg_${{ env.RC_TAG }}.tar s3://${{ secrets.S3_DEV }}/zigg_${{ env.RC_TAG }}.tar --quiet
+          aws s3 cp zigg_${{ env.RC_TAG }}.zip s3://${{ secrets.S3_DEV }}/zigg_${{ env.RC_TAG }}.zip --quiet
 
       - name: Deploy to Elastic Beanstalk
         run: |
           aws elasticbeanstalk create-application-version --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
           --version-label ${{ env.RC_TAG }} \
-          --source-bundle S3Bucket=${{ secrets.S3_DEV }},S3Key=zigg_${{ env.RC_TAG }}.tar
+          --source-bundle S3Bucket=${{ secrets.S3_DEV }},S3Key=zigg_${{ env.RC_TAG }}.zip
 
           aws elasticbeanstalk update-environment --application-name ${{ secrets.APPLICATION_NAME_DEV }} \
           --environment-name ${{ secrets.ENVIRONMENT_NAME_DEV }} \
           --version-label ${{ env.RC_TAG }}
-
