@@ -27,6 +27,7 @@ jobs:
           TAG=$(git describe --tags --exact-match)
           echo "RC_TAG=$TAG" >> $GITHUB_ENV
 
+
       - name: Build Docker Image for Test
         run: |
           docker build --build-arg JASYPT_PASSWORD=$JASYPT_PASSWORD -t zigg:${{ env.RC_TAG }} -f dev.Dockerfile .
