@@ -44,4 +44,4 @@ jobs:
           environment_name: Zigg-svc-dev-env
           region: ${{ secrets.AWS_REGION }}
           version_label: ${{ env.RC_TAG }}
-          deployment_package: .elasticbeanstalk/docker-compose.yml
+          source: .elasticbeanstalk/docker-compose.yml
