@@ -4,16 +4,12 @@ package soma.achoom.zigg
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
-import soma.achoom.zigg.firebase.service.FCMService
 
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.repository.UserRepository
-import soma.achoom.zigg.user.service.UserService
-import java.util.*
 
 
 @TestConfiguration

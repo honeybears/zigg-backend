@@ -7,11 +7,12 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
 
       - name: Extract Tag
         id: extract_tag

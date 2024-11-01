@@ -2,6 +2,7 @@ package soma.achoom.zigg.user.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
+import org.checkerframework.checker.units.qual.C
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.auth.dto.OAuthProviderEnum
 import soma.achoom.zigg.content.entity.Image
@@ -14,10 +15,9 @@ import java.util.*
 
 
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "`user`")
 class User(
     @Id
-    @Column(columnDefinition = "BINARY(16)")
     var userId: UUID = UUID.randomUUID(),
 
     // 활동명

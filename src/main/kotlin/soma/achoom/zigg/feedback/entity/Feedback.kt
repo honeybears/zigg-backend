@@ -9,7 +9,7 @@ import java.util.*
 @Entity
 class Feedback(
     @Id
-    @Column(name = "feedback_id", columnDefinition = "BINARY(16)")
+    @Column(name = "feedback_id")
     var feedbackId: UUID = UUID.randomUUID(),
 
     @Enumerated(EnumType.STRING)

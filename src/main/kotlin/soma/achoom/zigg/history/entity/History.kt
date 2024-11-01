@@ -11,7 +11,7 @@ import java.util.UUID
 @Entity(name = "history")
 class History(
     @Id
-    @Column(name = "history_id",columnDefinition = "BINARY(16)")
+    @Column(name = "history_id")
     var historyId: UUID = UUID.randomUUID(),
     @Column(name = "history_name")
     var name: String?,

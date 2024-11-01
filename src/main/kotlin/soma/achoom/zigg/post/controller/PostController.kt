@@ -30,6 +30,10 @@ class PostController(
             val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.POST_IMAGE, UUID.randomUUID(), uploadContentTypeRequestDto)
             return ResponseEntity.ok(preSignedUrl)
         }
+        else if (value.trim() == "video_thumbnail") {
+            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.POST_THUMBNAIL, UUID.randomUUID(), uploadContentTypeRequestDto)
+            return ResponseEntity.ok(preSignedUrl)
+        }
         else return ResponseEntity.badRequest().build()
     }
     @GetMapping("/{boardId}")

@@ -17,7 +17,6 @@ import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_URL
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_KEY
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.data.DummyDataUtil
-import soma.achoom.zigg.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.repository.FCMRepository
 import soma.achoom.zigg.firebase.service.FCMService
@@ -35,14 +34,6 @@ import kotlin.test.Test
 @ActiveProfiles("test")
 @Transactional
 class UserServiceTest {
-    @Autowired
-    private lateinit var spaceUserRepository: SpaceUserRepository
-
-    @Autowired
-    private lateinit var historyRepository: HistoryRepository
-
-    @Autowired
-    private lateinit var spaceRepository: SpaceRepository
 
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -54,10 +45,8 @@ class UserServiceTest {
     private lateinit var userService: UserService
 
     @Autowired
-    private lateinit var fcmService: FCMService
-
-    @Autowired
     private lateinit var dummyDataUtil: DummyDataUtil
+
     private lateinit var userWithFCM: User
 
     @Autowired

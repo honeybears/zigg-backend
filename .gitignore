@@ -44,3 +44,5 @@ out/
 !/src/main/resources/db
 /src/main/resources/static
 /src/main/resources/templates
+
+gradle.properties

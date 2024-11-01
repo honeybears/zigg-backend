@@ -56,7 +56,6 @@ class PostService(
                     duration = it.videoDuration
 
                 )
-
             },
             board = board,
             creator = user,
@@ -67,7 +66,7 @@ class PostService(
             postTitle = post.title,
             postMessage = post.textContent,
             postImageContents = post.imageContents.map { s3Service.getPreSignedGetUrl(it.imageKey) }.toList(),
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) } ?: post.imageContents.firstOrNull()?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
             postVideoContent = post.videoContent?.let {
                 VideoResponseDto(
                     videoUrl = s3Service.getPreSignedGetUrl(post.videoContent!!.videoKey),

@@ -5,3 +5,4 @@
 *.md
 .github
 .elasticbeanstalk
+gradle.properties

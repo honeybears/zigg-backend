@@ -31,7 +31,7 @@ import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
 import java.util.*
 
-@SpringBootTest(classes = [TestConfig::class])
+@SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class SpaceServiceTest {

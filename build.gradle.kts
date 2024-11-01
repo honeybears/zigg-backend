@@ -85,6 +85,12 @@ tasks.withType<Test> {
 
 tasks.test {
 	outputs.dir(project.extra["snippetsDir"]!!)
+	val jasyptPassword: String? = project.findProperty("jasypt.encryptor.password") as String?
+	if (jasyptPassword != null) {
+		systemProperty("jasypt.encryptor.password", jasyptPassword)
+	} else {
+		throw GradleException("Jasypt password is required for tests.")
+	}
 }
 
 tasks.asciidoctor {

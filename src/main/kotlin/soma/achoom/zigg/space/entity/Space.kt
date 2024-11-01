@@ -13,10 +13,8 @@ import java.util.UUID
 
 @EntityListeners(SpaceEntityListener::class)
 @Entity(name = "space")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator::class, property = "spaceId")
 class Space(
     @Id
-    @Column(columnDefinition = "BINARY(16)")
     var spaceId: UUID = UUID.randomUUID(),
     var name: String,
 
