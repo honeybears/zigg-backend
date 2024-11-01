@@ -46,10 +46,10 @@ jobs:
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws_secret_key: ${{ secrets.AWS_ACCESS_KEY_SECRET_DEV }}
           application_name: zigg-svc-dev
           environment_name: Zigg-svc-dev-env
           region: ${{ secrets.AWS_REGION }}
           version_label: ${{ env.RC_TAG }}
-          source: .elasticbeanstalk/docker-compose.yml
+          deployment_package: .elasticbeanstalk/docker-compose.yml
