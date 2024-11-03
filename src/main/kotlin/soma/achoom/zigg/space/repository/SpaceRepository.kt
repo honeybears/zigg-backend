@@ -9,10 +9,9 @@ import soma.achoom.zigg.user.entity.User
 import java.util.UUID
 
 
-interface SpaceRepository : JpaRepository<Space, UUID> {
+interface SpaceRepository : JpaRepository<Space, Long> {
 
-    fun findSpacesByUsersContaining(spaceUsers: SpaceUser): List<Space>
-    fun findSpaceBySpaceId(spaceId: UUID): Space?
+    fun findSpaceBySpaceId(spaceId: Long): Space?
     fun findSpaceByHistoriesContains(history: History): Space?
     @Query("select s from space s where s in (select spaceUser.space from SpaceUser spaceUser where spaceUser.user = :user and spaceUser.withdraw = false)")
     fun findSpacesByUser(user: User) : List<Space>

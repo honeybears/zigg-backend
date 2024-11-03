@@ -5,10 +5,10 @@ import soma.achoom.zigg.space.entity.SpaceRole
 import java.util.UUID
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class SpaceUserResponseDto(
-    val userId: UUID? = null,
+    val userId: Long? = null,
     val userNickname: String?,
     val userName:String?,
-    val spaceUserId: UUID?,
+    val spaceUserId: Long?,
     val spaceRole: SpaceRole?,
     val profileImageUrl: String?
 ){

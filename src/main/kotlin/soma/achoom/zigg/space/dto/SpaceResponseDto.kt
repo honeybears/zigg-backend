@@ -9,12 +9,12 @@ import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class SpaceResponseDto(
-    val spaceId: UUID?,
+    val spaceId: Long?,
     val spaceName: String?,
     val spaceImageUrl: String?,
     val spaceUsers: MutableSet<SpaceUserResponseDto>?,
     val history: MutableSet<HistoryResponseDto>? = null,
-    val referenceVideoUrl:String?,
+    val referenceVideoUrl:String? = null,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
     val invites : MutableSet<InviteResponseDto>? = null

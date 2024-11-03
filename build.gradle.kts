@@ -45,7 +45,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.json:json:20231013")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
@@ -59,7 +58,6 @@ dependencies {
 	runtimeOnly("com.h2database:h2")
 
 	annotationProcessor("org.projectlombok:lombok")
-	annotationProcessor("com.querydsl:querydsl-jpa:5.0.0:jakarta")
 	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
@@ -85,11 +83,13 @@ tasks.withType<Test> {
 
 tasks.test {
 	outputs.dir(project.extra["snippetsDir"]!!)
-	val jasyptPassword: String? = project.findProperty("jasypt.encryptor.password") as String?
-	if (jasyptPassword != null) {
-		systemProperty("jasypt.encryptor.password", jasyptPassword)
-	} else {
-		throw GradleException("Jasypt password is required for tests.")
+	doFirst {
+		val jasyptPassword: String? = project.findProperty("jasypt.encryptor.password") as String?
+		if (jasyptPassword != null) {
+			systemProperty("jasypt.encryptor.password", jasyptPassword)
+		} else {
+			throw GradleException("Jasypt password is required for tests.")
+		}
 	}
 }
 

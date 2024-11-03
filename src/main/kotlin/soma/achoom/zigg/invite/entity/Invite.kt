@@ -10,8 +10,8 @@ import java.util.UUID
 @Table(name = "`invite`")
 class Invite(
     @Id
-    @Column(columnDefinition = "BINARY(16)")
-    val inviteId: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val inviteId: Long? = null,
 
     @ManyToOne
     @JoinColumn(name = "space")

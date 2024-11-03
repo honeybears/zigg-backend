@@ -6,7 +6,7 @@ import java.util.UUID
 data class SpaceUserRequestDto(
 
     val userNickname:String?,
-    val spaceUserId: UUID?,
+    val spaceUserId: Long?,
     val spaceRole: SpaceRole?
 ){
     override fun equals(other: Any?): Boolean {

@@ -25,8 +25,6 @@ import java.util.UUID
 class HistoryController @Autowired constructor(
     private val historyService: HistoryService,
     private val s3Service: S3Service,
-    private val responseDtoManager: ResponseDtoManager
-
 ) {
     @PostMapping("/pre-signed-url/{value}")
     fun getPreSignedUrl(
@@ -34,14 +32,17 @@ class HistoryController @Autowired constructor(
         @PathVariable value: String
     ): ResponseEntity<String> {
         if (value.trim() == "video") {
-            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)
+            val preSignedUrl =
+                s3Service.getPreSignedPutUrl(S3DataType.HISTORY_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)
             return ResponseEntity.ok(preSignedUrl)
-        }
-        else if (value.trim() == "thumbnail") {
-            val preSignedUrl = s3Service.getPreSignedPutUrl(S3DataType.HISTORY_THUMBNAIL, UUID.randomUUID(), uploadContentTypeRequestDto)
+        } else if (value.trim() == "thumbnail") {
+            val preSignedUrl = s3Service.getPreSignedPutUrl(
+                S3DataType.HISTORY_THUMBNAIL,
+                UUID.randomUUID(),
+                uploadContentTypeRequestDto
+            )
             return ResponseEntity.ok(preSignedUrl)
-        }
-        else
+        } else
             return ResponseEntity.badRequest().build()
     }
 
@@ -49,52 +50,48 @@ class HistoryController @Autowired constructor(
     @GetMapping("/{spaceId}")
     fun getHistories(
         authentication: Authentication,
-        @PathVariable spaceId: UUID
+        @PathVariable spaceId: Long
     ): ResponseEntity<List<HistoryResponseDto>> {
         val histories = historyService.getHistories(authentication, spaceId)
-        return ResponseEntity.ok(
-            histories.map {
-                responseDtoManager.generateHistoryResponseShortDto(it)
-            }.toList()
-        )
+        return ResponseEntity.ok(histories)
     }
 
     @PostMapping("/{spaceId}")
     fun creatHistory(
         authentication: Authentication,
-        @PathVariable spaceId: UUID,
+        @PathVariable spaceId: Long,
         @RequestBody historyRequestDto: HistoryRequestDto
     ): ResponseEntity<HistoryResponseDto> {
         val history = historyService.createHistory(authentication, spaceId, historyRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateHistoryResponseShortDto(history))
+        return ResponseEntity.ok(history)
     }
 
     @GetMapping("/{spaceId}/{historyId}")
     fun getHistory(
         authentication: Authentication,
-        @PathVariable spaceId: UUID,
-        @PathVariable historyId: UUID
+        @PathVariable spaceId: Long,
+        @PathVariable historyId: Long
     ): ResponseEntity<HistoryResponseDto> {
         val history = historyService.getHistory(authentication, spaceId, historyId)
-        return ResponseEntity.ok(responseDtoManager.generateHistoryResponseDto(history))
+        return ResponseEntity.ok(history)
     }
 
     @PatchMapping("/{spaceId}/{historyId}")
     fun updateHistory(
         authentication: Authentication,
-        @PathVariable spaceId: UUID,
-        @PathVariable historyId: UUID,
+        @PathVariable spaceId: Long,
+        @PathVariable historyId: Long,
         @RequestBody historyRequestDto: HistoryRequestDto
     ): ResponseEntity<HistoryResponseDto> {
         val history = historyService.updateHistory(authentication, spaceId, historyId, historyRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateHistoryResponseDto(history))
+        return ResponseEntity.ok(history)
     }
 
     @DeleteMapping("/{spaceId}/{historyId}")
     fun deleteHistory(
         authentication: Authentication,
-        @PathVariable spaceId: UUID,
-        @PathVariable historyId: UUID
+        @PathVariable spaceId: Long,
+        @PathVariable historyId: Long
     ): ResponseEntity<Void> {
         historyService.deleteHistory(authentication, spaceId, historyId)
         return ResponseEntity.noContent().build()

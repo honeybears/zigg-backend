@@ -13,6 +13,7 @@ import soma.achoom.zigg.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.history.repository.HistoryRepository
+import soma.achoom.zigg.space.dto.SpaceUserResponseDto
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.space.repository.SpaceUserRepository
@@ -30,21 +31,45 @@ class FeedbackService @Autowired constructor(
     private val spaceRepository: SpaceRepository,
     private val spaceService: SpaceService,
     private val userService: UserService,
-    private val responseDtoManager: ResponseDtoManager
 ) {
     @Transactional(readOnly = true)
-    fun getFeedbacks(authentication: Authentication, spaceId: UUID, historyId: UUID): List<Feedback> {
+    fun getFeedbacks(authentication: Authentication, spaceId: Long, historyId: Long): List<FeedbackResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         spaceService.validateSpaceUser(user, space)
 
         val history = historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
-        return history.feedbacks.toList()
+        return history.feedbacks.map {
+            FeedbackResponseDto(
+                feedbackId = it.feedbackId,
+                feedbackTimeline = it.timeline,
+                feedbackMessage = it.message,
+                creatorId = SpaceUserResponseDto(
+                    userId = it.creator.user?.userId,
+                    userName = it.creator.user?.name,
+                    userNickname = it.creator.user?.nickname,
+                    profileImageUrl = it.creator.user?.profileImageKey?.imageKey,
+                    spaceUserId = it.creator.spaceUserId,
+                    spaceRole = it.creator.role,
+                ),
+                recipientId = it.recipients.map { spaceUser ->
+                    SpaceUserResponseDto(
+                        userId = spaceUser.user?.userId,
+                        userName = spaceUser.user?.name,
+                        userNickname = spaceUser.user?.nickname,
+                        profileImageUrl = spaceUser.user?.profileImageKey?.imageKey,
+                        spaceUserId = spaceUser.spaceUserId,
+                        spaceRole = spaceUser.role,
+                    )
+                }.toMutableSet(),
+                feedbackType = it.type
+            )
+        }
     }
 
     @Transactional(readOnly = false)
-    fun createFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackRequestDto: FeedbackRequestDto): Feedback {
+    fun createFeedback(authentication: Authentication, spaceId: Long, historyId: Long, feedbackRequestDto: FeedbackRequestDto): FeedbackResponseDto {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -66,11 +91,34 @@ class FeedbackService @Autowired constructor(
         history.feedbacks.add(feedback)
         historyRepository.save(history)
 
-        return feedback
+        return FeedbackResponseDto(
+            feedbackId = feedback.feedbackId,
+            feedbackTimeline = feedback.timeline,
+            feedbackMessage = feedback.message,
+            creatorId = SpaceUserResponseDto(
+                userId = feedback.creator.user?.userId,
+                userName = feedback.creator.user?.name,
+                userNickname = feedback.creator.user?.nickname,
+                profileImageUrl = feedback.creator.user?.profileImageKey?.imageKey,
+                spaceUserId = feedback.creator.spaceUserId,
+                spaceRole = feedback.creator.role,
+            ),
+            recipientId = feedback.recipients.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userName = it.user?.name,
+                    userNickname = it.user?.nickname,
+                    profileImageUrl = it.user?.profileImageKey?.imageKey,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                )
+            }.toMutableSet(),
+            feedbackType = feedback.type
+        )
     }
 
     @Transactional(readOnly = false)
-    fun updateFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID, feedbackRequestDto: FeedbackRequestDto): Feedback {
+    fun updateFeedback(authentication: Authentication, spaceId: Long, historyId: Long, feedbackId: Long, feedbackRequestDto: FeedbackRequestDto): FeedbackResponseDto {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -89,11 +137,34 @@ class FeedbackService @Autowired constructor(
 
         feedbackRepository.save(feedback)
 
-        return feedback
+        return FeedbackResponseDto(
+            feedbackId = feedback.feedbackId,
+            feedbackTimeline = feedback.timeline,
+            feedbackMessage = feedback.message,
+            creatorId = SpaceUserResponseDto(
+                userId = feedback.creator.user?.userId,
+                userName = feedback.creator.user?.name,
+                userNickname = feedback.creator.user?.nickname,
+                profileImageUrl = feedback.creator.user?.profileImageKey?.imageKey,
+                spaceUserId = feedback.creator.spaceUserId,
+                spaceRole = feedback.creator.role,
+            ),
+            recipientId = feedback.recipients.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userName = it.user?.name,
+                    userNickname = it.user?.nickname,
+                    profileImageUrl = it.user?.profileImageKey?.imageKey,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                )
+            }.toMutableSet(),
+            feedbackType = feedback.type
+        )
     }
 
     @Transactional(readOnly = false)
-    fun deleteFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID) {
+    fun deleteFeedback(authentication: Authentication, spaceId: Long, historyId: Long, feedbackId: Long) {
         val user = userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
@@ -108,7 +179,7 @@ class FeedbackService @Autowired constructor(
     }
 
     @Transactional(readOnly = true)
-    fun getFeedback(authentication: Authentication, spaceId: UUID, historyId: UUID, feedbackId: UUID): FeedbackResponseDto {
+    fun getFeedback(authentication: Authentication, spaceId: Long, historyId: Long, feedbackId: Long): FeedbackResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
@@ -118,7 +189,30 @@ class FeedbackService @Autowired constructor(
         historyRepository.findHistoryByHistoryId(historyId) ?: throw HistoryNotFoundException()
         val feedback = feedbackRepository.findFeedbackByFeedbackId(feedbackId) ?: throw FeedbackNotFoundException()
 
-        return responseDtoManager.generateFeedbackResponseDto(feedback)
+        return FeedbackResponseDto(
+            feedbackId = feedback.feedbackId,
+            feedbackTimeline = feedback.timeline,
+            feedbackMessage = feedback.message,
+            creatorId = SpaceUserResponseDto(
+                userId = feedback.creator.user?.userId,
+                userName = feedback.creator.user?.name,
+                userNickname = feedback.creator.user?.nickname,
+                profileImageUrl = feedback.creator.user?.profileImageKey?.imageKey,
+                spaceUserId = feedback.creator.spaceUserId,
+                spaceRole = feedback.creator.role,
+            ),
+            recipientId = feedback.recipients.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userName = it.user?.name,
+                    userNickname = it.user?.nickname,
+                    profileImageUrl = it.user?.profileImageKey?.imageKey,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                )
+            }.toMutableSet(),
+            feedbackType = feedback.type
+        )
     }
 }
 

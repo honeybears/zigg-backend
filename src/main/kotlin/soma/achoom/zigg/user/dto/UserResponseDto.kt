@@ -7,14 +7,14 @@ import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class UserResponseDto(
-    val userId: UUID? = null,
+    val userId: Long? = null,
     val userName: String?,
     val userNickname: String?,
     val profileImageUrl: String?,
-    val profileBannerImageUrl:String?,
-    val userTags : String?,
-    val userDescription: String?,
-    val createdAt:LocalDateTime?,
+    val profileBannerImageUrl:String? = null,
+    val userTags : String? = null,
+    val userDescription: String? = null,
+    val createdAt:LocalDateTime? = null,
 
 )  {
 

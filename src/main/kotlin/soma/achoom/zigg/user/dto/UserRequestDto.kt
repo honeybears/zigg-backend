@@ -3,7 +3,7 @@ package soma.achoom.zigg.user.dto
 import java.util.UUID
 
 data class UserRequestDto (
-    val userId:UUID?,
+    val userId:Long?,
     val userName:String?,
     val userNickname:String?,
     val userTags : String?,

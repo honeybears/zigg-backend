@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.invite.dto.InviteActionRequestDto
-import soma.achoom.zigg.invite.dto.InviteListResponseDto
+import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.service.InviteService
 import java.util.*
@@ -19,21 +19,14 @@ import java.util.*
 @RequestMapping("/api/v0/invites")
 class InviteController(
     private val inviteService: InviteService,
-    private val responseDtoManager: ResponseDtoManager
 ) {
     @GetMapping
-    fun getInvites(authentication: Authentication) : ResponseEntity<InviteListResponseDto>{
+    fun getInvites(authentication: Authentication) : ResponseEntity<List<InviteResponseDto>>{
         val invites = inviteService.getInvites(authentication)
-        return ResponseEntity.ok(InviteListResponseDto(
-            invites.filter{
-                it.isExpired.not().and(it.status == InviteStatus.WAITING)
-            }.map {
-                responseDtoManager.generateInviteResponseDto(it)
-            }.toList()
-        ))
+        return ResponseEntity.ok(invites)
     }
     @PostMapping("/{inviteId}")
-    fun actionInvite(authentication: Authentication, @PathVariable inviteId: UUID,@RequestBody action: InviteActionRequestDto) : ResponseEntity<Void> {
+    fun actionInvite(authentication: Authentication, @PathVariable inviteId: Long,@RequestBody action: InviteActionRequestDto) : ResponseEntity<Void> {
         inviteService.actionInvite(authentication, inviteId, action)
         return ResponseEntity.ok().build()
     }

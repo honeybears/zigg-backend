@@ -16,7 +16,6 @@ class S3Service(
     val amazonS3Client: AmazonS3Client,
     @Value("\${cloud.aws.s3.bucket}")
     private val bucket: String,
-    private val userService: UserService
 ) {
     @Transactional(readOnly = true)
     fun getPreSignedGetUrl(objectName: String?): String {
@@ -32,7 +31,6 @@ class S3Service(
     }
     @Transactional(readOnly = true)
     fun generateS3ContentEndpoint(authentication: Authentication, uploadContentTypeRequestDto: UploadContentTypeRequestDto,type: String) {
-        val user = userService.authenticationToUser(authentication)
         when (type) {
             "history_video" ->{
                 getPreSignedPutUrl(S3DataType.HISTORY_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)

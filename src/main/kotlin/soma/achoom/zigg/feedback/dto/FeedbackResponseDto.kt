@@ -8,7 +8,7 @@ import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class FeedbackResponseDto(
-    val feedbackId: UUID?,
+    val feedbackId: Long?,
     @Enumerated(EnumType.STRING)
     val feedbackType: FeedbackType?,
     val feedbackTimeline: String?,

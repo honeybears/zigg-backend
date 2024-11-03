@@ -10,7 +10,8 @@ import java.util.*
 @Table(name = "space_user")
 class SpaceUser(
     @Id
-    var spaceUserId: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var spaceUserId: Long? = null,
 
     @ManyToOne
     @JoinColumn(name = "space_id")
