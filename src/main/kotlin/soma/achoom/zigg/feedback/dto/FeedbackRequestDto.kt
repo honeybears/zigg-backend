@@ -13,7 +13,7 @@ data class FeedbackRequestDto(
     val feedbackMessage: String?,
     @NotNull
     @Min(value = 1, message = "받는 사람은 최소 1명 이상이어야 합니다.")
-    val recipientId: MutableSet<UUID> = mutableSetOf(),
+    val recipientId: MutableSet<Long> = mutableSetOf(),
 ) {
     fun toFeedBack(history: History, creator: SpaceUser, recipients: MutableSet<SpaceUser>): Feedback {
         val feedback = Feedback(

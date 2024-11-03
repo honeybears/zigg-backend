@@ -33,13 +33,9 @@ class UserController @Autowired constructor(
     private val userService: UserService,
     private val authenticationService: AuthenticationService,
     private val s3Service: S3Service,
-    private val responseDtoManager: ResponseDtoManager
 ) {
     @PostMapping("/pre-signed-url/{value}")
-    fun getPreSignUrl(
-        @RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto,
-        @PathVariable value: String
-    ): ResponseEntity<String> {
+    fun getPreSignUrl(@RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto, @PathVariable value: String): ResponseEntity<String> {
         if (value.trim() == "profile") {
             val preSignedUrl = s3Service.getPreSignedPutUrl(
                 S3DataType.USER_PROFILE_IMAGE,
@@ -66,22 +62,15 @@ class UserController @Autowired constructor(
     }
 
     @GetMapping("/search/{nickname}")
-    fun searchUser(
-        authentication: Authentication,
-        @PathVariable nickname: String
-    ): ResponseEntity<List<UserResponseDto>> {
+    fun searchUser(authentication: Authentication, @PathVariable nickname: String): ResponseEntity<List<UserResponseDto>> {
         val users = userService.searchUser(authentication, nickname)
-        return ResponseEntity.ok(
-            users.map {
-                responseDtoManager.generateUserResponseDto(it)
-            }
-        )
+        return ResponseEntity.ok(users)
     }
 
     @PostMapping("/info")
     fun getUserInfoByUserId(authentication: Authentication, @RequestBody userRequestDto: UserRequestDto): ResponseEntity<UserResponseDto> {
         val user = userService.getUserInfoByUserId(authentication,userRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateUserResponseDto(user))
+        return ResponseEntity.ok(user)
     }
 
     @PostMapping("/exists")
@@ -99,16 +88,13 @@ class UserController @Autowired constructor(
     @GetMapping
     fun getUserInfo(authentication: Authentication): ResponseEntity<UserResponseDto> {
         val user = userService.getUserInfo(authentication)
-        return ResponseEntity.ok(responseDtoManager.generateUserResponseDto(user))
+        return ResponseEntity.ok(user)
     }
 
     @PatchMapping
-    fun updateUser(
-        authentication: Authentication,
-        @RequestBody userRequestDto: UserRequestDto
-    ): ResponseEntity<UserResponseDto> {
+    fun updateUser(authentication: Authentication, @RequestBody userRequestDto: UserRequestDto): ResponseEntity<UserResponseDto> {
         val user = userService.updateUser(authentication, userRequestDto)
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDtoManager.generateUserResponseDto(user))
+        return ResponseEntity.ok(user)
     }
 
     @DeleteMapping
@@ -118,10 +104,7 @@ class UserController @Autowired constructor(
     }
 
     @DeleteMapping("/logout")
-    fun logout(
-        authentication: Authentication,
-        @RequestBody fcmTokenRequestDto: FCMTokenRequestDto
-    ): ResponseEntity<Void> {
+    fun logout(authentication: Authentication, @RequestBody fcmTokenRequestDto: FCMTokenRequestDto): ResponseEntity<Void> {
         userService.logoutUser(authentication, fcmTokenRequestDto)
         return ResponseEntity.ok().build()
     }

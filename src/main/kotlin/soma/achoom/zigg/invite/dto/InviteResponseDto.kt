@@ -8,7 +8,7 @@ import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class InviteResponseDto(
-    val inviteId:UUID,
+    val inviteId:Long?,
     val space: SpaceResponseDto? = null,
     val inviter:UserResponseDto,
     val invitedUser:UserResponseDto,

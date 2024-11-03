@@ -10,9 +10,7 @@ import soma.achoom.zigg.data.DummyDataUtil
 import soma.achoom.zigg.feedback.repository.FeedbackRepository
 import soma.achoom.zigg.user.entity.User
 
-@SpringBootTest(
-    classes = [TestConfig::class]
-)
+@SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class FeedbackRepositoryTest {
@@ -27,6 +25,5 @@ class FeedbackRepositoryTest {
     fun setUp() {
         user = dummyDataUtil.createDummyUserWithMultiFCMToken(1)
     }
-
 
 }

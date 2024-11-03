@@ -7,10 +7,10 @@ import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class HistoryResponseDto(
-    val historyId: UUID?,
+    val historyId: Long?,
     val historyName: String?,
     val historyVideoPreSignedUrl:String,
-    val feedbacks: MutableSet<FeedbackResponseDto>?,
+    val feedbacks: MutableSet<FeedbackResponseDto>? = mutableSetOf(),
     val historyVideoThumbnailPreSignedUrl:String,
     val createdAt:LocalDateTime?,
     val videoDuration: String?,

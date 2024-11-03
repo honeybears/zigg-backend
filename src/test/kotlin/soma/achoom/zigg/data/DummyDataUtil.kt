@@ -65,7 +65,6 @@ class DummyDataUtil(
         )
         imageRepository.save(image)
         val user = User(
-            userId = UUID.randomUUID(),
             name = createRandomString(5),
             nickname = createRandomString(7),
             profileImageKey = image,
@@ -84,7 +83,6 @@ class DummyDataUtil(
         )
         imageRepository.save(image)
         val user = User(
-            userId = UUID.randomUUID(),
             name = createRandomString(5),
             nickname = createRandomString(7),
             profileImageKey = image,
@@ -117,10 +115,8 @@ class DummyDataUtil(
         )
         imageRepository.save(image)
         val space =  Space(
-            spaceId = UUID.randomUUID(),
             name = createRandomString(10),
             imageKey = image,
-            users = mutableSetOf(),
             referenceVideoKey = HISTORY_VIDEO_URL,
         )
         return spaceRepository.save(space)
@@ -128,7 +124,6 @@ class DummyDataUtil(
 
     fun createDummySpaceUser(space: Space, user: User): SpaceUser {
         val spaceUser = SpaceUser(
-            spaceUserId = UUID.randomUUID(),
             space = space,
             user = user,
             role = SpaceRole.USER
@@ -139,12 +134,10 @@ class DummyDataUtil(
 
     fun creatDummyInvite(user: User, inviter: User, space: Space): Invite {
         val invite = Invite(
-            inviteId = UUID.randomUUID(),
             invitee = user,
             inviter = inviter,
             space = space,
         )
-        space.invites.add(invite)
         spaceRepository.save(space)
         return invite
     }
@@ -511,7 +504,6 @@ class DummyDataUtil(
 
     fun createDummyFeedback(history: History, user: SpaceUser, recipients: MutableList<SpaceUser>): Feedback {
         val feedback =  Feedback(
-            feedbackId = UUID.randomUUID(),
             timeline = "00:00:00",
             message = "피드백 내용",
             creator = user,
@@ -536,7 +528,6 @@ class DummyDataUtil(
         imageRepository.save(image)
         videoRepository.save(video)
         val history = History(
-            historyId = UUID.randomUUID(),
 //            space = space,
             name = "히스토리 이름",
             videoKey = video,

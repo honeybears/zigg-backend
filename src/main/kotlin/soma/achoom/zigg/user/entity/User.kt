@@ -18,7 +18,8 @@ import java.util.*
 @Table(name = "`user`")
 class User(
     @Id
-    var userId: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var userId: Long? = null,
 
     // 활동명
     @Column(name = "name")
@@ -53,13 +54,6 @@ class User(
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     var deviceTokens : MutableSet<FCMToken> = mutableSetOf(),
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    var spaces : MutableSet<SpaceUser> = mutableSetOf(),
-
-    @OneToMany(mappedBy = "inviter", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var invites : MutableSet<Invite> = mutableSetOf(),
-    @OneToMany(mappedBy = "invitee", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var invited : MutableSet<Invite> = mutableSetOf(),
 
     ) : BaseEntity(){
 

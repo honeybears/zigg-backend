@@ -20,7 +20,6 @@ import java.util.*
 class SpaceController @Autowired constructor(
     private val spaceService: SpaceService,
     private val s3Service: S3Service,
-    private val responseDtoManager: ResponseDtoManager,
 ) {
     @PostMapping("/pre-signed-url")
     fun getPreSignUrl(@RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto) : ResponseEntity<String> {
@@ -31,9 +30,7 @@ class SpaceController @Autowired constructor(
     @GetMapping
     fun getSpaces(authentication:Authentication) : ResponseEntity<List<SpaceResponseDto>> {
         val spaces = spaceService.getSpaces(authentication)
-        return ResponseEntity.ok(spaces.map {
-            responseDtoManager.generateSpaceResponseShortDto(it)
-        })
+        return ResponseEntity.ok(spaces)
     }
 
     @PostMapping
@@ -42,45 +39,45 @@ class SpaceController @Autowired constructor(
         @RequestBody spaceRequestDto: SpaceRequestDto
     ) : ResponseEntity<SpaceResponseDto> {
         val space = spaceService.createSpace(authentication, spaceRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
+        return ResponseEntity.ok(space)
     }
 
     @GetMapping("/{spaceId}")
-    fun getSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<SpaceResponseDto> {
+    fun getSpace(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<SpaceResponseDto> {
         val space = spaceService.getSpace(authentication, spaceId)
-        return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
+        return ResponseEntity.ok(space)
     }
     @PostMapping("/{spaceId}/invites")
-    fun inviteUserToSpace(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody inviteRequestDto: InviteRequestDto) : ResponseEntity<SpaceResponseDto> {
+    fun inviteUserToSpace(authentication:Authentication, @PathVariable spaceId:Long, @RequestBody inviteRequestDto: InviteRequestDto) : ResponseEntity<SpaceResponseDto> {
         val space = spaceService.inviteSpace(authentication, spaceId, inviteRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
+        return ResponseEntity.ok(space)
     }
     @DeleteMapping("/withdraw/{spaceId}")
-    fun withdrawSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<Void> {
+    fun withdrawSpace(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<Void> {
         spaceService.withdrawSpace(authentication, spaceId)
         return ResponseEntity.ok().build()
     }
 
     @PatchMapping("/{spaceId}")
-    fun updateSpace(authentication:Authentication,@PathVariable spaceId:UUID, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
+    fun updateSpace(authentication:Authentication,@PathVariable spaceId:Long, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
         val space = spaceService.updateSpace(authentication,spaceId, spaceRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
+        return ResponseEntity.ok(space)
     }
 
     @DeleteMapping("/{spaceId}")
-    fun deleteSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<Void> {
+    fun deleteSpace(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<Void> {
         spaceService.deleteSpace(authentication, spaceId)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/reference/{spaceId}")
-    fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
+    fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:Long, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
         val space = spaceService.addReferenceUrl(authentication, spaceId, spaceReferenceUrlRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
+        return ResponseEntity.ok(space)
     }
     @DeleteMapping("/reference/{spaceId}")
-    fun deleteReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<SpaceResponseDto> {
+    fun deleteReferenceUrl(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<SpaceResponseDto> {
         val space = spaceService.deleteReferenceUrl(authentication, spaceId)
-        return ResponseEntity.ok(responseDtoManager.generateSpaceResponseShortDto(space))
+        return ResponseEntity.ok(space)
     }
 }

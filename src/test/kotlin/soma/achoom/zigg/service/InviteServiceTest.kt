@@ -66,12 +66,7 @@ class InviteServiceTest {
         )
         spaceUserRepository.save(spaceUser)
         spaceUserRepository.save(inviteeInSpace)
-        space.users.add(inviteeInSpace)
-        space.users.add(spaceUser)
         spaceRepository.save(space)
-
-        user.spaces.add(spaceUser)
-        inviter.spaces.add(inviteeInSpace)
 
         userRepository.save(user)
         userRepository.save(inviter)

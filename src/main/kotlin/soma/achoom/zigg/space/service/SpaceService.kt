@@ -9,18 +9,20 @@ import soma.achoom.zigg.content.exception.ImageNotfoundException
 import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.firebase.dto.FCMEvent
 import soma.achoom.zigg.firebase.service.FCMService
+import soma.achoom.zigg.history.dto.HistoryResponseDto
+import soma.achoom.zigg.invite.dto.InviteResponseDto
 import soma.achoom.zigg.invite.entity.InviteStatus
 import soma.achoom.zigg.invite.entity.Invite
-import soma.achoom.zigg.space.dto.InviteRequestDto
-import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
-import soma.achoom.zigg.space.dto.SpaceRequestDto
-import soma.achoom.zigg.space.dto.SpaceResponseDto
+import soma.achoom.zigg.invite.repository.InviteRepository
+import soma.achoom.zigg.s3.service.S3Service
+import soma.achoom.zigg.space.dto.*
 import soma.achoom.zigg.space.entity.*
 import soma.achoom.zigg.space.exception.GuestSpaceCreateLimitationException
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.space.exception.SpaceUserNotFoundInSpaceException
 import soma.achoom.zigg.space.repository.SpaceUserRepository
+import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.repository.UserRepository
@@ -33,17 +35,18 @@ class SpaceService(
     private val spaceRepository: SpaceRepository,
     private val userService: UserService,
     private val fcmService: FCMService,
-    private val userRepository: UserRepository,
+    private val inviteRepository: InviteRepository,
     private val spaceUserRepository: SpaceUserRepository,
-    private val imageRepository: ImageRepository
+    private val imageRepository: ImageRepository,
+    private val s3Service: S3Service
 ) {
     @Value("\${space.default.image.url}")
     private lateinit var defaultSpaceImageUrl: String
 
     @Transactional(readOnly = false)
     fun inviteSpace(
-        authentication: Authentication, spaceId: UUID, inviteRequestDto: InviteRequestDto
-    ): Space {
+        authentication: Authentication, spaceId: Long, inviteRequestDto: InviteRequestDto
+    ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val invitedUsers: MutableSet<User> = inviteRequestDto.spaceUsers.map {
@@ -55,9 +58,9 @@ class SpaceService(
         validateSpaceUser(user, space)
 
         val filteredInvite = invitedUsers.filter { invitee ->
-            space.invites.none {
+            inviteRepository.findInvitesBySpace(space).none {
                 it.invitee.userId == invitee.userId && it.status != InviteStatus.DENIED
-            } || space.users.none {
+            } && spaceUserRepository.findSpaceUserBySpace(space).none {
                 it.user?.userId == invitee.userId && it.withdraw.not()
             }
         }.map { invitee ->
@@ -66,9 +69,8 @@ class SpaceService(
             )
         }.toMutableSet()
 
-        space.invites.addAll(filteredInvite)
+        inviteRepository.saveAll(filteredInvite)
 
-        spaceRepository.save(space)
         fcmService.sendMessageTo(
             FCMEvent(
                 users = filteredInvite.map { it.invitee }.toMutableSet(),
@@ -79,16 +81,51 @@ class SpaceService(
                 apns = null
             )
         )
-        return space
+        return SpaceResponseDto(
+            spaceId = space.spaceId,
+            spaceName = space.name,
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
+            referenceVideoUrl = space.referenceVideoKey,
+            spaceUsers = spaceUserRepository.findSpaceUserBySpace(space).filter { it.withdraw.not() }.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userNickname = it.user?.nickname,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                    profileImageUrl = s3Service.getPreSignedGetUrl(it.user?.profileImageKey?.imageKey),
+                    userName = it.user?.name
+                )
+            }.toMutableSet(),
+            createdAt = space.createAt,
+            updatedAt = space.updateAt,
+            invites = inviteRepository.findInvitesBySpace(space).map {
+                InviteResponseDto(
+                    inviteId = it.inviteId,
+                    invitedUser = UserResponseDto(
+                        userName = it.invitee.name,
+                        userNickname = it.invitee.nickname,
+                        profileImageUrl = s3Service.getPreSignedGetUrl(it.invitee.profileImageKey.imageKey),
+                        userId = it.invitee.userId
+                    ),
+                    inviter = UserResponseDto(
+                        userName = it.invitee.name,
+                        userNickname = it.invitee.nickname,
+                        profileImageUrl = s3Service.getPreSignedGetUrl(it.invitee.profileImageKey.imageKey),
+                        userId = it.invitee.userId
+                    ),
+                    createdAt = it.createAt
+                )
+            }.toMutableSet()
+        )
     }
 
     @Transactional(readOnly = false)
     fun createSpace(
         authentication: Authentication, spaceRequestDto: SpaceRequestDto
-    ): Space {
+    ): SpaceResponseDto {
+
         val user = userService.authenticationToUser(authentication)
 
-        checkGuestSpaceLimit(user)
 
         val invitedUsers = spaceRequestDto.spaceUsers.map {
             userService.findUserByNickName(it.userNickname!!)
@@ -105,9 +142,9 @@ class SpaceService(
         val space = Space(
             name = spaceRequestDto.spaceName,
             imageKey = spaceBannerImage,
-            users = mutableSetOf(),
-            invites = mutableSetOf(),
         )
+
+        spaceRepository.save(space)
 
         val admin = SpaceUser(
             user = user,
@@ -115,18 +152,17 @@ class SpaceService(
             role = SpaceRole.ADMIN,
         )
 
-        space.invites.addAll(invitedUsers.map {
-            Invite(
-                invitee = it, space = space, inviter = user, status = InviteStatus.WAITING
-            )
-        })
-
-        spaceRepository.save(space)
         spaceUserRepository.save(admin)
-        space.users.add(admin)
-        spaceRepository.save(space)
-        user.spaces.add(admin)
-        userRepository.save(user)
+
+        inviteRepository.saveAll(
+            invitedUsers.map {
+                Invite(
+                    invitee = it, space = space, inviter = user, status = InviteStatus.WAITING
+                )
+            }.toList()
+        )
+
+
 
         invitedUsers.isNotEmpty().takeIf { it }?.let {
             fcmService.sendMessageTo(
@@ -141,44 +177,108 @@ class SpaceService(
             )
         }
 
-        return space
+        return SpaceResponseDto(
+            spaceId = space.spaceId,
+            spaceName = space.name,
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
+            referenceVideoUrl = space.referenceVideoKey,
+            spaceUsers = spaceUserRepository.findSpaceUserBySpace(space).filter { it.withdraw.not() }.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userNickname = it.user?.nickname,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                    profileImageUrl = s3Service.getPreSignedGetUrl(it.user?.profileImageKey?.imageKey),
+                    userName = it.user?.name
+                )
+            }.toMutableSet(),
+            createdAt = space.createAt,
+            updatedAt = space.updateAt,
+        )
     }
 
     @Transactional(readOnly = false)
-    fun withdrawSpace(authentication: Authentication, spaceId: UUID) {
+    fun withdrawSpace(authentication: Authentication, spaceId: Long) {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-
-        space.users.find { it.user?.userId == user.userId }?.let {
+        spaceUserRepository.findSpaceUserBySpace(space).find { it.user?.userId == user.userId }?.let {
             it.withdraw = true
         }
         spaceRepository.save(space)
     }
 
     @Transactional(readOnly = true)
-    fun getSpaces(authentication: Authentication): List<Space> {
+    fun getSpaces(authentication: Authentication): List<SpaceResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val spaceList = spaceRepository.findSpacesByUser(user)
-        return spaceList
+        return spaceList.map {
+            SpaceResponseDto(
+                spaceId = it.spaceId,
+                spaceName = it.name,
+                spaceImageUrl = s3Service.getPreSignedGetUrl(it.imageKey.imageKey),
+                referenceVideoUrl = it.referenceVideoKey,
+                spaceUsers = spaceUserRepository.findSpaceUserBySpace(it).filter { it.withdraw.not() }.map {
+                    SpaceUserResponseDto(
+                        userId = it.user?.userId,
+                        userNickname = it.user?.nickname,
+                        spaceUserId = it.spaceUserId,
+                        spaceRole = it.role,
+                        profileImageUrl = s3Service.getPreSignedGetUrl(it.user?.profileImageKey?.imageKey),
+                        userName = it.user?.name
+                    )
+                }.toMutableSet(),
+                createdAt = it.createAt,
+                updatedAt = it.updateAt,
+            )
+        }
     }
 
     @Transactional(readOnly = true)
-    fun getSpace(authentication: Authentication, spaceId: UUID): Space {
+    fun getSpace(authentication: Authentication, spaceId: Long): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-        return space
+        return SpaceResponseDto(
+            spaceId = space.spaceId,
+            spaceName = space.name,
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
+            referenceVideoUrl = space.referenceVideoKey,
+            spaceUsers = spaceUserRepository.findSpaceUserBySpace(space).filter { it.withdraw.not() }.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userNickname = it.user?.nickname,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                    profileImageUrl = s3Service.getPreSignedGetUrl(it.user?.profileImageKey?.imageKey),
+                    userName = it.user?.name
+                )
+            }.toMutableSet(),
+            history = space.histories.map {
+                HistoryResponseDto(
+                    historyId = it.historyId,
+                    historyName = it.name,
+                    historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(it.videoKey.videoKey),
+                    historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(it.videoThumbnailUrl.imageKey),
+                    createdAt = it.createAt,
+                    feedbackCount = it.feedbacks.size,
+                    videoDuration = it.videoKey.duration,
+
+                )
+            }.toMutableSet(),
+            createdAt = space.createAt,
+            updatedAt = space.updateAt,
+        )
     }
 
     @Transactional(readOnly = false)
     fun updateSpace(
-        authentication: Authentication, spaceId: UUID, spaceRequestDto: SpaceRequestDto
-    ): Space {
+        authentication: Authentication, spaceId: Long, spaceRequestDto: SpaceRequestDto
+    ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
@@ -196,33 +296,42 @@ class SpaceService(
 
         spaceRepository.save(space)
 
-        return space
+        return SpaceResponseDto(
+            spaceId = space.spaceId,
+            spaceName = space.name,
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
+            referenceVideoUrl = space.referenceVideoKey,
+            spaceUsers = spaceUserRepository.findSpaceUserBySpace(space).filter { it.withdraw.not() }.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userNickname = it.user?.nickname,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                    profileImageUrl = s3Service.getPreSignedGetUrl(it.user?.profileImageKey?.imageKey),
+                    userName = it.user?.name
+                )
+            }.toMutableSet(),
+            createdAt = space.createAt,
+            updatedAt = space.updateAt,
+        )
     }
 
     @Transactional(readOnly = false)
-    fun deleteSpace(authentication: Authentication, spaceId: UUID) {
+    fun deleteSpace(authentication: Authentication, spaceId: Long) {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
 
         validateSpaceUser(user, space)
-//        space.spaceUsers.forEach{
-//            it.user = null
-//            it.space = null
-//            spaceUserRepository.delete(it)
-//        }
-        space.users.clear()
-        space.histories.clear()
-        space.invites.clear()
-
+        spaceUserRepository.deleteAllBySpace(space)
         // Delete the space
         spaceRepository.delete(space)
     }
 
     @Transactional(readOnly = false)
     fun addReferenceUrl(
-        authentication: Authentication, spaceId: UUID, spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto
-    ): Space {
+        authentication: Authentication, spaceId: Long, spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto
+    ): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
@@ -232,11 +341,28 @@ class SpaceService(
 
         spaceRepository.save(space)
 
-        return space
+        return SpaceResponseDto(
+            spaceId = space.spaceId,
+            spaceName = space.name,
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
+            referenceVideoUrl = space.referenceVideoKey,
+            spaceUsers = spaceUserRepository.findSpaceUserBySpace(space).filter { it.withdraw.not() }.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userNickname = it.user?.nickname,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                    profileImageUrl = s3Service.getPreSignedGetUrl(it.user?.profileImageKey?.imageKey),
+                    userName = it.user?.name
+                )
+            }.toMutableSet(),
+            createdAt = space.createAt,
+            updatedAt = space.updateAt,
+        )
     }
 
     @Transactional(readOnly = false)
-    fun deleteReferenceUrl(authentication: Authentication, spaceId: UUID): Space {
+    fun deleteReferenceUrl(authentication: Authentication, spaceId: Long): SpaceResponseDto {
         val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId) ?: throw SpaceNotFoundException()
@@ -245,25 +371,33 @@ class SpaceService(
         space.referenceVideoKey = null
 
         spaceRepository.save(space)
-        return space
+        return SpaceResponseDto(
+            spaceId = space.spaceId,
+            spaceName = space.name,
+            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
+            referenceVideoUrl = space.referenceVideoKey,
+            spaceUsers = spaceUserRepository.findSpaceUserBySpace(space).filter { it.withdraw.not() }.map {
+                SpaceUserResponseDto(
+                    userId = it.user?.userId,
+                    userNickname = it.user?.nickname,
+                    spaceUserId = it.spaceUserId,
+                    spaceRole = it.role,
+                    profileImageUrl = s3Service.getPreSignedGetUrl(it.user?.profileImageKey?.imageKey),
+                    userName = it.user?.name
+                )
+            }.toMutableSet(),
+            createdAt = space.createAt,
+            updatedAt = space.updateAt,
+        )
     }
 
 
     @Transactional(readOnly = false)
     fun validateSpaceUser(user: User, space: Space): SpaceUser {
-        space.users.find {
-            it.user == user && it.withdraw.not()
-        }?.let {
+        spaceUserRepository.findSpaceUserBySpaceAndUser(space, user)?.let {
             return it
         }
         throw SpaceUserNotFoundInSpaceException()
     }
 
-    private fun checkGuestSpaceLimit(user: User) {
-        println(user.role)
-        println(user.spaces.size)
-        if (user.role == UserRole.GUEST && user.spaces.size >= 1) {
-            throw GuestSpaceCreateLimitationException()
-        }
-    }
 }

@@ -18,28 +18,26 @@ import soma.achoom.zigg.global.ResponseDtoManager
 @RequestMapping("/api/v0/boards/posts/comments")
 class CommentController(
     private val commentService: CommentService,
-    private val responseDtoManager: ResponseDtoManager
 ) {
     @PostMapping("/{boardId}/{postId}/{commentId}")
-    fun createChildComment(authentication: Authentication, @PathVariable boardId: Long, @PathVariable postId: Long, @PathVariable commentId: Long, commentRequestDto: CommentRequestDto) : ResponseEntity<CommentResponseDto>{
+    fun createChildComment(
+        authentication: Authentication,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long,
+        commentRequestDto: CommentRequestDto
+    ): ResponseEntity<CommentResponseDto> {
         val comment = commentService.createChildComment(authentication, boardId, postId, commentId, commentRequestDto)
-        return ResponseEntity.ok(responseDtoManager.generateCommentResponseDto(comment))
+        return ResponseEntity.ok(comment)
     }
-//    @GetMapping("/{boardId}/{postId}/{commentId}/likes")
-//    fun likeComment(authentication: Authentication, @PathVariable boardId: Long, @PathVariable postId: Long, @PathVariable commentId: Long):ResponseEntity<CommentResponseDto> {
-//        commentService.likeComment(authentication, boardId, postId, commentId)
-//        return ResponseEntity.noContent().build()
-//    }
-//    @PostMapping("/{boardId}/{postId}")
-//    fun createComment(authentication: Authentication, @PathVariable boardId: Long, @PathVariable postId: Long, commentRequestDto: CommentRequestDto) : ResponseEntity<CommentResponseDto>{
-//        commentService.createComment(authentication,boardId, postId, commentRequestDto)
-//    }
-//    @PatchMapping("/{boardId}/{postId}/{commentId}")
-//    fun updateComment(authentication: Authentication, @PathVariable boardId: Long, @PathVariable postId: Long, @PathVariable commentId: Long, commentRequestDto: CommentRequestDto) : ResponseEntity<CommentResponseDto>{
-//        commentService.updateComment(authentication, commentId, commentRequestDto)
-//    }
+
     @DeleteMapping("/{boardId}/{postId}/{commentId}")
-    fun deleteComment(authentication: Authentication,@PathVariable boardId: Long, @PathVariable postId: Long, @PathVariable commentId: Long) : ResponseEntity<Void>{
+    fun deleteComment(
+        authentication: Authentication,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long
+    ): ResponseEntity<Void> {
         commentService.deleteComment(authentication, commentId)
         return ResponseEntity.noContent().build()
     }

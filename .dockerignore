@@ -6,3 +6,13 @@
 .github
 .elasticbeanstalk
 gradle.properties
+.gradle
+build
+out
+/src/main/generated
+/src/test/**
+.vscode
+bin
+.dockerignore
+Dockerfile
+test

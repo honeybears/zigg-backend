@@ -10,8 +10,10 @@ import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.content.repository.VideoRepository
 import soma.achoom.zigg.firebase.dto.FCMTokenRequestDto
 import soma.achoom.zigg.firebase.service.FCMService
+import soma.achoom.zigg.s3.service.S3Service
 import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.dto.UserRequestDto
+import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.GuestUserUpdateProfileLimitationException
@@ -25,30 +27,60 @@ class UserService(
     private val fcmService: FCMService,
     private val spaceUserRepository: SpaceUserRepository,
     private val imageRepository: ImageRepository,
-    private val videoRepository: VideoRepository
+    private val videoRepository: VideoRepository,
+    private val s3Service: S3Service
 ) {
     @Transactional(readOnly = true)
-    fun searchUser(authentication: Authentication, nickname: String): List<User> {
+    fun searchUser(authentication: Authentication, nickname: String): List<UserResponseDto> {
         val users = userRepository.findUsersByUserNameLike(nickname,PageRequest.of(0,10))
-        return users.filter { it.nickname != authenticationToUser(authentication).nickname }
+        return users.filter { it.nickname != authenticationToUser(authentication).nickname }.map {
+            UserResponseDto(
+                userId = it.userId,
+                userName = it.name,
+                userNickname = it.nickname,
+                profileImageUrl = s3Service.getPreSignedGetUrl(it.profileImageKey.imageKey),
+                profileBannerImageUrl = s3Service.getPreSignedGetUrl(it.profileBannerImageKey?.imageKey),
+                userTags = it.tags,
+                userDescription = it.description,
+                createdAt = it.createAt
+            )
+        }.toList()
     }
     @Transactional(readOnly = true)
-    fun getUserInfo(authentication: Authentication): User {
+    fun getUserInfo(authentication: Authentication): UserResponseDto {
         val user = authenticationToUser(authentication)
-        return user
+        return UserResponseDto(
+            userId = user.userId,
+            userName = user.name,
+            userNickname = user.nickname,
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey.imageKey),
+            profileBannerImageUrl = s3Service.getPreSignedGetUrl(user.profileBannerImageKey?.imageKey),
+            userTags = user.tags,
+            userDescription = user.description,
+            createdAt = user.createAt
+        )
     }
     @Transactional(readOnly = true)
-    fun getUserInfoByUserId(authentication: Authentication,userRequestDto: UserRequestDto): User {
+    fun getUserInfoByUserId(authentication: Authentication,userRequestDto: UserRequestDto): UserResponseDto {
         authenticationToUser(authentication)
         if (userRequestDto.userId == null) {
             throw IllegalArgumentException("userId is null")
         }
         val user = userRepository.findUserByUserId(userRequestDto.userId)?: throw UserNotFoundException()
-        return user
+        return UserResponseDto(
+            userId = user.userId,
+            userName = user.name,
+            userNickname = user.nickname,
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey.imageKey),
+            profileBannerImageUrl = s3Service.getPreSignedGetUrl(user.profileBannerImageKey?.imageKey),
+            userTags = user.tags,
+            userDescription = user.description,
+            createdAt = user.createAt
+        )
     }
 
     @Transactional(readOnly = false)
-    fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): User {
+    fun updateUser(authentication: Authentication, userRequestDto: UserRequestDto): UserResponseDto {
         val user = authenticationToUser(authentication)
         checkGuestUserUpdateProfileLimit(user)
         user.name = userRequestDto.userName
@@ -56,7 +88,6 @@ class UserService(
         user.tags = userRequestDto.userTags
 
         userRequestDto.profileImageUrl?.let{
-
             user.profileImageKey = Image.fromUrl(
                 imageUrl = it,
                 uploader = user
@@ -68,10 +99,18 @@ class UserService(
                 imageUrl = it,
                 uploader = user
             )
-
         }
-
-        return userRepository.save(user)
+        userRepository.save(user)
+        return UserResponseDto(
+            userId = user.userId,
+            userName = user.name,
+            userNickname = user.nickname,
+            profileImageUrl = s3Service.getPreSignedGetUrl(user.profileImageKey.imageKey),
+            profileBannerImageUrl = s3Service.getPreSignedGetUrl(user.profileBannerImageKey?.imageKey),
+            userTags = user.tags,
+            userDescription = user.description,
+            createdAt = user.createAt
+        )
     }
     @Transactional(readOnly = true)
     fun authenticationToUser(authentication: Authentication): User {
@@ -89,9 +128,9 @@ class UserService(
     @Transactional(readOnly = false)
     fun deleteUser(authentication: Authentication) {
         val user = authenticationToUser(authentication)
-        user.spaces.forEach {
-            spaceUser -> spaceUser.user = null
-            spaceUserRepository.save(spaceUser)
+        spaceUserRepository.findSpaceUsersByUser(user).forEach {
+            it.user = null
+            spaceUserRepository.save(it)
         }
         imageRepository.findImagesByUploader(user).forEach {
             it.uploader = null

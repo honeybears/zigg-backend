@@ -9,8 +9,8 @@ import java.util.*
 @Entity
 class Feedback(
     @Id
-    @Column(name = "feedback_id")
-    var feedbackId: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var feedbackId: Long? = null,
 
     @Enumerated(EnumType.STRING)
     var type: FeedbackType? = FeedbackType.USER,

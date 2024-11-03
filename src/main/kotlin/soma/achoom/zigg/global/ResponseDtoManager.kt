@@ -21,41 +21,10 @@ import soma.achoom.zigg.space.entity.SpaceUser
 import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.entity.User
 
-@Component
+@Deprecated("Create ResponseDto self")
 class ResponseDtoManager(
     private val s3Service: S3Service
 ) {
-    fun generateSpaceResponseDto(space: Space): SpaceResponseDto {
-        return SpaceResponseDto(
-            spaceId = space.spaceId,
-            spaceName = space.name,
-            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
-            referenceVideoUrl = space.referenceVideoKey,
-            spaceUsers = space.users.filter { it.withdraw.not() }.map {
-                generateSpaceUserResponseDto(it)
-            }.toMutableSet(),
-            createdAt = space.createAt,
-            updatedAt = space.updateAt,
-            history = space.histories.map { generateHistoryResponseDto(it) }.toMutableSet(),
-            invites = space.invites.map { generateInviteShortResponseDto(it) }.toMutableSet()
-        )
-    }
-
-    fun generateSpaceResponseShortDto(space: Space): SpaceResponseDto {
-        return SpaceResponseDto(
-            spaceId = space.spaceId,
-            spaceName = space.name,
-            spaceImageUrl = s3Service.getPreSignedGetUrl(space.imageKey.imageKey),
-            referenceVideoUrl = space.referenceVideoKey,
-            spaceUsers = space.users.filter { it.withdraw.not() }.map {
-                generateSpaceUserResponseDto(it)
-            }.toMutableSet(),
-            createdAt = space.createAt,
-            updatedAt = space.updateAt,
-            history = space.histories.map { generateHistoryResponseShortDto(it) }.toMutableSet(),
-            invites = space.invites.map { generateInviteShortResponseDto(it) }.toMutableSet()
-        )
-    }
 
     fun generateHistoryResponseShortDto(history: History): HistoryResponseDto {
         return HistoryResponseDto(
@@ -117,53 +86,4 @@ class ResponseDtoManager(
             createdAt = user.createAt
         )
     }
-
-    fun generateInviteResponseDto(invite: Invite): InviteResponseDto {
-        return InviteResponseDto(
-            inviteId = invite.inviteId,
-            invitedUser = generateUserResponseDto(invite.invitee),
-            inviter = generateUserResponseDto(invite.inviter),
-            space = SpaceResponseDto(
-                spaceId = invite.space.spaceId,
-                spaceName = invite.space.name,
-                spaceImageUrl = s3Service.getPreSignedGetUrl(invite.space.imageKey.imageKey),
-                referenceVideoUrl = invite.space.referenceVideoKey,
-                spaceUsers = invite.space.users.filter { it.withdraw.not() }.map {
-                    generateSpaceUserResponseDto(it)
-                }.toMutableSet(),
-                createdAt = invite.space.createAt,
-                updatedAt = invite.space.updateAt,
-            ),
-            createdAt = invite.createAt,
-
-            )
-    }
-
-    fun generateInviteShortResponseDto(invite: Invite): InviteResponseDto {
-        return InviteResponseDto(
-            inviteId = invite.inviteId,
-            invitedUser = generateUserResponseDto(invite.invitee),
-            inviter = generateUserResponseDto(invite.inviter),
-            createdAt = invite.createAt
-        )
-    }
-
-    fun generateCommentResponseDto(comment: Comment): CommentResponseDto {
-        return CommentResponseDto(
-            commentId = comment.commentId!!,
-            commentMessage = comment.textComment,
-            commentCreator = if(comment.isDeleted) UserResponseDto(
-                userName = "알 수 없음",
-                userNickname = "알 수 없음",
-                profileImageUrl = null,
-                profileBannerImageUrl = null,
-                userTags = null,
-                userDescription = null,
-                createdAt = null
-            ) else generateUserResponseDto(comment.creator),
-            commentLike = comment.likes
-        )
-    }
-
-
 }

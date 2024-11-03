@@ -72,7 +72,7 @@ class UserServiceTest {
     fun `Multi fcm token user`() {
         userService.registerToken(authentication, FCMTokenRequestDto(UUID.randomUUID().toString()))
         println(userWithFCM.deviceTokens.size)
-        userWithFCM = userRepository.findUserByUserId(userWithFCM.userId)!!
+        userWithFCM = userRepository.findUserByUserId(userWithFCM.userId!!)!!
         assert(userWithFCM.deviceTokens.size == 4)
     }
 
@@ -84,7 +84,7 @@ class UserServiceTest {
         // Logout 호출
         userService.logoutUser(authentication, FCMTokenRequestDto(fcmToken.token))
         println(userWithFCM.deviceTokens.size)
-        userWithFCM = userRepository.findUserByUserId(userWithFCM.userId)!!
+        userWithFCM = userRepository.findUserByUserId(userWithFCM.userId!!)!!
         assert(userWithFCM.deviceTokens.size == 2)
     }
 
@@ -92,7 +92,7 @@ class UserServiceTest {
     @Test
     fun `Delete user`() {
         userService.deleteUser(authentication)
-        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
+        assert(userRepository.findUserByUserId(userWithFCM.userId!!) == null)
         assert(fcmRepository.findAll().size == 0)
     }
 

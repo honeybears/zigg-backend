@@ -11,8 +11,8 @@ import java.util.UUID
 @Entity(name = "history")
 class History(
     @Id
-    @Column(name = "history_id")
-    var historyId: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var historyId: Long? = null,
     @Column(name = "history_name")
     var name: String?,
     @OneToOne(cascade = [CascadeType.PERSIST])
@@ -21,7 +21,7 @@ class History(
     @OneToOne(cascade = [CascadeType.PERSIST])
     @PrimaryKeyJoinColumn(name = "video_thumbnail_image_key")
     var videoThumbnailUrl: Image,
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var feedbacks: MutableSet<Feedback> = mutableSetOf(),
 
     ) : BaseEntity() {
