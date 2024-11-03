@@ -21,4 +21,5 @@ class BoardController(
     fun getHotBoards(authentication: Authentication) : ResponseEntity<List<BoardResponseDto>>{
         return ResponseEntity.ok(boardService.getRecentHotPosts().map{BoardResponseDto(it.postId!!, it.title)})
     }
+
 }
