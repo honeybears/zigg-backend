@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class HealthController {
-    @GetMapping("/health")
+    @GetMapping("/")
     fun health() : ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
