@@ -9,8 +9,8 @@ RUN ./gradlew build --parallel --no-daemon -x test
 
 FROM eclipse-temurin:21-jre-jammy AS runtime
 WORKDIR /app
-ENV APP_ENV = ${APP_ENV}
-ENV JASYPT_PASSWORD = ${JASYPT_PASSWORD}
+ENV APP_ENV=${APP_ENV}
+ENV JASYPT_PASSWORD=${JASYPT_PASSWORD}
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${APP_ENV}", "-Djasypt.encryptor.password=${JASYPT_PASSWORD}", "app.jar"]

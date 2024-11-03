@@ -6,6 +6,7 @@ on:
 
 jobs:
   test:
+    needs: test
     runs-on: ubuntu-latest
     env:
       JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
