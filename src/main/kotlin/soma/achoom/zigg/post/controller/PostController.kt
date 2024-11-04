@@ -3,7 +3,6 @@ package soma.achoom.zigg.post.controller
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
-import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.dto.PostResponseDto
@@ -51,11 +50,7 @@ class PostController(
         val post = postService.getPost(authentication,boardId,postId)
         return ResponseEntity.ok(post)
     }
-    @GetMapping("/{boardId}/{postId}/likes")
-    fun likePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long) : ResponseEntity<Unit>{
-        val post = postService.likeOrUnlikePost(authentication, postId)
-        return ResponseEntity.noContent().build()
-    }
+
     @PatchMapping("/{boardId}/{postId}")
     fun updatePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long, @RequestBody postRequestDto: PostRequestDto) : ResponseEntity<PostResponseDto>{
         val post = postService.updatePost(authentication, postId, postRequestDto)
@@ -66,7 +61,7 @@ class PostController(
         postService.deletePost(authentication, postId)
         return ResponseEntity.noContent().build()
     }
-    @GetMapping("/{boardId}/search")
+    @GetMapping("/search/{boardId}")
     fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam("page") page: Int, @RequestParam("keyword") keyword: String) : ResponseEntity<List<PostResponseDto>>{
         val posts = postService.searchPosts(authentication, boardId, keyword, page )
         return ResponseEntity.ok(posts)
@@ -76,14 +71,14 @@ class PostController(
         val posts = postService.getMyPosts(authentication)
         return ResponseEntity.ok(posts)
     }
-    @GetMapping("/scraps/{boardId}/{postId}")
-    fun getScraps(authentication: Authentication,@PathVariable boardId: Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
-        val posts = postService.scrapOrUnscrapPost(authentication, postId)
-        return ResponseEntity.ok(posts)
-    }
     @GetMapping("/likes/{boardId}/{postId}")
-    fun getLikes(authentication: Authentication,@PathVariable boardId: Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
-        val posts = postService.likeOrUnlikePost(authentication, postId)
+    fun likePost(authentication: Authentication, @PathVariable boardId : Long,@PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
+        val post = postService.likeOrUnlikePost(authentication, postId)
+        return ResponseEntity.ok(post)
+    }
+    @GetMapping("/scraps/{boardId}/{postId}")
+    fun scrapPost(authentication: Authentication, @PathVariable boardId: Long, @PathVariable postId: Long) : ResponseEntity<PostResponseDto>{
+        val posts = postService.scrapOrUnscrapPost(authentication, postId)
         return ResponseEntity.ok(posts)
     }
     @GetMapping("/scraps")

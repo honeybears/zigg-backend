@@ -137,7 +137,7 @@ class CommentService(
             throw CommentUserMissMatchException()
         }
         comment.isDeleted = true
-
+        comment.textComment = "삭제된 댓글입니다."
         commentRepository.save(comment)
     }
     @Transactional(readOnly = false)
