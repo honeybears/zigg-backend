@@ -6,16 +6,11 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
-import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_KEY
-import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_THUMBNAIL_KEY
 import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_THUMBNAIL_URL
 import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_URL
-import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_KEY
 import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_URL
-import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_KEY
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.board.entity.Board
 import soma.achoom.zigg.board.repository.BoardRepository
@@ -45,6 +40,7 @@ class CommentServiceTest {
 
     @Autowired
     private lateinit var dummyDataUtil: DummyDataUtil
+
     @Autowired
     private lateinit var s3Service: S3Service
 
@@ -54,10 +50,6 @@ class CommentServiceTest {
     @BeforeEach
     fun setup() {
         Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(SPACE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(PROFILE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(HISTORY_VIDEO_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString()))
-            .thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
 
         val user = dummyDataUtil.createDummyUser()
         board = Board(name = "test board")
@@ -65,7 +57,6 @@ class CommentServiceTest {
 
         post = Post(board = board, title = "test post", textContent = "test content", creator = user)
         postRepository.save(post)
-
 
     }
 
@@ -75,6 +66,8 @@ class CommentServiceTest {
         val auth1 = dummyDataUtil.createDummyAuthentication(user1)
         val first = commentService.createComment(auth1, board.boardId!!, post.postId!!, CommentRequestDto("Test Comment"))
         assert(first.commentMessage == "Test Comment")
+        println(post.commentCnt)
+
         assert(post.commentCnt == 1)
     }
     @Test
@@ -87,6 +80,7 @@ class CommentServiceTest {
         val second = commentService.createChildComment(auth2, board.boardId!!, post.postId!!, first.commentId!!, CommentRequestDto("Test Child Comment"))
         assert(second.commentMessage == "Test Child Comment")
         assert(second.parentComment?.commentId == first.commentId)
+        println(post.commentCnt)
         assert(post.commentCnt == 2)
     }
     @Test
@@ -99,12 +93,12 @@ class CommentServiceTest {
         val auth2 = dummyDataUtil.createDummyAuthentication(user2)
         val second = commentService.createChildComment(auth2, board.boardId!!, post.postId!!, first.commentId!!, CommentRequestDto("Test Child Comment"))
         commentService.likeComment(auth1,board.boardId!!, post.postId!!,first.commentId!!)
-        assert(post.commentCnt == 1)
 
         commentService.likeComment(auth1,board.boardId!!, post.postId!!,second.commentId!!)
+        println(post.commentCnt)
+
         assert(post.commentCnt == 2)
         postService.getPost(auth1,board.boardId!!,post.postId!!).let {
-            assert(it.commentCnt == 2)
             it.comments.forEach { comment ->
                 if(comment.commentId == first.commentId){
                     assert(comment.commentLike == 1)

@@ -14,7 +14,6 @@ import soma.achoom.zigg.comment.repository.CommentRepository
 import soma.achoom.zigg.data.DummyDataUtil
 import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.post.repository.PostRepository
-import soma.achoom.zigg.s3.config.S3Config
 import soma.achoom.zigg.user.entity.User
 
 @SpringBootTest

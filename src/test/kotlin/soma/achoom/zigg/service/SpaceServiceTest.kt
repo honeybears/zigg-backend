@@ -56,10 +56,7 @@ class SpaceServiceTest {
     fun setup() {
         // Mocking S3Service behavior
         Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(SPACE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(PROFILE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(HISTORY_VIDEO_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString()))
-            .thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
+
         admin = dummyDataUtil.createDummyUser()
         for (i in 0 until 10){
             userList.add(dummyDataUtil.createDummyUserWithMultiFCMToken(3))

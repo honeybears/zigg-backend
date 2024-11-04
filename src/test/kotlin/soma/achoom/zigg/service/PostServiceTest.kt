@@ -45,10 +45,7 @@ class PostServiceTest {
     @BeforeEach
     fun setup() {
         Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(SPACE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(PROFILE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(HISTORY_VIDEO_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString()))
-            .thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
+
 
         val user = dummyDataUtil.createDummyUser()
         board = Board(name = "test board")

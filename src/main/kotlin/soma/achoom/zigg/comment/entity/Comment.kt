@@ -6,6 +6,7 @@ import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.user.entity.User
 
 @Entity(name = "comment")
+@EntityListeners(CommentEntityListener::class)
 class Comment(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
