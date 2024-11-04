@@ -1,6 +1,7 @@
 package soma.achoom.zigg.service
 
 import org.junit.jupiter.api.BeforeEach
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -57,11 +58,12 @@ class UserServiceTest {
     @BeforeEach
     fun setup() {
 
-        Mockito.`when`(s3Service.getPreSignedGetUrl(SPACE_IMAGE_KEY)).thenReturn(SPACE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(PROFILE_IMAGE_KEY)).thenReturn(PROFILE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_KEY)).thenReturn(HISTORY_VIDEO_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_THUMBNAIL_KEY))
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(SPACE_IMAGE_URL)
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(PROFILE_IMAGE_URL)
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(HISTORY_VIDEO_URL)
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString()))
             .thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
+
 
         userWithFCM = dummyDataUtil.createDummyUserWithMultiFCMToken(3)
         authentication = dummyDataUtil.createDummyAuthentication(userWithFCM)
