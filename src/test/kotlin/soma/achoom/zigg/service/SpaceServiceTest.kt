@@ -3,6 +3,7 @@ package soma.achoom.zigg.service
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.ArgumentMatchers.anyString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -23,11 +24,9 @@ import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.service.SpaceService
 import soma.achoom.zigg.space.dto.SpaceUserRequestDto
 import soma.achoom.zigg.space.entity.SpaceRole
-import soma.achoom.zigg.space.repository.SpaceRepository
 import soma.achoom.zigg.space.repository.SpaceUserRepository
 import soma.achoom.zigg.user.entity.User
 import soma.achoom.zigg.user.repository.UserRepository
-import java.util.*
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -56,10 +55,11 @@ class SpaceServiceTest {
     @BeforeEach
     fun setup() {
         // Mocking S3Service behavior
-        Mockito.`when`(s3Service.getPreSignedGetUrl(SPACE_IMAGE_KEY)).thenReturn(SPACE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(PROFILE_IMAGE_KEY)).thenReturn(PROFILE_IMAGE_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_KEY)).thenReturn(HISTORY_VIDEO_URL)
-        Mockito.`when`(s3Service.getPreSignedGetUrl(HISTORY_VIDEO_THUMBNAIL_KEY)).thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(SPACE_IMAGE_URL)
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(PROFILE_IMAGE_URL)
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(HISTORY_VIDEO_URL)
+        Mockito.`when`(s3Service.getPreSignedGetUrl(anyString()))
+            .thenReturn(HISTORY_VIDEO_THUMBNAIL_URL)
         admin = dummyDataUtil.createDummyUser()
         for (i in 0 until 10){
             userList.add(dummyDataUtil.createDummyUserWithMultiFCMToken(3))

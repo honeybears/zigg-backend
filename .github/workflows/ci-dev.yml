@@ -66,3 +66,19 @@ jobs:
           version_label: ${{ env.RC_TAG }}
           deployment_package: .elasticbeanstalk/docker-compose.yml
           wait_for_environment_recovery: 60
+
+  delete_tag_on_failure:
+    runs-on: ubuntu-latest
+    needs: [ test, build-and-deploy ]
+    if: failure()
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Delete tag if build or test fails
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RC_TAG: ${{ env.RC_TAG }}
+        run: |
+          echo "Deleting tag $RC_TAG due to failure"
+          git tag -d "$RC_TAG"
+          git push origin :refs/tags/"$RC_TAG"
