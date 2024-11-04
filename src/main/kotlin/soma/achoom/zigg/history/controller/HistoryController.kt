@@ -11,60 +11,88 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import soma.achoom.zigg.global.infra.gcs.GCSDataType
-import soma.achoom.zigg.global.infra.gcs.GCSService
+import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
 import soma.achoom.zigg.history.service.HistoryService
+import soma.achoom.zigg.s3.service.S3DataType
+import soma.achoom.zigg.s3.service.S3Service
 import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v0/spaces/histories")
 class HistoryController @Autowired constructor(
     private val historyService: HistoryService,
-    private val gcsService: GCSService
-
+    private val s3Service: S3Service,
 ) {
-    @PostMapping("/pre-signed-url")
-    fun getPreSignedUrl(@RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto) : ResponseEntity<String> {
-        val preSignedUrl = gcsService.getPreSignedPutUrl(GCSDataType.HISTORY_VIDEO,UUID.randomUUID(), uploadContentTypeRequestDto)
-        return ResponseEntity.ok(preSignedUrl)
+    @PostMapping("/pre-signed-url/{value}")
+    fun getPreSignedUrl(
+        @RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto,
+        @PathVariable value: String
+    ): ResponseEntity<String> {
+        if (value.trim() == "video") {
+            val preSignedUrl =
+                s3Service.getPreSignedPutUrl(S3DataType.HISTORY_VIDEO, UUID.randomUUID(), uploadContentTypeRequestDto)
+            return ResponseEntity.ok(preSignedUrl)
+        } else if (value.trim() == "thumbnail") {
+            val preSignedUrl = s3Service.getPreSignedPutUrl(
+                S3DataType.HISTORY_THUMBNAIL,
+                UUID.randomUUID(),
+                uploadContentTypeRequestDto
+            )
+            return ResponseEntity.ok(preSignedUrl)
+        } else
+            return ResponseEntity.badRequest().build()
     }
 
 
     @GetMapping("/{spaceId}")
-    fun getHistories(authentication: Authentication, @PathVariable spaceId: UUID) : ResponseEntity<List<HistoryResponseDto>> {
-        val historyResponseDto = historyService.getHistories(authentication, spaceId)
-        return ResponseEntity.ok(historyResponseDto)
+    fun getHistories(
+        authentication: Authentication,
+        @PathVariable spaceId: Long
+    ): ResponseEntity<List<HistoryResponseDto>> {
+        val histories = historyService.getHistories(authentication, spaceId)
+        return ResponseEntity.ok(histories)
     }
 
     @PostMapping("/{spaceId}")
     fun creatHistory(
         authentication: Authentication,
-        @PathVariable spaceId: UUID,
+        @PathVariable spaceId: Long,
         @RequestBody historyRequestDto: HistoryRequestDto
-    ) :ResponseEntity<HistoryResponseDto> {
-        val historyResponseDto = historyService.createHistory(authentication, spaceId,historyRequestDto)
-        return ResponseEntity.ok(historyResponseDto)
+    ): ResponseEntity<HistoryResponseDto> {
+        val history = historyService.createHistory(authentication, spaceId, historyRequestDto)
+        return ResponseEntity.ok(history)
     }
+
     @GetMapping("/{spaceId}/{historyId}")
-    fun getHistory(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID) : ResponseEntity<HistoryResponseDto> {
-        val historyResponseDto = historyService.getHistory(authentication, spaceId, historyId)
-        return ResponseEntity.ok(historyResponseDto)
+    fun getHistory(
+        authentication: Authentication,
+        @PathVariable spaceId: Long,
+        @PathVariable historyId: Long
+    ): ResponseEntity<HistoryResponseDto> {
+        val history = historyService.getHistory(authentication, spaceId, historyId)
+        return ResponseEntity.ok(history)
     }
+
     @PatchMapping("/{spaceId}/{historyId}")
     fun updateHistory(
         authentication: Authentication,
-        @PathVariable spaceId: UUID,
-        @PathVariable historyId: UUID,
+        @PathVariable spaceId: Long,
+        @PathVariable historyId: Long,
         @RequestBody historyRequestDto: HistoryRequestDto
-    ) : ResponseEntity<HistoryResponseDto> {
-        val historyResponseDto = historyService.updateHistory(authentication, spaceId, historyId, historyRequestDto)
-        return ResponseEntity.ok(historyResponseDto)
+    ): ResponseEntity<HistoryResponseDto> {
+        val history = historyService.updateHistory(authentication, spaceId, historyId, historyRequestDto)
+        return ResponseEntity.ok(history)
     }
+
     @DeleteMapping("/{spaceId}/{historyId}")
-    fun deleteHistory(authentication: Authentication, @PathVariable spaceId: UUID, @PathVariable historyId: UUID) : ResponseEntity<Void> {
+    fun deleteHistory(
+        authentication: Authentication,
+        @PathVariable spaceId: Long,
+        @PathVariable historyId: Long
+    ): ResponseEntity<Void> {
         historyService.deleteHistory(authentication, spaceId, historyId)
         return ResponseEntity.noContent().build()
     }

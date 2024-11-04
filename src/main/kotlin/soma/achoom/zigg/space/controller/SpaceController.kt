@@ -1,12 +1,14 @@
 package soma.achoom.zigg.space.controller
 
-import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
+import soma.achoom.zigg.global.ResponseDtoManager
+import soma.achoom.zigg.history.dto.UploadContentTypeRequestDto
+import soma.achoom.zigg.s3.service.S3DataType
+import soma.achoom.zigg.s3.service.S3Service
+import soma.achoom.zigg.space.dto.InviteRequestDto
 import soma.achoom.zigg.space.dto.SpaceReferenceUrlRequestDto
 import soma.achoom.zigg.space.dto.SpaceRequestDto
 import soma.achoom.zigg.space.dto.SpaceResponseDto
@@ -17,49 +19,65 @@ import java.util.*
 @RequestMapping("/api/v0/spaces")
 class SpaceController @Autowired constructor(
     private val spaceService: SpaceService,
+    private val s3Service: S3Service,
 ) {
+    @PostMapping("/pre-signed-url")
+    fun getPreSignUrl(@RequestBody uploadContentTypeRequestDto: UploadContentTypeRequestDto) : ResponseEntity<String> {
+        val preSignUrl = s3Service.getPreSignedPutUrl(S3DataType.SPACE_IMAGE,UUID.randomUUID(),uploadContentTypeRequestDto)
+        return ResponseEntity.ok(preSignUrl)
+    }
 
     @GetMapping
     fun getSpaces(authentication:Authentication) : ResponseEntity<List<SpaceResponseDto>> {
-        val spaceListResponse = spaceService.getSpaces(authentication)
-        return ResponseEntity.ok(spaceListResponse)
+        val spaces = spaceService.getSpaces(authentication)
+        return ResponseEntity.ok(spaces)
     }
 
-    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping
     fun createSpace(
         authentication:Authentication,
-        @RequestPart(value = "space_image", required = false) spaceImage:MultipartFile? ,
-        @Valid @RequestPart(value = "spaceRequestDto") spaceRequestDto: SpaceRequestDto
+        @RequestBody spaceRequestDto: SpaceRequestDto
     ) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.createSpace(authentication, spaceImage, spaceRequestDto)
-        return ResponseEntity.ok(spaceResponseDto)
+        val space = spaceService.createSpace(authentication, spaceRequestDto)
+        return ResponseEntity.ok(space)
     }
 
     @GetMapping("/{spaceId}")
-    fun getSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.getSpace(authentication, spaceId)
-        return ResponseEntity.ok(spaceResponseDto)
+    fun getSpace(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<SpaceResponseDto> {
+        val space = spaceService.getSpace(authentication, spaceId)
+        return ResponseEntity.ok(space)
+    }
+    @PostMapping("/{spaceId}/invites")
+    fun inviteUserToSpace(authentication:Authentication, @PathVariable spaceId:Long, @RequestBody inviteRequestDto: InviteRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val space = spaceService.inviteSpace(authentication, spaceId, inviteRequestDto)
+        return ResponseEntity.ok(space)
+    }
+    @DeleteMapping("/withdraw/{spaceId}")
+    fun withdrawSpace(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<Void> {
+        spaceService.withdrawSpace(authentication, spaceId)
+        return ResponseEntity.ok().build()
     }
 
-    @PatchMapping("/{spaceId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun updateSpace(
-        authentication:Authentication, @PathVariable spaceId:UUID,
-        @RequestPart("space_image", required = false) spaceImage:MultipartFile? ,
-        @Valid @RequestPart("spaceRequestDto", required = true) spaceRequestDto: SpaceRequestDto
-    ) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.updateSpace(authentication, spaceId, spaceImage,spaceRequestDto)
-        return ResponseEntity.ok(spaceResponseDto)
+    @PatchMapping("/{spaceId}")
+    fun updateSpace(authentication:Authentication,@PathVariable spaceId:Long, @RequestBody spaceRequestDto: SpaceRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val space = spaceService.updateSpace(authentication,spaceId, spaceRequestDto)
+        return ResponseEntity.ok(space)
     }
 
     @DeleteMapping("/{spaceId}")
-    fun deleteSpace(authentication:Authentication, @PathVariable spaceId:UUID) : ResponseEntity<Unit> {
+    fun deleteSpace(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<Void> {
         spaceService.deleteSpace(authentication, spaceId)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/reference/{spaceId}")
-    suspend fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:UUID, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
-        val spaceResponseDto = spaceService.addReferenceUrl(authentication, spaceId, spaceReferenceUrlRequestDto)
-        return ResponseEntity.ok(spaceResponseDto)
+    fun addReferenceUrl(authentication:Authentication, @PathVariable spaceId:Long, @RequestBody spaceReferenceUrlRequestDto: SpaceReferenceUrlRequestDto) : ResponseEntity<SpaceResponseDto> {
+        val space = spaceService.addReferenceUrl(authentication, spaceId, spaceReferenceUrlRequestDto)
+        return ResponseEntity.ok(space)
+    }
+    @DeleteMapping("/reference/{spaceId}")
+    fun deleteReferenceUrl(authentication:Authentication, @PathVariable spaceId:Long) : ResponseEntity<SpaceResponseDto> {
+        val space = spaceService.deleteReferenceUrl(authentication, spaceId)
+        return ResponseEntity.ok(space)
     }
 }

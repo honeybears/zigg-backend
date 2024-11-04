@@ -1,156 +1,173 @@
 package soma.achoom.zigg.history.service
 
-import soma.achoom.zigg.global.annotation.AuthenticationValidate
+import soma.achoom.zigg.auth.annotation.AuthenticationValidation
 
 
-
-import kotlinx.coroutines.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import soma.achoom.zigg.global.infra.gcs.GCSService
-import soma.achoom.zigg.ai.dto.GenerateThumbnailRequestDto
-import soma.achoom.zigg.ai.service.AIService
+import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.content.entity.Image
+import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.feedback.dto.FeedbackResponseDto
 import soma.achoom.zigg.history.dto.HistoryRequestDto
 import soma.achoom.zigg.history.dto.HistoryResponseDto
 import soma.achoom.zigg.history.entity.History
+import soma.achoom.zigg.history.exception.GuestHistoryCreateLimitationException
+import soma.achoom.zigg.history.exception.HistoryNotFoundException
 import soma.achoom.zigg.history.repository.HistoryRepository
+import soma.achoom.zigg.s3.service.S3Service
+import soma.achoom.zigg.space.dto.SpaceUserResponseDto
+import soma.achoom.zigg.space.entity.Space
 import soma.achoom.zigg.space.exception.SpaceNotFoundException
 import soma.achoom.zigg.space.repository.SpaceRepository
+import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.service.UserService
-import java.util.UUID
 
 @Service
 class HistoryService @Autowired constructor(
     private val historyRepository: HistoryRepository,
     private val spaceRepository: SpaceRepository,
-    private val gcsService: GCSService,
-    private val aiService: AIService,
     private val userService: UserService,
+    private val s3Service: S3Service,
 ) {
 
-    @AuthenticationValidate
-    fun createHistory(
-        authentication: Authentication,
-        spaceId: UUID,
-        historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto  {
+    @AuthenticationValidation
+    @Transactional(readOnly = false)
+    fun createHistory(authentication: Authentication, spaceId: Long, historyRequestDto: HistoryRequestDto): HistoryResponseDto {
 
-        userService.authenticationToUser(authentication)
+        val user = userService.authenticationToUser(authentication)
 
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
 
+        val historyVideo = Video.fromUrl(
+            uploader = user,
+            duration = historyRequestDto.videoDuration,
+            videoUrl = historyRequestDto.historyVideoUrl
+        )
 
-        val bucketKey = gcsService.convertPreSignedUrlToGeneralKey(historyRequestDto.historyVideoUrl)
-
-
-        val response = runBlocking {
-            aiService.createThumbnailRequest(
-                GenerateThumbnailRequestDto(
-                    bucketName = gcsService.bucketName,
-                    historyVideoKey = bucketKey
-                )
-            )
-        }
-
-
-        val uuid = getLastPathSegment(bucketKey).split(".")[0]
+        val historyThumbnailImage = Image.fromUrl(
+            uploader = user,
+            imageUrl = historyRequestDto.historyThumbnailUrl
+        )
 
         val history = History(
-            historyId = UUID.fromString(uuid),
-            historyVideoKey = bucketKey,
-            historyName = historyRequestDto.historyName,
-            space = space,
-            videoDuration = historyRequestDto.videoDuration,
-            historyVideoThumbnailUrl = response.historyThumbnailKey
+            videoKey = historyVideo,
+            name = historyRequestDto.historyName,
+            videoThumbnailUrl = historyThumbnailImage,
         )
-
-        historyRepository.save(history)
-
+        space.addHistory(history)
+        spaceRepository.save(space)
         return HistoryResponseDto(
             historyId = history.historyId,
-            historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoKey),
-            feedbacks = history.feedbacks.map { feedback ->
-                FeedbackResponseDto.from(feedback)
-            }.toMutableSet(),
-            historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
+            historyName = history.name,
+            historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoKey.videoKey),
+            historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoThumbnailUrl.imageKey),
             createdAt = history.createAt,
-            videoDuration = history.videoDuration
+            feedbacks = null,
+            videoDuration = history.videoKey.duration,
+            feedbackCount = history.feedbacks.size
         )
     }
 
-    fun getHistories(authentication: Authentication, spaceId: UUID): List<HistoryResponseDto> {
+    @AuthenticationValidation
+    @Transactional(readOnly = true)
+    fun getHistories(authentication: Authentication, spaceId: Long): List<HistoryResponseDto> {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
-        val histories = historyRepository.findHistoriesBySpace(space)
-        return histories.filter { !it.isDeleted }.map {
+        val histories = space.histories
+        return histories.map { history ->
             HistoryResponseDto(
-                historyId = it.historyId,
-                historyName = it.historyName,
-                historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoKey),
-                feedbacks = it.feedbacks.map { feedback ->
-                    FeedbackResponseDto.from(feedback)
-                }.toMutableSet(),
-                historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(it.historyVideoThumbnailUrl!!),
-                createdAt = it.createAt,
-                videoDuration = it.videoDuration
+                historyId = history.historyId,
+                historyName = history.name,
+                historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoKey.videoKey),
+                historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoThumbnailUrl.imageKey),
+                createdAt = history.createAt,
+                feedbacks = null,
+                videoDuration = history.videoKey.duration,
+                feedbackCount = history.feedbacks.size
             )
-        }
+        }.toList()
     }
 
-    fun getHistory(authentication: Authentication, spaceId: UUID, historyId: UUID): HistoryResponseDto {
+    @Transactional(readOnly = true)
+    fun getHistory(authentication: Authentication, spaceId: Long, historyId: Long): HistoryResponseDto {
         userService.authenticationToUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
+        spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
-        val history = historyRepository.findHistoryByHistoryId(historyId)
-            ?: throw SpaceNotFoundException()
+        val history =  historyRepository.findHistoryByHistoryId(historyId)
+            ?: throw HistoryNotFoundException()
         return HistoryResponseDto(
             historyId = history.historyId,
-            historyName = history.historyName,
-            historyVideoPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoKey),
-            feedbacks = history.feedbacks.map { feedback ->
-                FeedbackResponseDto.from(feedback)
-            }.toMutableSet(),
-            historyVideoThumbnailPreSignedUrl = gcsService.getPreSignedGetUrl(history.historyVideoThumbnailUrl!!),
+            historyName = history.name,
+            historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoKey.videoKey),
+            historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoThumbnailUrl.imageKey),
             createdAt = history.createAt,
-            videoDuration = history.videoDuration
+            feedbacks = history.feedbacks.map { feedback ->
+                FeedbackResponseDto(
+                    feedbackId = feedback.feedbackId,
+                    feedbackTimeline = feedback.timeline,
+                    feedbackMessage = feedback.message,
+                    creatorId = SpaceUserResponseDto(
+                        userId = feedback.creator.user?.userId,
+                        userName = feedback.creator.user?.name,
+                        userNickname = feedback.creator.user?.nickname,
+                        profileImageUrl = feedback.creator.user?.profileImageKey?.imageKey,
+                        spaceUserId = feedback.creator.spaceUserId,
+                        spaceRole = feedback.creator.role,
+                    ),
+                    recipientId = feedback.recipients.map {
+                        SpaceUserResponseDto(
+                            userId = it.user?.userId,
+                            userName = it.user?.name,
+                            userNickname = it.user?.nickname,
+                            profileImageUrl = it.user?.profileImageKey?.imageKey,
+                            spaceUserId = it.spaceUserId,
+                            spaceRole = it.role,
+                        )
+                    }.toMutableSet(),
+                    feedbackType = feedback.type
+                )
+            }.toMutableSet(),
+            videoDuration = history.videoKey.duration,
+            feedbackCount = history.feedbacks.size,
         )
     }
 
-    fun updateHistory(
-        authentication: Authentication,
-        spaceId: UUID,
-        historyId: UUID,
-        historyRequestDto: HistoryRequestDto
-    ): HistoryResponseDto  {
+    @Transactional(readOnly = false)
+    fun updateHistory(authentication: Authentication, spaceId: Long, historyId: Long, historyRequestDto: HistoryRequestDto): HistoryResponseDto {
+        userService.authenticationToUser(authentication)
+        spaceRepository.findSpaceBySpaceId(spaceId)
+            ?: throw SpaceNotFoundException()
+        val history = historyRepository.findHistoryByHistoryId(historyId)
+            ?: throw HistoryNotFoundException()
+
+        history.name = historyRequestDto.historyName
+        return HistoryResponseDto(
+            historyId = history.historyId,
+            historyName = history.name,
+            historyVideoPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoKey.videoKey),
+            historyVideoThumbnailPreSignedUrl = s3Service.getPreSignedGetUrl(history.videoThumbnailUrl.imageKey),
+            createdAt = history.createAt,
+            feedbacks = null,
+            videoDuration = history.videoKey.duration,
+            feedbackCount = history.feedbacks.size,
+        )
+    }
+
+    @Transactional(readOnly = false)
+    fun deleteHistory(authentication: Authentication, spaceId: Long, historyId: Long) {
         userService.authenticationToUser(authentication)
         val space = spaceRepository.findSpaceBySpaceId(spaceId)
             ?: throw SpaceNotFoundException()
         val history = historyRepository.findHistoryByHistoryId(historyId)
             ?: throw SpaceNotFoundException()
-        history.isDeleted = true
-        historyRepository.save(history)
-        val newHistory = createHistory(authentication, spaceId, historyRequestDto)
-        return newHistory
-    }
 
-    fun deleteHistory(authentication: Authentication, spaceId: UUID, historyId: UUID) {
-        userService.authenticationToUser(authentication)
-        val space = spaceRepository.findSpaceBySpaceId(spaceId)
-            ?: throw SpaceNotFoundException()
-        val history = historyRepository.findHistoryByHistoryId(historyId)
-            ?: throw SpaceNotFoundException()
-        history.isDeleted = true
-            historyRepository.save(history)
-
+        space.histories.remove(history)
+        spaceRepository.save(space)
     }
-    private fun getLastPathSegment(path: String):String{
-        return path.split("/").last()
-    }
-
 
 }

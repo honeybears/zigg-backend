@@ -9,7 +9,6 @@ import org.springframework.util.StringUtils
 import org.springframework.web.filter.GenericFilterBean
 
 class JwtAuthenticationFilter(
-
     private val jwtTokenProvider: JwtTokenProvider
 ) : GenericFilterBean() {
     override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain?) {

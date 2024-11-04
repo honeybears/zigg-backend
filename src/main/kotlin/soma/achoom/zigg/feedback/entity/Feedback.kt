@@ -1,55 +1,29 @@
 package soma.achoom.zigg.feedback.entity
 
 import jakarta.persistence.*
-import soma.achoom.zigg.global.util.BaseEntity
+import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.feedback.dto.FeedbackType
-import soma.achoom.zigg.history.entity.History
-import soma.achoom.zigg.spaceuser.entity.SpaceUser
+import soma.achoom.zigg.space.entity.SpaceUser
 import java.util.*
 
 @Entity
-data class Feedback(
+class Feedback(
     @Id
-    var feedbackId: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var feedbackId: Long? = null,
 
     @Enumerated(EnumType.STRING)
-    var feedbackType: FeedbackType? = FeedbackType.USER,
+    var type: FeedbackType? = FeedbackType.USER,
 
-    var feedbackTimeline: String?,
+    var timeline: String?,
 
-    var feedbackMessage: String?,
+    var message: String?,
 
-    @ManyToOne
-    @JoinColumn(name = "history_id")
-    var history: History?,
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", unique = false)
-    var feedbackCreator: SpaceUser?,
+    var creator: SpaceUser,
 
-    @OneToMany(mappedBy = "feedback", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var recipients: MutableSet<FeedbackRecipient> = mutableSetOf(),
+    @ManyToMany(fetch = FetchType.LAZY)
+    var recipients: MutableList<SpaceUser> = mutableListOf(),
 
-    @Column(name = "is_deleted")
-    var isDeleted: Boolean = false
-
-) : BaseEntity() {
-    override fun hashCode(): Int {
-        return Objects.hash(feedbackId)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val feedback = other as Feedback
-        return feedbackId == feedback.feedbackId
-                && feedbackType == feedback.feedbackType
-                && feedbackTimeline == feedback.feedbackTimeline
-                && feedbackMessage == feedback.feedbackMessage
-                && feedbackCreator == feedback.feedbackCreator
-                && createAt == feedback.createAt
-                && updateAt == feedback.updateAt
-                && isDeleted == feedback.isDeleted
-    }
-
-}
+    ) : BaseEntity()

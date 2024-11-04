@@ -4,16 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
-
-import soma.achoom.zigg.auth.dto.OAuth2MetaDataRequestDto
-import soma.achoom.zigg.auth.dto.OAuth2UserRequestDto
-import soma.achoom.zigg.auth.dto.OAuthProviderEnum
+import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.auth.dto.*
 import soma.achoom.zigg.auth.filter.JwtTokenProvider
-import soma.achoom.zigg.user.dto.UserExistsResponseDto
+import soma.achoom.zigg.content.repository.ImageRepository
 import soma.achoom.zigg.user.entity.User
+import soma.achoom.zigg.user.entity.UserRole
 import soma.achoom.zigg.user.exception.UserAlreadyExistsException
 import soma.achoom.zigg.user.repository.UserRepository
-
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -24,40 +22,42 @@ class AuthenticationService @Autowired constructor(
     private var jwtTokenProvider: JwtTokenProvider,
     @Value("\${user.default.profile.images}")
     private val defaultProfileImages: List<String>,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val imageRepository: ImageRepository
 )  {
-
-    fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): UserExistsResponseDto {
-
+    @Transactional(readOnly = true)
+    fun userExistsCheckByOAuthPlatformAndProviderId(oAuth2MetaDataRequestDto: OAuth2MetaDataRequestDto): Boolean {
         runCatching {
             userRepository.findUserByPlatformAndProviderId(
                 OAuthProviderEnum.valueOf(oAuth2MetaDataRequestDto.platform), oAuth2MetaDataRequestDto.providerId
-            ) ?: return UserExistsResponseDto(false)
+            ) ?: return false
         }.onFailure {
-            println(it.message)
-            return UserExistsResponseDto(false)
-        }
-        return UserExistsResponseDto(true)
-    }
 
+            return false
+        }
+        return true
+    }
+    @Transactional(readOnly = true)
+    fun checkNickname(nicknameRequestDto:NicknameValidRequestDto): NicknameValidResponseDto {
+        return NicknameValidResponseDto(userRepository.existsUserByNickname(nicknameRequestDto.nickname))
+    }
     fun generateJWTToken(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
         val user = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
         ) ?: throw IllegalArgumentException("register first")
-        val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+        val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
         val header = HttpHeaders()
         header.set("Authorization", accessToken)
         header.set("platform", oAuth2UserRequestDto.platform)
         user.jwtToken = accessToken
-
-            userRepository.save(user)
+        userRepository.save(user)
 
         return header
     }
-
+    @Transactional(readOnly = false)
     fun registers(oAuth2UserRequestDto: OAuth2UserRequestDto): HttpHeaders {
         oAuth2UserRequestDto.userNickname?: throw IllegalArgumentException("userNickname is required")
-        userRepository.findUserByUserNickname(oAuth2UserRequestDto.userNickname)?.let {
+        userRepository.findUserByNickname(oAuth2UserRequestDto.userNickname)?.let {
             throw UserAlreadyExistsException()
         }
         when (oAuth2UserRequestDto.platform) {
@@ -65,15 +65,12 @@ class AuthenticationService @Autowired constructor(
                 val user = saveOrUpdate(oAuth2UserRequestDto)
 
                 if (verifyGoogleToken(oAuth2UserRequestDto.idToken)) {
-                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
                     user.jwtToken = accessToken
-
                     userRepository.save(user)
-
-
                     return header
                 } else {
                     throw IllegalArgumentException("Invalid access token")
@@ -84,7 +81,7 @@ class AuthenticationService @Autowired constructor(
                 if (verifyKakaoToken(oAuth2UserRequestDto.idToken)) {
                     val user = saveOrUpdate(oAuth2UserRequestDto)
 
-                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+                    val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
                     val header = HttpHeaders()
                     header.set("Authorization", accessToken)
                     header.set("platform", oAuth2UserRequestDto.platform)
@@ -99,13 +96,24 @@ class AuthenticationService @Autowired constructor(
             OAuthProviderEnum.APPLE.name -> {
                 val user = saveOrUpdate(oAuth2UserRequestDto)
 
-                val accessToken = jwtTokenProvider.createTokenWithUserInfo(user, oAuth2UserRequestDto.userInfo)
+                val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
                 val header = HttpHeaders()
                 header.set("Authorization", accessToken)
                 header.set("platform", oAuth2UserRequestDto.platform)
                 user.jwtToken = accessToken
+                userRepository.save(user)
 
-                    userRepository.save(user)
+                return header
+            }
+            OAuthProviderEnum.GUEST.name -> {
+                val user = saveOrUpdate(oAuth2UserRequestDto)
+
+                val accessToken = jwtTokenProvider.createTokenWithUserInfo(user)
+                val header = HttpHeaders()
+                header.set("Authorization", accessToken)
+                header.set("platform", oAuth2UserRequestDto.platform)
+                user.jwtToken = accessToken
+                userRepository.save(user)
 
                 return header
             }
@@ -116,7 +124,6 @@ class AuthenticationService @Autowired constructor(
         }
 
     }
-
     private fun verifyGoogleToken(idToken: String): Boolean {
         val client =
             HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).followRedirects(HttpClient.Redirect.NORMAL)
@@ -146,16 +153,25 @@ class AuthenticationService @Autowired constructor(
 
 
     private fun saveOrUpdate(oAuth2UserRequestDto: OAuth2UserRequestDto): User {
-        val user: User = userRepository.findUserByPlatformAndProviderId(
+        var user: User? = userRepository.findUserByPlatformAndProviderId(
             OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform), oAuth2UserRequestDto.providerId
-        ) ?: User(
-            userNickname = oAuth2UserRequestDto.userNickname,
-            userName = oAuth2UserRequestDto.userName,
-            providerId = oAuth2UserRequestDto.providerId,
-            platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
-            jwtToken = "",
-            profileImageKey = defaultProfileImages.random()
         )
+        if(user == null) {
+            val image = imageRepository.findByImageKey(defaultProfileImages.random()) ?: throw RuntimeException("사진이 없습니다.")
+
+            user = User(
+                nickname = oAuth2UserRequestDto.userNickname,
+                name = oAuth2UserRequestDto.userName,
+                providerId = oAuth2UserRequestDto.providerId,
+                platform = OAuthProviderEnum.valueOf(oAuth2UserRequestDto.platform),
+                jwtToken = "",
+                profileImageKey = image,
+            )
+        }
+
+        if(user.platform == OAuthProviderEnum.GUEST){
+            user.role = UserRole.GUEST
+        }
 
         return userRepository.save(user)
 
