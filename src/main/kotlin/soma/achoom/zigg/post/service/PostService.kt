@@ -5,14 +5,17 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.board.repository.BoardRepository
 import soma.achoom.zigg.comment.dto.CommentResponseDto
 import soma.achoom.zigg.comment.repository.CommentRepository
+import soma.achoom.zigg.content.dto.ImageResponseDto
 import soma.achoom.zigg.content.dto.VideoResponseDto
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.repository.HistoryRepository
+import soma.achoom.zigg.post.dto.PostPageResponseDto
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.dto.PostResponseDto
 import soma.achoom.zigg.post.entity.Post
@@ -37,6 +40,7 @@ class PostService(
     private val s3Service: S3Service,
     private val commentRepository: CommentRepository
 ) {
+    @Transactional(readOnly = false)
     fun createPost(authentication: Authentication, boardId:Long, postRequestDto: PostRequestDto): PostResponseDto {
         val user = userService.authenticationToUser(authentication)
         val board = boardRepository.findById(boardId).orElseThrow { IllegalArgumentException("Board not found") }
@@ -54,11 +58,10 @@ class PostService(
                 )
             }.toMutableSet(),
             videoContent = postRequestDto.postVideoContent?.let {
-                history?.videoKey ?:  Video.fromUrl(
+                history?.videoKey ?: Video.fromUrl(
                     uploader = user,
                     videoUrl = it.videoKey,
                     duration = it.videoDuration
-
                 )
             },
             board = board,
@@ -69,8 +72,8 @@ class PostService(
             postId = post.postId!!,
             postTitle = post.title,
             postMessage = post.textContent,
-            postImageContents = post.imageContents.map { s3Service.getPreSignedGetUrl(it.imageKey) }.toList(),
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) } ?: post.imageContents.firstOrNull()?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+            postImageContents = post.imageContents.map {  ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) }.toList(),
+            postThumbnailImage = post.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey))  } ?: post.imageContents.firstOrNull()?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey))  },
             postVideoContent = post.videoContent?.let {
                 VideoResponseDto(
                     videoUrl = s3Service.getPreSignedGetUrl(post.videoContent!!.videoKey),
@@ -84,18 +87,18 @@ class PostService(
             isLiked = false
         )
     }
-
+    @Transactional(readOnly = true)
     fun getPosts(authentication: Authentication, boardId: Long, page:Int): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val board = boardRepository.findById(boardId).orElseThrow { IllegalArgumentException("Board not found") }
         val sort = Sort.by(Sort.Order.desc("createdAt"))
-        val posts = postRepository.findPostsByBoard(board ,PageRequest.of(page, 10, sort))
+        val posts = postRepository.findPostsByBoard(board ,PageRequest.of(page, 15, sort))
         return posts.map {
             PostResponseDto(
                 postId = it.postId!!,
                 postTitle = it.title,
                 postMessage = it.textContent,
-                postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+                postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 commentCnt = it.commentCnt,
@@ -106,7 +109,7 @@ class PostService(
         }.toList()
 
     }
-
+    @Transactional(readOnly = true)
     fun getPost(authentication:Authentication, boardId:Long, postId: Long): PostResponseDto {
         val user = userService.authenticationToUser(authentication)
         val post =  postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
@@ -115,8 +118,8 @@ class PostService(
             postId = post.postId!!,
             postTitle = post.title,
             postMessage = post.textContent,
-            postImageContents = post.imageContents.map { s3Service.getPreSignedGetUrl(it.imageKey) }.toList(),
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+            postImageContents = post.imageContents.map { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) }.toList(),
+            postThumbnailImage = post.videoThumbnail?.let {ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
             postVideoContent = post.videoContent?.let {
                 VideoResponseDto(
                     videoUrl = s3Service.getPreSignedGetUrl(post.videoContent!!.videoKey),
@@ -160,7 +163,7 @@ class PostService(
         )
 
     }
-
+    @Transactional(readOnly = true)
     fun searchPosts (authentication: Authentication, boardId :Long ,keyword: String, page:Int, ): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val sort = Sort.by(Sort.Order.desc("createdAt"))
@@ -170,7 +173,7 @@ class PostService(
             postId = it.postId!!,
             postTitle = it.title,
             postMessage = it.textContent,
-            postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+            postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey))},
 
             likeCnt = it.likeCnt,
             scrapCnt = it.scrapCnt,
@@ -180,7 +183,7 @@ class PostService(
 
         ) }.toList()
     }
-
+    @Transactional(readOnly = false)
     fun updatePost(authentication: Authentication, postId:Long, postRequestDto:PostRequestDto) : PostResponseDto{
         val user = userService.authenticationToUser(authentication)
 
@@ -216,8 +219,8 @@ class PostService(
             postId = post.postId!!,
             postTitle = post.title,
             postMessage = post.textContent,
-            postImageContents = post.imageContents.map { s3Service.getPreSignedGetUrl(it.imageKey) }.toList(),
-            postThumbnailImage = post.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+            postImageContents = post.imageContents.map { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) }.toList(),
+            postThumbnailImage = post.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
             postVideoContent = post.videoContent?.let {
                 VideoResponseDto(
                     videoUrl = s3Service.getPreSignedGetUrl(post.videoContent!!.videoKey),
@@ -259,7 +262,7 @@ class PostService(
             isLiked = postLikeRepository.existsPostLikeByPostAndUser(post, user)
         )
     }
-
+    @Transactional(readOnly = false)
     fun deletePost(authentication: Authentication, postId: Long){
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
@@ -268,7 +271,7 @@ class PostService(
         }
         postRepository.delete(post)
     }
-
+    @Transactional(readOnly = false)
     fun likeOrUnlikePost(authentication: Authentication, postId: Long): PostResponseDto{
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
@@ -288,7 +291,7 @@ class PostService(
             commentCnt = post.commentCnt
         )
     }
-
+    @Transactional(readOnly = false)
     fun scrapOrUnscrapPost(authentication: Authentication, postId: Long): PostResponseDto{
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findById(postId).orElseThrow { IllegalArgumentException("Post not found") }
@@ -308,7 +311,7 @@ class PostService(
             commentCnt = post.commentCnt
         )
     }
-
+    @Transactional(readOnly = true)
     fun getMyPosts(authentication: Authentication): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val post = postRepository.findPostsByCreator(user)
@@ -317,7 +320,7 @@ class PostService(
                 postId = it.postId!!,
                 postTitle = it.title,
                 postMessage = it.textContent,
-                postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+                postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
@@ -327,6 +330,7 @@ class PostService(
         }.toList()
 
     }
+    @Transactional(readOnly = true)
     fun getMyScraps(authentication: Authentication): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val post = postScrapRepository.findByUser(user).map { it.post }
@@ -335,7 +339,7 @@ class PostService(
                 postId = it.postId!!,
                 postTitle = it.title,
                 postMessage = it.textContent,
-                postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+                postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
@@ -344,6 +348,7 @@ class PostService(
             )
         }.toList()
     }
+    @Transactional(readOnly = true)
     fun getMyLikes(authentication: Authentication): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val post = postLikeRepository.findByUser(user).map { it.post }
@@ -352,7 +357,7 @@ class PostService(
                 postId = it.postId!!,
                 postTitle = it.title,
                 postMessage = it.textContent,
-                postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+                postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
@@ -361,6 +366,7 @@ class PostService(
             )
         }.toList()
     }
+    @Transactional(readOnly = true)
     fun getCommented(authentication: Authentication): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val post = commentRepository.findCommentsByCreator(user).map { it.post }
@@ -369,7 +375,7 @@ class PostService(
                 postId = it.postId!!,
                 postTitle = it.title,
                 postMessage = it.textContent,
-                postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+                postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
