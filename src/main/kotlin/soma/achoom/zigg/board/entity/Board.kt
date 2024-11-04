@@ -11,5 +11,4 @@ class Board(
     @Column(name = "board_name")
     val name:String,
 
-
 ): BaseEntity()

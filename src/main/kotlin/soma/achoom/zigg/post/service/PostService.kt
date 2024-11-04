@@ -6,6 +6,8 @@ import org.springframework.data.domain.Sort
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import soma.achoom.zigg.board.repository.BoardRepository
+import soma.achoom.zigg.comment.dto.CommentResponseDto
+import soma.achoom.zigg.comment.repository.CommentRepository
 import soma.achoom.zigg.content.dto.VideoResponseDto
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
@@ -21,6 +23,7 @@ import soma.achoom.zigg.post.repository.PostLikeRepository
 import soma.achoom.zigg.post.repository.PostRepository
 import soma.achoom.zigg.post.repository.PostScrapRepository
 import soma.achoom.zigg.s3.service.S3Service
+import soma.achoom.zigg.user.dto.UserResponseDto
 import soma.achoom.zigg.user.service.UserService
 
 @Service
@@ -31,7 +34,8 @@ class PostService(
     private val historyRepository: HistoryRepository,
     private val postLikeRepository: PostLikeRepository,
     private val postScrapRepository: PostScrapRepository,
-    private val s3Service: S3Service
+    private val s3Service: S3Service,
+    private val commentRepository: CommentRepository
 ) {
     fun createPost(authentication: Authentication, boardId:Long, postRequestDto: PostRequestDto): PostResponseDto {
         val user = userService.authenticationToUser(authentication)
@@ -75,6 +79,7 @@ class PostService(
             },
             likeCnt = post.likeCnt,
             scrapCnt = post.scrapCnt,
+            commentCnt = post.commentCnt,
             isScraped = false,
             isLiked = false
         )
@@ -93,8 +98,10 @@ class PostService(
                 postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
+                commentCnt = it.commentCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
-                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user)
+                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user),
+
             )
         }.toList()
 
@@ -116,8 +123,38 @@ class PostService(
                     videoDuration = it.duration
                 )
             },
+            comments = commentRepository.findCommentsByPost(post).map {
+                CommentResponseDto(
+                    commentId = it.commentId,
+                    commentMessage = it.textComment,
+                    commentLike = it.likes,
+                    commentCreator = UserResponseDto(
+                        userId = it.creator.userId,
+                        userName = it.creator.name,
+                        userNickname = it.creator.nickname,
+                        profileImageUrl = it.creator.profileImageKey.imageKey,
+                    ),
+                    createdAt = it.createAt,
+                    childComment = it.replies.map {
+                        CommentResponseDto(
+                            commentId = it.commentId,
+                            commentMessage = it.textComment,
+                            commentLike = it.likes,
+                            commentCreator = UserResponseDto(
+                                userId = it.creator.userId,
+                                userName = it.creator.name,
+                                userNickname = it.creator.nickname,
+                                profileImageUrl = it.creator.profileImageKey.imageKey,
+                            ),
+                            createdAt = it.createAt
+                        )
+                    }.toMutableList()
+                )
+            },
+
             likeCnt = post.likeCnt,
             scrapCnt = post.scrapCnt,
+            commentCnt = post.commentCnt,
             isScraped = postScrapRepository.existsPostScrapByPostAndUser(post, user),
             isLiked = postLikeRepository.existsPostLikeByPostAndUser(post, user),
         )
@@ -137,8 +174,10 @@ class PostService(
 
             likeCnt = it.likeCnt,
             scrapCnt = it.scrapCnt,
+            commentCnt = it.commentCnt,
             isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
             isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user)
+
         ) }.toList()
     }
 
@@ -187,6 +226,35 @@ class PostService(
             },
             likeCnt = post.likeCnt,
             scrapCnt = post.scrapCnt,
+            commentCnt = post.commentCnt,
+            comments = commentRepository.findCommentsByPost(post).map {
+                CommentResponseDto(
+                    commentId = it.commentId,
+                    commentMessage = it.textComment,
+                    commentLike = it.likes,
+                    commentCreator = UserResponseDto(
+                        userId = it.creator.userId,
+                        userName = it.creator.name,
+                        userNickname = it.creator.nickname,
+                        profileImageUrl = it.creator.profileImageKey.imageKey,
+                    ),
+                    createdAt = it.createAt,
+                    childComment = it.replies.map {
+                        CommentResponseDto(
+                            commentId = it.commentId,
+                            commentMessage = it.textComment,
+                            commentLike = it.likes,
+                            commentCreator = UserResponseDto(
+                                userId = it.creator.userId,
+                                userName = it.creator.name,
+                                userNickname = it.creator.nickname,
+                                profileImageUrl = it.creator.profileImageKey.imageKey,
+                            ),
+                            createdAt = it.createAt
+                        )
+                    }.toMutableList()
+                )
+            },
             isScraped = postScrapRepository.existsPostScrapByPostAndUser(post, user),
             isLiked = postLikeRepository.existsPostLikeByPostAndUser(post, user)
         )
@@ -216,7 +284,8 @@ class PostService(
             likeCnt = post.likeCnt,
             scrapCnt = post.scrapCnt,
             isScraped = postScrapRepository.existsPostScrapByPostAndUser(post, user),
-            isLiked = postLikeRepository.existsPostLikeByPostAndUser(post, user)
+            isLiked = postLikeRepository.existsPostLikeByPostAndUser(post, user),
+            commentCnt = post.commentCnt
         )
     }
 
@@ -235,7 +304,8 @@ class PostService(
             likeCnt = post.likeCnt,
             scrapCnt = post.scrapCnt,
             isScraped = postScrapRepository.existsPostScrapByPostAndUser(post, user),
-            isLiked = postLikeRepository.existsPostLikeByPostAndUser(post, user)
+            isLiked = postLikeRepository.existsPostLikeByPostAndUser(post, user),
+            commentCnt = post.commentCnt
         )
     }
 
@@ -251,7 +321,8 @@ class PostService(
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
-                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user)
+                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user),
+                commentCnt = it.commentCnt
             )
         }.toList()
 
@@ -268,7 +339,8 @@ class PostService(
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
-                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user)
+                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user),
+                commentCnt = it.commentCnt
             )
         }.toList()
     }
@@ -284,7 +356,25 @@ class PostService(
                 likeCnt = it.likeCnt,
                 scrapCnt = it.scrapCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
-                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user)
+                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user),
+                commentCnt = it.commentCnt
+            )
+        }.toList()
+    }
+    fun getCommented(authentication: Authentication): List<PostResponseDto> {
+        val user = userService.authenticationToUser(authentication)
+        val post = commentRepository.findCommentsByCreator(user).map { it.post }
+        return post.map {
+            PostResponseDto(
+                postId = it.postId!!,
+                postTitle = it.title,
+                postMessage = it.textContent,
+                postThumbnailImage = it.videoThumbnail?.let { s3Service.getPreSignedGetUrl(it.imageKey) },
+                likeCnt = it.likeCnt,
+                scrapCnt = it.scrapCnt,
+                isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
+                isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user),
+                commentCnt = it.commentCnt
             )
         }.toList()
     }

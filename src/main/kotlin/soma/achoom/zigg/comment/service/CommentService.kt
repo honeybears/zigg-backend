@@ -8,8 +8,10 @@ import soma.achoom.zigg.board.repository.BoardRepository
 import soma.achoom.zigg.comment.dto.CommentRequestDto
 import soma.achoom.zigg.comment.dto.CommentResponseDto
 import soma.achoom.zigg.comment.entity.Comment
+import soma.achoom.zigg.comment.entity.CommentLike
 import soma.achoom.zigg.comment.exception.CommentNotFoundException
 import soma.achoom.zigg.comment.exception.CommentUserMissMatchException
+import soma.achoom.zigg.comment.repository.CommentLikeRepository
 import soma.achoom.zigg.comment.repository.CommentRepository
 import soma.achoom.zigg.post.exception.PostNotFoundException
 import soma.achoom.zigg.post.repository.PostRepository
@@ -21,8 +23,10 @@ class CommentService(
     private val commentRepository: CommentRepository,
     private val postRepository: PostRepository,
     private val userService: UserService,
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val commentLikeRepository: CommentLikeRepository
 ){
+
     @Transactional(readOnly = false)
     fun createComment(authentication: Authentication,boardId:Long, postId:Long, commentRequestDto : CommentRequestDto) : CommentResponseDto{
         val user = userService.authenticationToUser(authentication)
@@ -32,9 +36,9 @@ class CommentService(
         val comment = Comment(
             creator = user,
             textComment = commentRequestDto.message,
+            post = post
         )
-        post.comments.add(comment)
-        postRepository.save(post)
+        commentRepository.save(comment)
         return CommentResponseDto(
             commentId = comment.commentId,
             commentLike = comment.likes,
@@ -56,11 +60,12 @@ class CommentService(
 
         val parentComment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
         val childComment = Comment(
+            parentComment = parentComment,
             creator = user,
             textComment = commentRequestDto.message,
+            post = post
         )
-        parentComment.replies.add(childComment)
-        commentRepository.save(parentComment)
+        commentRepository.save(childComment)
 
         return CommentResponseDto(
             commentId = childComment.commentId,
@@ -71,6 +76,18 @@ class CommentService(
                 userName = user.name,
                 userNickname = user.nickname,
                 profileImageUrl = user.profileImageKey.imageKey,
+            ),
+            parentComment = CommentResponseDto(
+                commentId = parentComment.commentId,
+                commentLike = parentComment.likes,
+                commentMessage = parentComment.textComment,
+                commentCreator = UserResponseDto(
+                    userId = parentComment.creator.userId,
+                    userName = parentComment.creator.name,
+                    userNickname = parentComment.creator.nickname,
+                    profileImageUrl = parentComment.creator.profileImageKey.imageKey,
+                ),
+                createdAt = parentComment.createAt,
             ),
             createdAt = childComment.createAt,
         )
@@ -112,14 +129,41 @@ class CommentService(
         )
     }
     @Transactional(readOnly = false)
-    fun deleteComment(authentication: Authentication,commentId: Long){
+    fun deleteComment(authentication: Authentication,boardId: Long, postId: Long, commentId: Long) {
         val user = userService.authenticationToUser(authentication)
+        val post = postRepository.findById(postId).orElseThrow { PostNotFoundException() }
         val comment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
         if(comment.creator != user){
             throw CommentUserMissMatchException()
         }
         comment.isDeleted = true
+
         commentRepository.save(comment)
     }
+    @Transactional(readOnly = false)
+    fun likeComment(authentication: Authentication,boardId:Long, postId:Long, commentId: Long) : CommentResponseDto{
+        val user = userService.authenticationToUser(authentication)
+        val post = postRepository.findById(postId).orElseThrow { PostNotFoundException() }
+        val comment = commentRepository.findById(commentId).orElseThrow { CommentNotFoundException() }
+        val commentLike = CommentLike(
+            user = user,
+            comment = comment
+        )
+        commentLikeRepository.save(commentLike)
+        return CommentResponseDto(
+            commentId = comment.commentId,
+            commentLike = comment.likes,
+            commentMessage = comment.textComment,
+            commentCreator = UserResponseDto(
+                userId = user.userId,
+                userName = user.name,
+                userNickname = user.nickname,
+                profileImageUrl = user.profileImageKey.imageKey,
+            ),
+            createdAt = comment.createAt,
+        )
+
+    }
+
 
 }

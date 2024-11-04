@@ -12,6 +12,7 @@ data class PostResponseDto(
     val postThumbnailImage: String? = null,
     val comments : List<CommentResponseDto> = listOf(),
     val likeCnt: Int,
+    val commentCnt: Int,
     val scrapCnt: Int,
     val isScraped: Boolean,
     val isLiked: Boolean

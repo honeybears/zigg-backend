@@ -2,6 +2,7 @@ plugins {
 	id("org.springframework.boot") version "3.3.1"
 	id("io.spring.dependency-management") version "1.1.5"
 	id("org.asciidoctor.jvm.convert") version "3.3.2"
+	//id("jacoco") version "0.8.12"
 	kotlin("plugin.jpa") version "1.9.24"
 	kotlin("plugin.allopen") version "1.9.24"
 	kotlin("jvm") version "1.9.24"

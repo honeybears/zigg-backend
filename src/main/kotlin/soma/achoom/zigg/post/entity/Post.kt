@@ -36,12 +36,15 @@ class Post(
     @ManyToOne(cascade = [CascadeType.PERSIST])
     var videoThumbnail: Image? = null ,
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val comments: MutableSet<Comment> = mutableSetOf(),
     @Column(name = "like_cnt")
     var likeCnt: Int = 0,
+
     @Column(name = "comment_cnt")
+    var commentCnt: Int = 0,
+
+    @Column(name = "scrap_cnt")
     var scrapCnt: Int = 0,
 
 ) : BaseEntity() {
+
 }
