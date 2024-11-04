@@ -13,13 +13,13 @@ import soma.achoom.zigg.board.service.BoardService
 class BoardController(
     private val boardService: BoardService
 ) {
-    @GetMapping
-    fun getBoards(authentication: Authentication)  : ResponseEntity<List<BoardResponseDto>> {
-        return ResponseEntity.ok(boardService.getBoardList().map{BoardResponseDto(it.boardId!! , it.name)})
-    }
-    @GetMapping("/hot")
-    fun getHotBoards(authentication: Authentication) : ResponseEntity<List<BoardResponseDto>>{
-        return ResponseEntity.ok(boardService.getRecentHotPosts().map{BoardResponseDto(it.postId!!, it.title)})
-    }
+//    @GetMapping
+//    fun getBoards(authentication: Authentication)  : ResponseEntity<List<BoardResponseDto>> {
+//        return ResponseEntity.ok(boardService.getBoardList().map{BoardResponseDto(it.boardId!! , it.name)})
+//    }
+//    @GetMapping("/hot")
+//    fun getHotBoards(authentication: Authentication) : ResponseEntity<List<BoardResponseDto>>{
+//        return ResponseEntity.ok(boardService.getRecentHotPosts().map{BoardResponseDto(it.postId!!, it.title)})
+//    }
 
 }

@@ -19,6 +19,16 @@ import soma.achoom.zigg.global.ResponseDtoManager
 class CommentController(
     private val commentService: CommentService,
 ) {
+    @PostMapping("/{boardId}/{postId}")
+    fun createComment(
+        authentication: Authentication,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        commentRequestDto: CommentRequestDto
+    ): ResponseEntity<CommentResponseDto> {
+        val comment = commentService.createComment(authentication, boardId, postId, commentRequestDto)
+        return ResponseEntity.ok(comment)
+    }
     @PostMapping("/{boardId}/{postId}/{commentId}")
     fun createChildComment(
         authentication: Authentication,
@@ -30,6 +40,17 @@ class CommentController(
         val comment = commentService.createChildComment(authentication, boardId, postId, commentId, commentRequestDto)
         return ResponseEntity.ok(comment)
     }
+    @PatchMapping("/{boardId}/{postId}/{commentId}")
+    fun updateComment(
+        authentication: Authentication,
+        @PathVariable boardId: Long,
+        @PathVariable postId: Long,
+        @PathVariable commentId: Long,
+        commentRequestDto: CommentRequestDto
+    ): ResponseEntity<CommentResponseDto> {
+        val comment = commentService.updateComment(authentication, commentId, commentRequestDto)
+        return ResponseEntity.ok(comment)
+    }
 
     @DeleteMapping("/{boardId}/{postId}/{commentId}")
     fun deleteComment(
@@ -38,7 +59,7 @@ class CommentController(
         @PathVariable postId: Long,
         @PathVariable commentId: Long
     ): ResponseEntity<Void> {
-        commentService.deleteComment(authentication, commentId)
+        commentService.deleteComment(authentication, boardId,postId,commentId)
         return ResponseEntity.noContent().build()
     }
 }

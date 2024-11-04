@@ -1,8 +1,8 @@
 package soma.achoom.zigg.comment.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import soma.achoom.zigg.global.BaseEntity
+import soma.achoom.zigg.post.entity.Post
 import soma.achoom.zigg.user.entity.User
 
 @Entity(name = "comment")
@@ -10,6 +10,12 @@ class Comment(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val commentId : Long? = null,
+
+    @ManyToOne
+    val post:Post,
+
+    @ManyToOne
+    val parentComment: Comment? = null,
 
     @ManyToOne
     @JoinColumn(name = "creator")

@@ -159,12 +159,13 @@ class PostRepositoryTest {
 
         val comment1 = Comment(
             creator = user,
-            textComment = "comment"
+            textComment = "comment",
+            post = post
         )
-        post.comments.add(comment1)
         val comment2 = Comment(
             creator = user,
-            textComment = "comment"
+            textComment = "comment",
+            post = post
         )
         comment1.replies.add(comment2)
         postRepository.save(post)

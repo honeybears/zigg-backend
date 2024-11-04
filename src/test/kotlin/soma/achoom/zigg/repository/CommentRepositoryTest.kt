@@ -7,9 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
+import soma.achoom.zigg.board.entity.Board
+import soma.achoom.zigg.board.repository.BoardRepository
 import soma.achoom.zigg.comment.entity.Comment
 import soma.achoom.zigg.comment.repository.CommentRepository
 import soma.achoom.zigg.data.DummyDataUtil
+import soma.achoom.zigg.post.entity.Post
+import soma.achoom.zigg.post.repository.PostRepository
 import soma.achoom.zigg.s3.config.S3Config
 import soma.achoom.zigg.user.entity.User
 
@@ -17,6 +21,12 @@ import soma.achoom.zigg.user.entity.User
 @Transactional
 @ActiveProfiles("test")
 class CommentRepositoryTest {
+    @Autowired
+    private lateinit var postRepository: PostRepository
+
+    @Autowired
+    private lateinit var boardRepository: BoardRepository
+
     @Autowired
     private lateinit var commentRepository: CommentRepository
     @Autowired
@@ -32,6 +42,17 @@ class CommentRepositoryTest {
 
     @Test
     fun `save comment test`() {
+        val board = Board(
+            name = "test board"
+        )
+        boardRepository.save(board)
+        val post = Post(
+            board = board,
+            title = "test post",
+            textContent = "test content",
+            creator = user
+        )
+        postRepository.save(post)
         // given
         val parentComment = Comment(
             creator = user,
@@ -39,7 +60,9 @@ class CommentRepositoryTest {
             replies = mutableListOf(Comment(
                 creator = user,
                 textComment = "child comment",
-            ))
+                post = post
+            )),
+            post = post
         )
         commentRepository.save(parentComment)
 
@@ -52,6 +75,17 @@ class CommentRepositoryTest {
     }
     @Test
     fun `delete comment test`() {
+        val board = Board(
+            name = "test board"
+        )
+        boardRepository.save(board)
+        val post = Post(
+            board = board,
+            title = "test post",
+            textContent = "test content",
+            creator = user
+        )
+        postRepository.save(post)
         // given
         val parentComment = Comment(
             creator = user,
@@ -59,7 +93,9 @@ class CommentRepositoryTest {
             replies = mutableListOf(Comment(
                 creator = user,
                 textComment = "child comment",
-            ))
+                post = post
+            )),
+            post = post
         )
         commentRepository.save(parentComment)
 
