@@ -9,6 +9,7 @@ import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
 @Entity(name = "post")
+@EntityListeners(PostEntityListener::class)
 class Post(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

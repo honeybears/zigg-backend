@@ -11,4 +11,6 @@ class Board(
     @Column(name = "board_name")
     val name:String,
 
+    var postCount: Int = 0,
+
 ): BaseEntity()

@@ -17,7 +17,6 @@ import soma.achoom.zigg.post.entity.PostLike
 import soma.achoom.zigg.post.repository.PostLikeRepository
 import soma.achoom.zigg.post.repository.PostRepository
 import soma.achoom.zigg.user.repository.UserRepository
-import java.lang.Thread.sleep
 import kotlin.test.Test
 
 @SpringBootTest(classes = [TestConfig::class])
@@ -81,7 +80,6 @@ class PostRepositoryTest {
 
         assert(postRepository.findById(post.postId!!).isEmpty)
 
-
     }
 
     @Test
@@ -90,8 +88,6 @@ class PostRepositoryTest {
         val user = dummyDataUtil.createDummyUser()
 
         val postLike = PostLike(user = user, post = post)
-//        post.likes.add(postLike)
-//        user.likedPosts.add(postLike)
         postLikeRepository.save(postLike)
 
         assert(postLikeRepository.findAll().size == 1)
@@ -169,7 +165,6 @@ class PostRepositoryTest {
         )
         comment1.replies.add(comment2)
         postRepository.save(post)
-
         postRepository.delete(post)
         println(commentRepository.findCommentsByCreator(user).size)
         assert(commentRepository.findCommentsByCreator(user).isEmpty())
