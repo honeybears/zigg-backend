@@ -5,7 +5,6 @@ import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
 @Entity
-@EntityListeners(PostScrapEntityListener::class)
 class PostScrap(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

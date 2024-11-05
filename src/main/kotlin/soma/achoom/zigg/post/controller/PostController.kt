@@ -63,7 +63,7 @@ class PostController(
     }
     @GetMapping("/search/{boardId}")
     fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam("page") page: Int, @RequestParam("keyword") keyword: String) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.searchPosts(authentication, boardId, keyword, page )
+        val posts = postService.searchPosts(authentication, boardId, keyword, page)
         return ResponseEntity.ok(posts)
     }
     @GetMapping("/my")

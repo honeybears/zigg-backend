@@ -8,9 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
-import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_THUMBNAIL_URL
-import soma.achoom.zigg.TestConfig.Companion.HISTORY_VIDEO_URL
-import soma.achoom.zigg.TestConfig.Companion.PROFILE_IMAGE_URL
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.board.entity.Board
 import soma.achoom.zigg.board.repository.BoardRepository
@@ -66,9 +63,7 @@ class CommentServiceTest {
         val auth1 = dummyDataUtil.createDummyAuthentication(user1)
         val first = commentService.createComment(auth1, board.boardId!!, post.postId!!, CommentRequestDto("Test Comment"))
         assert(first.commentMessage == "Test Comment")
-        println(post.commentCnt)
 
-        assert(post.commentCnt == 1)
     }
     @Test
     fun `create child comment`(){
@@ -80,8 +75,7 @@ class CommentServiceTest {
         val second = commentService.createChildComment(auth2, board.boardId!!, post.postId!!, first.commentId!!, CommentRequestDto("Test Child Comment"))
         assert(second.commentMessage == "Test Child Comment")
         assert(second.parentComment?.commentId == first.commentId)
-        println(post.commentCnt)
-        assert(post.commentCnt == 2)
+
     }
     @Test
     fun `comment like test`(){
@@ -92,12 +86,9 @@ class CommentServiceTest {
         val user2 = dummyDataUtil.createDummyUser()
         val auth2 = dummyDataUtil.createDummyAuthentication(user2)
         val second = commentService.createChildComment(auth2, board.boardId!!, post.postId!!, first.commentId!!, CommentRequestDto("Test Child Comment"))
-        commentService.likeComment(auth1,board.boardId!!, post.postId!!,first.commentId!!)
+        commentService.likeOrUnlikeComment(auth1,board.boardId!!, post.postId!!,first.commentId!!)
 
-        commentService.likeComment(auth1,board.boardId!!, post.postId!!,second.commentId!!)
-        println(post.commentCnt)
-
-        assert(post.commentCnt == 2)
+        commentService.likeOrUnlikeComment(auth1,board.boardId!!, post.postId!!,second.commentId!!)
         postService.getPost(auth1,board.boardId!!,post.postId!!).let {
             it.comments.forEach { comment ->
                 if(comment.commentId == first.commentId){
@@ -120,7 +111,6 @@ class CommentServiceTest {
         val second = commentService.createChildComment(auth2, board.boardId!!, post.postId!!, first.commentId!!, CommentRequestDto("Test Child Comment"))
         println(second)
         commentService.deleteComment(auth1,board.boardId!!, post.postId!!,first.commentId!!)
-        println(post.commentCnt)
         println(postService.getPost(auth1,board.boardId!!,post.postId!!))
     }
 }

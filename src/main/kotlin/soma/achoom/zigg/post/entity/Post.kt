@@ -2,14 +2,12 @@ package soma.achoom.zigg.post.entity
 
 import jakarta.persistence.*
 import soma.achoom.zigg.board.entity.Board
-import soma.achoom.zigg.comment.entity.Comment
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
 import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
 @Entity(name = "post")
-@EntityListeners(PostEntityListener::class)
 class Post(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,15 +34,6 @@ class Post(
 
     @ManyToOne(cascade = [CascadeType.PERSIST])
     var videoThumbnail: Image? = null ,
-
-    @Column(name = "like_cnt")
-    var likeCnt: Int = 0,
-
-    @Column(name = "comment_cnt")
-    var commentCnt: Int = 0,
-
-    @Column(name = "scrap_cnt")
-    var scrapCnt: Int = 0,
 
 ) : BaseEntity() {
 

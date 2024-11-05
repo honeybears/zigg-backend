@@ -104,20 +104,16 @@ class PostServiceTest {
         val user = dummyDataUtil.createDummyUser()
         val auth = dummyDataUtil.createDummyAuthentication(user)
         postService.likeOrUnlikePost(auth, post.postId!!)
-        assert(postRepository.findById(post.postId!!).get().likeCnt == 1)
 
         postService.likeOrUnlikePost(auth, post.postId!!)
-        assert(postRepository.findById(post.postId!!).get().likeCnt == 0)
     }
     @Test
     fun `scrap unscrap post`() {
         val user = dummyDataUtil.createDummyUser()
         val auth = dummyDataUtil.createDummyAuthentication(user)
         postService.scrapOrUnscrapPost(auth, post.postId!!)
-        assert(postRepository.findById(post.postId!!).get().scrapCnt == 1)
 
         postService.scrapOrUnscrapPost(auth, post.postId!!)
-        assert(postRepository.findById(post.postId!!).get().scrapCnt == 0)
     }
     @Test
     fun `get post`(){

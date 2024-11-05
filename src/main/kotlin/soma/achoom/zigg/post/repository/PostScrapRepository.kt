@@ -10,4 +10,5 @@ interface PostScrapRepository : JpaRepository<PostScrap, Long> {
     fun findByPost(post: Post): List<PostScrap>
     fun existsPostScrapByPostAndUser(post: Post, user: User): Boolean
     fun findByPostAndUser(post: Post, user: User): PostScrap?
+    fun countPostScrapsByPost(post: Post): Long
 }

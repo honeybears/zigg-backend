@@ -10,7 +10,4 @@ class Board(
     var boardId: Long? = null,
     @Column(name = "board_name")
     val name:String,
-
-    var postCount: Int = 0,
-
 ): BaseEntity()

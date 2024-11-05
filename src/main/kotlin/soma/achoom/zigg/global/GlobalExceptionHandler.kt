@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import soma.achoom.zigg.comment.exception.AlreadyChildCommentException
 import soma.achoom.zigg.comment.exception.CommentNotFoundException
 import soma.achoom.zigg.comment.exception.CommentUserMissMatchException
 import soma.achoom.zigg.content.exception.ImageNotfoundException
@@ -120,5 +121,9 @@ class GlobalExceptionHandler {
     @ExceptionHandler(ImageNotfoundException::class)
     fun handleImageNotFound(e: ImageNotfoundException): ResponseEntity<Any> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+    }
+    @ExceptionHandler(AlreadyChildCommentException::class)
+    fun handleAlreadyChildComment(e: AlreadyChildCommentException): ResponseEntity<Any> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
     }
 }
