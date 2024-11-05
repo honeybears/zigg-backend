@@ -5,7 +5,6 @@ import soma.achoom.zigg.global.BaseEntity
 import soma.achoom.zigg.user.entity.User
 
 @Entity
-@EntityListeners(PostLikeEntityListener::class)
 class PostLike(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

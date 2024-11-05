@@ -42,7 +42,6 @@ class PostLikeRepositoryTest {
 
         val post = Post(
             creator = user,
-            likeCnt = 0,
             title = "title",
             textContent = "content",
             board = board

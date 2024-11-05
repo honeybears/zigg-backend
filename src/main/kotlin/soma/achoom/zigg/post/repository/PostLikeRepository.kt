@@ -10,4 +10,5 @@ interface PostLikeRepository : JpaRepository<PostLike, Long> {
     fun findByPost(post: Post):List<PostLike>
     fun existsPostLikeByPostAndUser(post: Post, user: User):Boolean
     fun findByPostAndUser(post: Post, user: User):PostLike?
+    fun countPostLikesByPost(post: Post):Long
 }

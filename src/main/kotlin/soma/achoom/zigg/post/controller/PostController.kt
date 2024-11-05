@@ -63,7 +63,7 @@ class PostController(
     }
     @GetMapping("/search/{boardId}")
     fun searchPosts(authentication: Authentication,@PathVariable boardId:Long, @RequestParam("page") page: Int, @RequestParam("keyword") keyword: String) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.searchPosts(authentication, boardId, keyword, page )
+        val posts = postService.searchPosts(authentication, boardId, keyword, page)
         return ResponseEntity.ok(posts)
     }
     @GetMapping("/my")
@@ -83,12 +83,17 @@ class PostController(
     }
     @GetMapping("/scraps")
     fun getMyScraps(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.getMyScraps(authentication)
+        val posts = postService.getScrapedPosts(authentication)
         return ResponseEntity.ok(posts)
     }
     @GetMapping("/likes")
     fun getMyLikes(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.getMyLikes(authentication)
+        val posts = postService.getLikedPosts(authentication)
+        return ResponseEntity.ok(posts)
+    }
+    @GetMapping("/commented")
+    fun getMyCommentedPosts(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.getCommentedPosts(authentication)
         return ResponseEntity.ok(posts)
     }
 }

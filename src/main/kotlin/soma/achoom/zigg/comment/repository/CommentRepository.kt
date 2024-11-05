@@ -8,4 +8,5 @@ import soma.achoom.zigg.user.entity.User
 interface CommentRepository : JpaRepository<Comment,Long> {
     fun findCommentsByCreator(user: User): List<Comment>
     fun findCommentsByPost(post: Post): List<Comment>
+    fun countCommentsByPost(post: Post): Long
 }

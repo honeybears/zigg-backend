@@ -26,7 +26,7 @@ class Comment(
     @Column(name = "likes")
     var likes : Int = 0,
 
-    @OneToMany(cascade = [CascadeType.PERSIST], orphanRemoval = true)
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     val replies: MutableList<Comment> = mutableListOf(),
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false
