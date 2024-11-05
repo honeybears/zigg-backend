@@ -109,4 +109,18 @@ class CommentServiceTest {
             }
         }
     }
+    @Test
+    fun `delete parent comment`(){
+        val user1 = dummyDataUtil.createDummyUser()
+        val auth1 = dummyDataUtil.createDummyAuthentication(user1)
+        val first = commentService.createComment(auth1, board.boardId!!, post.postId!!, CommentRequestDto("Test Comment"))
+
+        val user2 = dummyDataUtil.createDummyUser()
+        val auth2 = dummyDataUtil.createDummyAuthentication(user2)
+        val second = commentService.createChildComment(auth2, board.boardId!!, post.postId!!, first.commentId!!, CommentRequestDto("Test Child Comment"))
+        println(second)
+        commentService.deleteComment(auth1,board.boardId!!, post.postId!!,first.commentId!!)
+        println(post.commentCnt)
+        println(postService.getPost(auth1,board.boardId!!,post.postId!!))
+    }
 }

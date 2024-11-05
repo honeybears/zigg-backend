@@ -59,9 +59,6 @@ class UserServiceTest {
     fun setup() {
 
         Mockito.`when`(s3Service.getPreSignedGetUrl(anyString())).thenReturn(SPACE_IMAGE_URL)
-
-
-
         userWithFCM = dummyDataUtil.createDummyUserWithMultiFCMToken(3)
         authentication = dummyDataUtil.createDummyAuthentication(userWithFCM)
         userRepository.save(userWithFCM)
@@ -94,22 +91,5 @@ class UserServiceTest {
         assert(userRepository.findUserByUserId(userWithFCM.userId!!) == null)
         assert(fcmRepository.findAll().size == 0)
     }
-
-//    @Test
-//    fun `Delete user with complex`() {
-//        val space = dummyDataUtil.createDummySpace()
-//        spaceRepository.save(space)
-//        val spaceUser = dummyDataUtil.createDummySpaceUser(space, userWithFCM)
-//        spaceUserRepository.save(spaceUser)
-//        userWithFCM.spaces.add(spaceUser)
-//        userWithFCM = userRepository.save(userWithFCM)
-//        val history = dummyDataUtil.createDummyHistory(space)
-//        historyRepository.save(history)
-//        userService.deleteUser(authentication)
-//        assert(userRepository.findUserByUserId(userWithFCM.userId) == null)
-//        assert(fcmRepository.findAll().size == 0)
-//        assert(spaceUserRepository.findSpaceUsersByUser(userWithFCM).isEmpty())
-//    }
-
 
 }

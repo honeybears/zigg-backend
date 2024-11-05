@@ -65,6 +65,7 @@ class CommentService(
             textComment = commentRequestDto.message,
             post = post
         )
+
         commentRepository.save(childComment)
 
         return CommentResponseDto(

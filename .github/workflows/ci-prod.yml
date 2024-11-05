@@ -64,7 +64,7 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
           aws_secret_key: ${{ secrets.AWS_ACCESS_KEY_SECRET_PROD }}
           application_name: zigg-svc-prod
-          environment_name: Zigg-svc-dev-prod
+          environment_name: Zigg-svc-prod-env
           region: ${{ secrets.AWS_REGION }}
           version_label: ${{ env.RC_TAG }}
           deployment_package: .elasticbeanstalk/docker-compose.yml

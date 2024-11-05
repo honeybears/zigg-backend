@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional
 import soma.achoom.zigg.TestConfig.Companion.SPACE_IMAGE_URL
 import soma.achoom.zigg.board.entity.Board
 import soma.achoom.zigg.board.repository.BoardRepository
+import soma.achoom.zigg.comment.dto.CommentRequestDto
+import soma.achoom.zigg.comment.repository.CommentRepository
+import soma.achoom.zigg.comment.service.CommentService
 import soma.achoom.zigg.data.DummyDataUtil
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.entity.Post
@@ -23,6 +26,12 @@ import soma.achoom.zigg.s3.service.S3Service
 @Transactional
 class PostServiceTest {
     @Autowired
+    private lateinit var commentRepository: CommentRepository
+
+    @Autowired
+    private lateinit var commentService: CommentService
+
+    @Autowired
     private lateinit var postService: PostService
 
     @Autowired
@@ -30,8 +39,10 @@ class PostServiceTest {
 
     @Autowired
     private lateinit var s3Service: S3Service
+
     @Autowired
     private lateinit var boardRepository: BoardRepository
+
     @Autowired
     private lateinit var postRepository: PostRepository
 
@@ -142,5 +153,23 @@ class PostServiceTest {
         val auth = dummyDataUtil.createDummyAuthentication(user)
         val posts = postService.getCommented(auth)
         assert(posts.isEmpty())
+
+        commentService.createComment(auth, post.postId!!, post.postId!!, CommentRequestDto("test comment"))
+        val commentedPosts = postService.getCommented(auth)
+        assert(commentedPosts[0].postId == post.postId)
+    }
+    @Test
+    fun `delete post with comments`(){
+        val user = dummyDataUtil.createDummyUser()
+        val auth = dummyDataUtil.createDummyAuthentication(user)
+        val newPost = postService.createPost(
+            auth, board.boardId!!, PostRequestDto(
+                postTitle = "test post",
+                postMessage = "test content",
+            )
+        )
+        commentService.createComment(auth, board.boardId!!, newPost.postId!!, CommentRequestDto("test comment"))
+        assert(postRepository.findById(newPost.postId).isEmpty)
+        assert(commentRepository.findAll().isEmpty())
     }
 }
