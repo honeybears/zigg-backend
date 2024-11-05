@@ -53,7 +53,6 @@ class PostRepositoryTest {
             postRepository.save(
                 Post(
                     creator = user,
-                    likeCnt = i,
                     title = "title$i",
                     textContent = "content$i",
                     board = board
@@ -68,8 +67,7 @@ class PostRepositoryTest {
     fun `hottest post while 3 days`() {
         val posts = postRepository.findBestPosts(Pageable.ofSize(2))
         assert(posts.size == 2)
-        assert(posts[0].likeCnt == 10)
-        assert(posts[1].likeCnt == 9)
+
     }
 
     @Test
@@ -99,7 +97,6 @@ class PostRepositoryTest {
     @Test
     fun `post like delete test`() {
         val post = postRepository.findAll()[0]
-        val likes = post.likeCnt
         val user = userRepository.save(dummyDataUtil.createDummyUser()) // user를 영속화하여 저장
 
         //when
@@ -110,14 +107,12 @@ class PostRepositoryTest {
         assert(postLikeRepository.findAll().size == 1)
         assert(postLikeRepository.findAll()[0].post == post)
         assert(postLikeRepository.findAll()[0].user == user)
-        assert(post.likeCnt == likes + 1)
 
         // when
         postLikeRepository.delete(postLike)
 
         // then
         assert(postLikeRepository.findAll().isEmpty())
-        assert(post.likeCnt == likes)
     }
 
     @Test

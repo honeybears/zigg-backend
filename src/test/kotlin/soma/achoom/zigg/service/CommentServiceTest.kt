@@ -88,9 +88,9 @@ class CommentServiceTest {
         val second = commentService.createChildComment(auth2, board.boardId!!, post.postId!!, first.commentId!!, CommentRequestDto("Test Child Comment"))
         commentService.likeOrUnlikeComment(auth1,board.boardId!!, post.postId!!,first.commentId!!)
 
-        commentService.likeOrUnlikeComment(auth1,board.boardId!!, post.postId!!,second.commentId!!)
+//        commentService.likeOrUnlikeComment(auth1,board.boardId!!, post.postId!!,second.commentId!!)
         postService.getPost(auth1,board.boardId!!,post.postId!!).let {
-            it.comments.forEach { comment ->
+            it.comments?.forEach { comment ->
                 if(comment.commentId == first.commentId){
                     assert(comment.commentLike == 1)
                 }

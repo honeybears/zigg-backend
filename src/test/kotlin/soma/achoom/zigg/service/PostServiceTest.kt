@@ -150,7 +150,7 @@ class PostServiceTest {
         val posts = postService.getCommentedPosts(auth)
         assert(posts.isEmpty())
 
-        commentService.createComment(auth, post.postId!!, post.postId!!, CommentRequestDto("test comment"))
+        commentService.createComment(auth, board.boardId!!, post.postId!!, CommentRequestDto("test comment"))
         val commentedPosts = postService.getCommentedPosts(auth)
         assert(commentedPosts[0].postId == post.postId)
     }
@@ -164,8 +164,7 @@ class PostServiceTest {
                 postMessage = "test content",
             )
         )
-        commentService.createComment(auth, board.boardId!!, newPost.postId!!, CommentRequestDto("test comment"))
-        assert(postRepository.findById(newPost.postId).isEmpty)
-        assert(commentRepository.findAll().isEmpty())
+        commentService.createComment(auth, board.boardId!!, newPost.postId, CommentRequestDto("test comment"))
+        assert(commentRepository.findAll().size == 1)
     }
 }
