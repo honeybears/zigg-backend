@@ -127,7 +127,7 @@ class PostServiceTest {
         val user = dummyDataUtil.createDummyUser()
         val auth = dummyDataUtil.createDummyAuthentication(user)
         postService.scrapOrUnscrapPost(auth, post.postId!!)
-        val scraps = postService.getMyScraps(auth)
+        val scraps = postService.getScrapedPosts(auth)
         assert(scraps[0].postId == post.postId)
     }
     @Test
@@ -147,11 +147,11 @@ class PostServiceTest {
     fun `get my commented posts`(){
         val user = dummyDataUtil.createDummyUser()
         val auth = dummyDataUtil.createDummyAuthentication(user)
-        val posts = postService.getCommented(auth)
+        val posts = postService.getCommentedPosts(auth)
         assert(posts.isEmpty())
 
         commentService.createComment(auth, post.postId!!, post.postId!!, CommentRequestDto("test comment"))
-        val commentedPosts = postService.getCommented(auth)
+        val commentedPosts = postService.getCommentedPosts(auth)
         assert(commentedPosts[0].postId == post.postId)
     }
     @Test

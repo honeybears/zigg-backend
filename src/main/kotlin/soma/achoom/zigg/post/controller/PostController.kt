@@ -83,12 +83,17 @@ class PostController(
     }
     @GetMapping("/scraps")
     fun getMyScraps(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.getMyScraps(authentication)
+        val posts = postService.getScrapedPosts(authentication)
         return ResponseEntity.ok(posts)
     }
     @GetMapping("/likes")
     fun getMyLikes(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
-        val posts = postService.getMyLikes(authentication)
+        val posts = postService.getLikedPosts(authentication)
+        return ResponseEntity.ok(posts)
+    }
+    @GetMapping("/commented")
+    fun getMyCommentedPosts(authentication: Authentication) : ResponseEntity<List<PostResponseDto>>{
+        val posts = postService.getCommentedPosts(authentication)
         return ResponseEntity.ok(posts)
     }
 }

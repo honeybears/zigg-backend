@@ -1,6 +1,5 @@
 package soma.achoom.zigg.post.service
 
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.core.Authentication
@@ -13,9 +12,7 @@ import soma.achoom.zigg.content.dto.ImageResponseDto
 import soma.achoom.zigg.content.dto.VideoResponseDto
 import soma.achoom.zigg.content.entity.Image
 import soma.achoom.zigg.content.entity.Video
-import soma.achoom.zigg.global.ResponseDtoManager
 import soma.achoom.zigg.history.repository.HistoryRepository
-import soma.achoom.zigg.post.dto.PostPageResponseDto
 import soma.achoom.zigg.post.dto.PostRequestDto
 import soma.achoom.zigg.post.dto.PostResponseDto
 import soma.achoom.zigg.post.entity.Post
@@ -56,7 +53,7 @@ class PostService(
                     uploader = user,
                     imageUrl = it
                 )
-            }.toMutableSet(),
+            }.toMutableList(),
             videoContent = postRequestDto.postVideoContent?.let {
                 history?.videoKey ?: Video.fromUrl(
                     uploader = user,
@@ -98,7 +95,7 @@ class PostService(
                 postId = it.postId!!,
                 postTitle = it.title,
                 postMessage = it.textContent,
-                postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey)) },
+                postThumbnailImage = it.videoThumbnail?.let { video -> ImageResponseDto(s3Service.getPreSignedGetUrl(video.imageKey)) } ?: it.imageContents.firstOrNull()?.let { image -> ImageResponseDto(s3Service.getPreSignedGetUrl(image.imageKey)) },
                 likeCnt = postLikeRepository.countPostLikesByPost(it),
                 scrapCnt = postScrapRepository.countPostScrapsByPost(it),
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
@@ -200,7 +197,7 @@ class PostService(
                 uploader = post.creator,
                 imageUrl = it
             )
-        }.toMutableSet()
+        }.toMutableList()
         post.videoContent = postRequestDto.postVideoContent?.let {
             Video.fromUrl(
                 uploader = post.creator,
@@ -331,7 +328,7 @@ class PostService(
 
     }
     @Transactional(readOnly = true)
-    fun getMyScraps(authentication: Authentication): List<PostResponseDto> {
+    fun getScrapedPosts(authentication: Authentication): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val post = postScrapRepository.findByUser(user).map { it.post }
         return post.map {
@@ -349,7 +346,7 @@ class PostService(
         }.toList()
     }
     @Transactional(readOnly = true)
-    fun getMyLikes(authentication: Authentication): List<PostResponseDto> {
+    fun getLikedPosts(authentication: Authentication): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
         val post = postLikeRepository.findByUser(user).map { it.post }
         return post.map {
@@ -367,9 +364,9 @@ class PostService(
         }.toList()
     }
     @Transactional(readOnly = true)
-    fun getCommented(authentication: Authentication): List<PostResponseDto> {
+    fun getCommentedPosts(authentication: Authentication): List<PostResponseDto> {
         val user = userService.authenticationToUser(authentication)
-        val post = commentRepository.findCommentsByCreator(user).map { it.post }
+        val post = commentRepository.findCommentsByCreator(user).filter{!it.isDeleted}.map { it.post }
         return post.map {
             PostResponseDto(
                 postId = it.postId!!,

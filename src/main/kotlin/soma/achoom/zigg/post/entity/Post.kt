@@ -27,14 +27,14 @@ class Post(
     var textContent: String,
 
     @OneToMany(cascade = [CascadeType.PERSIST])
-    var imageContents: MutableSet<Image> = mutableSetOf(),
+    var imageContents: MutableList<Image> = mutableListOf(),
 
     @ManyToOne(cascade = [CascadeType.PERSIST])
     var videoContent: Video? = null,
 
     @ManyToOne(cascade = [CascadeType.PERSIST])
-    var videoThumbnail: Image? = null ,
+    var videoThumbnail: Image? = null,
 
-) : BaseEntity() {
+    ) : BaseEntity() {
 
 }
