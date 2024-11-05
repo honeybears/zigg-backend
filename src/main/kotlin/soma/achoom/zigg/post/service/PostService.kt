@@ -104,7 +104,6 @@ class PostService(
                 commentCnt = it.commentCnt,
                 isScraped = postScrapRepository.existsPostScrapByPostAndUser(it, user),
                 isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user),
-
             )
         }.toList()
 
@@ -126,7 +125,9 @@ class PostService(
                     videoDuration = it.duration
                 )
             },
-            comments = commentRepository.findCommentsByPost(post).map {
+            comments = commentRepository.findCommentsByPost(post).filter{
+                it.parentComment == null
+            }.map {
                 CommentResponseDto(
                     commentId = it.commentId,
                     commentMessage = it.textComment,
@@ -154,7 +155,6 @@ class PostService(
                     }.toMutableList()
                 )
             },
-
             likeCnt = post.likeCnt,
             scrapCnt = post.scrapCnt,
             commentCnt = post.commentCnt,
@@ -174,7 +174,6 @@ class PostService(
             postTitle = it.title,
             postMessage = it.textContent,
             postThumbnailImage = it.videoThumbnail?.let { ImageResponseDto(s3Service.getPreSignedGetUrl(it.imageKey))},
-
             likeCnt = it.likeCnt,
             scrapCnt = it.scrapCnt,
             commentCnt = it.commentCnt,
@@ -382,6 +381,6 @@ class PostService(
                 isLiked = postLikeRepository.existsPostLikeByPostAndUser(it, user),
                 commentCnt = it.commentCnt
             )
-        }.toList()
+        }.toSet().toList()
     }
 }
